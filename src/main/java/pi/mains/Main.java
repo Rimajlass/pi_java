@@ -14,7 +14,7 @@ public class Main {
         List<User> users = new ArrayList<>();
 
         try {
-            String query = "SELECT * FROM user"; // ⚠️ ou "users"
+            String query = "SELECT * FROM user";
             Statement st = cnx.createStatement();
             ResultSet rs = st.executeQuery(query);
 
@@ -36,13 +36,12 @@ public class Main {
                 users.add(u);
             }
 
-            // 🔥 affichage
             for (User u : users) {
                 System.out.println(u);
             }
 
         } catch (SQLException e) {
-            System.out.println("❌ " + e.getMessage());
+            System.out.println("non " + e.getMessage());
         }
     }
 }
