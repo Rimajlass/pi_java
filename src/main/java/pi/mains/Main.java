@@ -1,47 +1,50 @@
 package pi.mains;
 
-import pi.tools.MyDatabase;
+import pi.entities.Revenue;
 import pi.entities.User;
+import pi.services.RevenueService;
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
+        RevenueService revenueService = new RevenueService();
 
-        Connection cnx = MyDatabase.getInstance().getCnx();
-        List<User> users = new ArrayList<>();
+        User user = new User();
+        user.setId(1);
 
         try {
-            String query = "SELECT * FROM user";
-            Statement st = cnx.createStatement();
-            ResultSet rs = st.executeQuery(query);
+            Revenue revenue = new Revenue(
+                    user,
+                    1200.0,
+                    "salary",
+                    LocalDate.now(),
+                    "simple revenue test",
+                    LocalDateTime.now()
+            );
 
-            while (rs.next()) {
-                User u = new User();
+            revenueService.add(revenue);
+            System.out.println("Added revenue: " + revenue);
 
-                u.setId(rs.getInt("id"));
-                u.setNom(rs.getString("nom"));
-                u.setEmail(rs.getString("email"));
-                u.setPassword(rs.getString("password"));
-                u.setRoles(rs.getString("roles"));
-                u.setSoldeTotal(rs.getDouble("solde_total"));
+            Revenue fetchedRevenue = revenueService.getById(revenue.getId());
+            System.out.println("Fetched revenue: " + fetchedRevenue);
 
-                Date d = rs.getDate("date_inscription");
-                if (d != null) {
-                    u.setDateInscription(d.toLocalDate());
-                }
+            revenue.setAmount(1400.0);
+            revenueService.update(revenue);
+            System.out.println("Updated revenue: " + revenueService.getById(revenue.getId()));
 
-                users.add(u);
-            }
+            List<Revenue> revenues = revenueService.getAll();
+            System.out.println("Revenue count: " + revenues.size());
 
-            for (User u : users) {
-                System.out.println(u);
-            }
-
+            revenueService.delete(revenue.getId());
+            System.out.println("Deleted revenue id: " + revenue.getId());
         } catch (SQLException e) {
-            System.out.println("non " + e.getMessage());
+            System.out.println("SQL error: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Validation error: " + e.getMessage());
         }
     }
 }
