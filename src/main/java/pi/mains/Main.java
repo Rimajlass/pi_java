@@ -1,113 +1,50 @@
 package pi.mains;
 
-import pi.entities.FinancialGoal;
-import pi.entities.SavingAccount;
-import pi.services.FinancialGoalService;
-import pi.services.SavingAccountService;
+import pi.entities.Revenue;
+import pi.entities.User;
+import pi.services.RevenueService;
 
-import java.sql.Date;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
+        RevenueService revenueService = new RevenueService();
 
-        SavingAccountService sas = new SavingAccountService();
-        FinancialGoalService fgs = new FinancialGoalService();
+        User user = new User();
+        user.setId(1);
 
-        System.out.println("=========== TEST CRUD SAVING_ACCOUNT ===========");
-
-        // 1) AJOUTER SavingAccount
-        SavingAccount saving = new SavingAccount(1, 1200.0, Date.valueOf("2026-04-08"), 4.5);
-        sas.ajouter(saving);
-
-        // 2) AFFICHER SavingAccount
-        System.out.println("----- Liste des saving accounts après ajout -----");
-        List<SavingAccount> savingAccounts = sas.afficher();
-        for (SavingAccount sa : savingAccounts) {
-            System.out.println(sa);
-        }
-
-        // 3) MODIFIER SavingAccount
-        if (!savingAccounts.isEmpty()) {
-            int savingId = savingAccounts.get(savingAccounts.size() - 1).getId();
-
-            SavingAccount savingModifie = new SavingAccount(
-                    savingId,
-                    1,
-                    2000.0,
-                    Date.valueOf("2026-04-10"),
-                    6.0
+        try {
+            Revenue revenue = new Revenue(
+                    user,
+                    1200.0,
+                    "salary",
+                    LocalDate.now(),
+                    "simple revenue test",
+                    LocalDateTime.now()
             );
-            sas.modifier(savingModifie);
 
-            System.out.println("----- Liste des saving accounts après modification -----");
-            for (SavingAccount sa : sas.afficher()) {
-                System.out.println(sa);
-            }
+            revenueService.add(revenue);
+            System.out.println("Added revenue: " + revenue);
 
-            System.out.println("=========== TEST CRUD FINANCIAL_GOAL ===========");
+            Revenue fetchedRevenue = revenueService.getById(revenue.getId());
+            System.out.println("Fetched revenue: " + fetchedRevenue);
 
-            // 4) AJOUTER FinancialGoal lié au saving account modifié
-            FinancialGoal goal = new FinancialGoal(
-                    savingId,
-                    "Acheter telephone",
-                    3000.0,
-                    500.0,
-                    Date.valueOf("2026-12-31"),
-                    3
-            );
-            fgs.ajouter(goal);
+            revenue.setAmount(1400.0);
+            revenueService.update(revenue);
+            System.out.println("Updated revenue: " + revenueService.getById(revenue.getId()));
 
-            // 5) AFFICHER FinancialGoal
-            System.out.println("----- Liste des financial goals après ajout -----");
-            List<FinancialGoal> goals = fgs.afficher();
-            for (FinancialGoal fg : goals) {
-                System.out.println(fg);
-            }
+            List<Revenue> revenues = revenueService.getAll();
+            System.out.println("Revenue count: " + revenues.size());
 
-            // 6) MODIFIER FinancialGoal
-            if (!goals.isEmpty()) {
-                int goalId = goals.get(goals.size() - 1).getId();
-
-                FinancialGoal goalModifie = new FinancialGoal(
-                        goalId,
-                        savingId,
-                        "Acheter PC",
-                        4500.0,
-                        1200.0,
-                        Date.valueOf("2026-11-30"),
-                        2
-                );
-                fgs.modifier(goalModifie);
-
-                System.out.println("----- Liste des financial goals après modification -----");
-                for (FinancialGoal fg : fgs.afficher()) {
-                    System.out.println(fg);
-                }
-
-                // 7) SUPPRIMER FinancialGoal
-                fgs.supprimer(goalId);
-
-                System.out.println("----- Liste des financial goals après suppression -----");
-                for (FinancialGoal fg : fgs.afficher()) {
-                    System.out.println(fg);
-                }
-            } else {
-                System.out.println("Aucun financial goal trouvé pour le test de modification/suppression.");
-            }
-
-            // 8) SUPPRIMER SavingAccount
-            sas.supprimer(savingId);
-
-            System.out.println("----- Liste des saving accounts après suppression -----");
-            for (SavingAccount sa : sas.afficher()) {
-                System.out.println(sa);
-            }
-
-        } else {
-            System.out.println("Aucun saving account trouvé pour le test de modification/suppression.");
+            revenueService.delete(revenue.getId());
+            System.out.println("Deleted revenue id: " + revenue.getId());
+        } catch (SQLException e) {
+            System.out.println("SQL error: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Validation error: " + e.getMessage());
         }
-
-        System.out.println("=========== FIN DES TESTS ===========");
     }
 }
