@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true"
+            hbarPolicy="NEVER"
+            vbarPolicy="AS_NEEDED"
+            pannable="true"
+            style="-fx-background: #eef2f7; -fx-background-color: #eef2f7;"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pi.controllers.CoursQuizController.QuizController">
+
+    <content>
+        <VBox spacing="18.0"
+              style="-fx-background-color: #eef2f7;">
+            <padding>
+                <Insets top="20.0" right="30.0" bottom="20.0" left="30.0"/>
+            </padding>
+
+            <HBox alignment="CENTER_LEFT">
+                <VBox spacing="6.0">
+                    <Label text="Create a new quiz"
+                           style="-fx-font-size: 30px; -fx-font-weight: 800; -fx-text-fill: #1f2d3d;" />
+                    <Label text="Add questions, answers and points"
+                           style="-fx-font-size: 15px; -fx-text-fill: #6b7280;" />
+                </VBox>
+            </HBox>
+
+            <VBox spacing="18.0"
+                  style="-fx-background-color: white;
+                         -fx-background-radius: 18;
+                         -fx-border-radius: 18;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 18, 0.15, 0, 4);">
+                <padding>
+                    <Insets top="28.0" right="28.0" bottom="28.0" left="28.0"/>
+                </padding>
+
+                <GridPane hgap="16.0" vgap="16.0">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50.0" hgrow="ALWAYS"/>
+                        <ColumnConstraints percentWidth="50.0" hgrow="ALWAYS"/>
+                    </columnConstraints>
+
+                    <VBox spacing="6.0" visible="false" managed="false" GridPane.rowIndex="0" GridPane.columnIndex="0">
+                        <Label text="ID" />
+                        <TextField fx:id="idField" editable="false" promptText="Généré automatiquement" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.rowIndex="1" GridPane.columnIndex="0">
+                        <Label text="Question" style="-fx-font-size: 16px; -fx-text-fill: #374151;" />
+                        <TextArea fx:id="questionField" promptText="Tapez votre question ici..."
+                                  wrapText="true" prefRowCount="3"
+                                  style="-fx-background-radius: 10;
+                                         -fx-border-radius: 10;
+                                         -fx-border-color: #d1d5db;
+                                         -fx-padding: 12 14 12 14;
+                                         -fx-font-size: 14px;" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                        <Label text="Choix (JSON ou texte)" style="-fx-font-size: 16px; -fx-text-fill: #374151;" />
+                        <TextArea fx:id="choixReponsesField" promptText="[&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;]"
+                                  wrapText="true" prefRowCount="3"
+                                  style="-fx-background-radius: 10;
+                                         -fx-border-radius: 10;
+                                         -fx-border-color: #d1d5db;
+                                         -fx-padding: 12 14 12 14;
+                                         -fx-font-size: 14px;" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.rowIndex="2" GridPane.columnIndex="0">
+                        <Label text="Réponse correcte" style="-fx-font-size: 16px; -fx-text-fill: #374151;" />
+                        <TextField fx:id="reponseCorrecteField" promptText="Ex: A"
+                                   style="-fx-background-radius: 10;
+                                          -fx-border-radius: 10;
+                                          -fx-border-color: #d1d5db;
+                                          -fx-padding: 12 14 12 14;
+                                          -fx-font-size: 14px;" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.rowIndex="2" GridPane.columnIndex="1">
+                        <Label text="Valeur en points" style="-fx-font-size: 16px; -fx-text-fill: #374151;" />
+                        <TextField fx:id="pointsValeurField" promptText="Ex: 10"
+                                   style="-fx-background-radius: 10;
+                                          -fx-border-radius: 10;
+                                          -fx-border-color: #d1d5db;
+                                          -fx-padding: 12 14 12 14;
+                                          -fx-font-size: 14px;" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.rowIndex="3" GridPane.columnIndex="0">
+                        <Label text="Cours associé (ID)" style="-fx-font-size: 16px; -fx-text-fill: #374151;" />
+                        <TextField fx:id="coursIdField" promptText="Ex: 2"
+                                   style="-fx-background-radius: 10;
+                                          -fx-border-radius: 10;
+                                          -fx-border-color: #d1d5db;
+                                          -fx-padding: 12 14 12 14;
+                                          -fx-font-size: 14px;" />
+                    </VBox>
+
+                    <VBox spacing="6.0" GridPane.rowIndex="3" GridPane.columnIndex="1">
+                        <Label text="Créé par (User ID)" style="-fx-font-size: 16px; -fx-text-fill: #374151;" />
+                        <TextField fx:id="userIdField" promptText="Ex: 1"
+                                   style="-fx-background-radius: 10;
+                                          -fx-border-radius: 10;
+                                          -fx-border-color: #d1d5db;
+                                          -fx-padding: 12 14 12 14;
+                                          -fx-font-size: 14px;" />
+                    </VBox>
+                </GridPane>
+
+                <HBox spacing="12.0">
+                    <Button text="💾 Enregistrer" onAction="#ajouterQuiz"
+                            style="-fx-background-color: #4f46e5; -fx-text-fill: white; -fx-font-weight: 700; -fx-background-radius: 10; -fx-padding: 12 22 12 22;" />
+                    <Button text="Annuler" onAction="#viderFormulaire"
+                            style="-fx-background-color: #f3f4f6; -fx-text-fill: #374151; -fx-font-weight: 600; -fx-background-radius: 10; -fx-padding: 12 22 12 22;" />
+                    <Button text="Modifier" onAction="#modifierQuiz"
+                            style="-fx-background-color: #f59e0b; -fx-text-fill: white; -fx-font-weight: 700; -fx-background-radius: 10; -fx-padding: 12 22 12 22;" />
+                    <Button text="Supprimer" onAction="#supprimerQuiz"
+                            style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-weight: 700; -fx-background-radius: 10; -fx-padding: 12 22 12 22;" />
+                    <Button text="Actualiser" onAction="#actualiserTable"
+                            style="-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-weight: 700; -fx-background-radius: 10; -fx-padding: 12 22 12 22;" />
+                </HBox>
+            </VBox>
+
+            <VBox spacing="12.0"
+                  style="-fx-background-color: white;
+                         -fx-background-radius: 18;
+                         -fx-border-radius: 18;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0.15, 0, 3);">
+                <padding>
+                    <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+                </padding>
+
+                <Label text="Liste des quiz"
+                       style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #1f2937;" />
+
+                <TableView fx:id="quizTable" prefHeight="320.0"
+                           style="-fx-background-radius: 12; -fx-border-radius: 12;">
+                    <columns>
+                        <TableColumn fx:id="idColumn" prefWidth="70.0" text="ID" />
+                        <TableColumn fx:id="coursIdColumn" prefWidth="100.0" text="Cours ID" />
+                        <TableColumn fx:id="userIdColumn" prefWidth="100.0" text="User ID" />
+                        <TableColumn fx:id="questionColumn" prefWidth="500.0" text="Question" />
+                        <TableColumn fx:id="pointsColumn" prefWidth="100.0" text="Points" />
+                    </columns>
+                </TableView>
+            </VBox>
+        </VBox>
+    </content>
+</ScrollPane>

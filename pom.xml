@@ -37,7 +37,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>tn.esprit.mains.MainFx</mainClass>
+                    <mainClass>pi.mains.MainLauncher</mainClass>
                 </configuration>
             </plugin>
         </plugins>

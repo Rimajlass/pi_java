@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane prefHeight="800.0" prefWidth="1280.0"
+            style="-fx-background-color: #eef2f7;"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1">
+
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE"
+                 style="-fx-background-color: transparent; -fx-padding: 10;">
+            <tabs>
+                <Tab text="Cours">
+                    <content>
+                        <fx:include source="cours-view.fxml" />
+                    </content>
+                </Tab>
+                <Tab text="Quiz">
+                    <content>
+                        <fx:include source="quiz-view.fxml" />
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </center>
+
+</BorderPane>
