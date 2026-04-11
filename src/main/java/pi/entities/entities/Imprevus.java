@@ -1,4 +1,4 @@
-package pi.entities;
+package pi.entities.entities;
 
 public class Imprevus {
 

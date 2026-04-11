@@ -1,48 +1,39 @@
 package pi.mains;
 
-import pi.tools.MyDatabase;
-import pi.entities.User;
+import pi.entities.Imprevus;
+import pi.services.ImprevusCasreelService.ImprevusService;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
 
-        Connection cnx = MyDatabase.getInstance().getCnx();
-        List<User> users = new ArrayList<>();
+        ImprevusService service = new ImprevusService();
 
-        try {
-            String query = "SELECT * FROM user";
-            Statement st = cnx.createStatement();
-            ResultSet rs = st.executeQuery(query);
+        // ajout
+        Imprevus i1 = new Imprevus("Panne voiture", "Transport",500.50, "Prévoir une épargne d'urgence");        service.ajouter(i1);
 
-            while (rs.next()) {
-                User u = new User();
-
-                u.setId(rs.getInt("id"));
-                u.setNom(rs.getString("nom"));
-                u.setEmail(rs.getString("email"));
-                u.setPassword(rs.getString("password"));
-                u.setRoles(rs.getString("roles"));
-                u.setSoldeTotal(rs.getDouble("solde_total"));
-
-                Date d = rs.getDate("date_inscription");
-                if (d != null) {
-                    u.setDateInscription(d.toLocalDate());
-                }
-
-                users.add(u);
-            }
-
-            for (User u : users) {
-                System.out.println(u);
-            }
-
-        } catch (SQLException e) {
-            System.out.println("non " + e.getMessage());
+        // affichage
+        System.out.println("=== Liste des imprévus ===");
+        for (Imprevus i : service.afficher()) {
+            System.out.println(i);
         }
+
+        // modification
+        Imprevus imp = service.getById(1);
+
+        if (imp != null) {
+            System.out.println("ID récupéré = " + imp.getId());
+            System.out.println("Titre avant modif = " + imp.getTitre());
+
+            imp.setTitre("ok");
+            imp.setBudget(650);
+            service.modifier(imp);
+        } else {
+            System.out.println("Aucun imprévu avec id = 1");
+        }
+
+        // suppression
+        service.supprimer(7);
     }
 }
 /////test
