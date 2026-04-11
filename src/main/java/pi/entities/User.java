@@ -2,6 +2,10 @@ package pi.entities;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class User {
 
@@ -186,6 +190,47 @@ public class User {
     public LocalDateTime getGeoLastCheckedAt() { return this.geoLastCheckedAt; }
 
     public void setGeoLastCheckedAt(LocalDateTime geoLastCheckedAt) { this.geoLastCheckedAt = geoLastCheckedAt; }
+
+    public List<String> getRolesList() {
+        if (roles == null || roles.isBlank()) {
+            return new ArrayList<>();
+        }
+
+        return Arrays.stream(roles.replace("[", "")
+                        .replace("]", "")
+                        .replace("\"", "")
+                        .split(","))
+                .map(String::trim)
+                .filter(value -> !value.isEmpty())
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public void setRolesList(List<String> roles) {
+        if (roles == null || roles.isEmpty()) {
+            this.roles = "[]";
+            return;
+        }
+
+        this.roles = roles.stream()
+                .map(role -> "\"" + role + "\"")
+                .collect(Collectors.joining(",", "[", "]"));
+    }
+
+    public boolean hasRole(String role) {
+        return getRolesList().contains(role);
+    }
+
+    public void markEmailVerifiedAt(LocalDateTime emailVerifiedAt) {
+        this.emailVerifiedAt = emailVerifiedAt;
+    }
+
+    public void markBlockedAt(LocalDateTime blockedAt) {
+        this.blockedAt = blockedAt;
+    }
+
+    public void markGeoLastCheckedAt(LocalDateTime geoLastCheckedAt) {
+        this.geoLastCheckedAt = geoLastCheckedAt;
+    }
 
     @Override
     public String toString() {

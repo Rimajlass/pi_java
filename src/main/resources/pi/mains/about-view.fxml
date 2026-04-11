@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="900.0" prefWidth="1460.0"
+            styleClass="about-root"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pi.controllers.UserTransactionController.AboutController">
+    <children>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    pannable="true"
+                    styleClass="about-scroll"
+                    AnchorPane.topAnchor="0.0"
+                    AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0">
+            <content>
+                <VBox styleClass="about-page">
+                    <children>
+                        <StackPane prefHeight="440.0" minHeight="440.0" maxHeight="440.0" styleClass="hero-wrapper">
+                            <children>
+                                <ImageView fitWidth="1460.0" fitHeight="440.0" preserveRatio="false">
+                                    <image>
+                                        <Image url="@../images/a8.jpg" />
+                                    </image>
+                                </ImageView>
+                                <Pane styleClass="hero-overlay" />
+
+                                <VBox spacing="72.0">
+                                    <padding>
+                                        <Insets top="14.0" right="34.0" bottom="18.0" left="34.0" />
+                                    </padding>
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT"
+                                              minHeight="76.0"
+                                              prefHeight="76.0"
+                                              maxHeight="76.0"
+                                              styleClass="top-bar">
+                                            <padding>
+                                                <Insets top="10.0" right="24.0" bottom="10.0" left="24.0" />
+                                            </padding>
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                                    <children>
+                                                        <Label text="DS" styleClass="logo-mark" />
+                                                        <Label text="Decide$" styleClass="brand-label" />
+                                                    </children>
+                                                </HBox>
+
+                                                <Region HBox.hgrow="ALWAYS" />
+
+                                                <HBox alignment="CENTER" spacing="28.0" styleClass="nav-center-box">
+                                                    <children>
+                                                        <Button text="Home"
+                                                                mnemonicParsing="false"
+                                                                styleClass="nav-button"
+                                                                onAction="#handleBackToHomeAction" />
+                                                        <Button text="About"
+                                                                mnemonicParsing="false"
+                                                                styleClass="nav-button-active"
+                                                                disable="true" />
+                                                        <Button text="Service"
+                                                                mnemonicParsing="false"
+                                                                styleClass="nav-button"
+                                                                onAction="#handleOpenServiceAction" />
+                                                        <Button text="Contact"
+                                                                mnemonicParsing="false"
+                                                                styleClass="nav-button"
+                                                                onAction="#handleOpenContactAction" />
+                                                    </children>
+                                                </HBox>
+
+                                                <Region HBox.hgrow="ALWAYS" />
+
+                                                <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                                                    <children>
+                                                        <HBox alignment="CENTER" spacing="8.0" styleClass="profile-pill">
+                                                            <children>
+                                                                <Label text="U" styleClass="profile-icon" />
+                                                                <Label fx:id="profileNameLabel" text="aziz" styleClass="profile-name" />
+                                                            </children>
+                                                        </HBox>
+                                                        <Button text="To Start"
+                                                                mnemonicParsing="false"
+                                                                styleClass="header-button start-button"
+                                                                onAction="#handleBackToHomeAction" />
+                                                        <Button text="Logout"
+                                                                mnemonicParsing="false"
+                                                                styleClass="header-button logout-button"
+                                                                onAction="#handleLogout" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </HBox>
+
+                                        <VBox alignment="CENTER" spacing="14.0" styleClass="hero-content">
+                                            <children>
+                                                <Label text="About us" styleClass="hero-title" />
+                                                <Label text="Discover Decide$ and our vision of modern financial management"
+                                                       styleClass="hero-subtitle" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </StackPane>
+
+                        <HBox alignment="TOP_CENTER" spacing="50.0" styleClass="why-section">
+                            <padding>
+                                <Insets top="54.0" right="40.0" bottom="54.0" left="40.0" />
+                            </padding>
+                            <children>
+                                <VBox prefWidth="500.0">
+                                    <children>
+                                        <StackPane styleClass="vision-card">
+                                            <children>
+                                                <ImageView fitWidth="500.0" fitHeight="340.0" preserveRatio="false">
+                                                    <image>
+                                                        <Image url="@../images/carousel-1.jpg" />
+                                                    </image>
+                                                </ImageView>
+                                                <Label text="20+ Years Vision" styleClass="vision-badge" StackPane.alignment="TOP_LEFT" />
+                                            </children>
+                                        </StackPane>
+                                    </children>
+                                </VBox>
+
+                                <VBox prefWidth="640.0" spacing="18.0">
+                                    <children>
+                                        <Label text="Why Decide$ ?" styleClass="section-title" />
+                                        <Label text="Decide$ is a modern financial management platform built to give individuals full visibility and control over their salary. We focus on clarity, simplicity, and long-term financial stability."
+                                               wrapText="true"
+                                               styleClass="section-copy" />
+
+                                        <VBox spacing="16.0">
+                                            <children>
+                                                <HBox spacing="16.0" styleClass="feature-item">
+                                                    <children>
+                                                        <Label text=" " styleClass="feature-icon" />
+                                                        <VBox spacing="4.0">
+                                                            <children>
+                                                                <Label text="Smart Salary Management" styleClass="feature-title" />
+                                                                <Label text="Track income, expenses, and savings in real time." styleClass="feature-copy" />
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </HBox>
+
+                                                <HBox spacing="16.0" styleClass="feature-item">
+                                                    <children>
+                                                        <Label text=" " styleClass="feature-icon" />
+                                                        <VBox spacing="4.0">
+                                                            <children>
+                                                                <Label text="Financial Security" styleClass="feature-title" />
+                                                                <Label text="Plan for the future with confidence and control." styleClass="feature-copy" />
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </HBox>
+
+                                                <HBox spacing="16.0" styleClass="feature-item">
+                                                    <children>
+                                                        <Label text=" " styleClass="feature-icon" />
+                                                        <VBox spacing="4.0">
+                                                            <children>
+                                                                <Label text="Smart Insights" styleClass="feature-title" />
+                                                                <Label text="Get intelligent recommendations based on your data." styleClass="feature-copy" />
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <VBox spacing="22.0" styleClass="page-footer">
+                            <padding>
+                                <Insets top="30.0" right="34.0" bottom="22.0" left="34.0" />
+                            </padding>
+                            <children>
+                                <HBox alignment="TOP_LEFT" spacing="40.0">
+                                    <children>
+                                        <VBox spacing="10.0" prefWidth="420.0">
+                                            <children>
+                                                <Label text="Decide$" styleClass="footer-brand" />
+                                                <Label text="Decide$ helps you manage your salary, control expenses, and build a secure financial future with confidence."
+                                                       wrapText="true"
+                                                       styleClass="footer-copy" />
+                                            </children>
+                                        </VBox>
+
+                                        <Region HBox.hgrow="ALWAYS" />
+
+                                        <VBox spacing="10.0">
+                                            <children>
+                                                <Label text="Quick Links" styleClass="footer-heading" />
+                                                <Label text="Home" styleClass="footer-link" />
+                                                <Label text="About" styleClass="footer-link" />
+                                                <Label text="Services" styleClass="footer-link" />
+                                                <Label text="Contact" styleClass="footer-link" />
+                                            </children>
+                                        </VBox>
+
+                                        <Region HBox.hgrow="ALWAYS" />
+
+                                        <VBox spacing="12.0">
+                                            <children>
+                                                <Label text="Connect with us" styleClass="footer-heading" />
+                                                <HBox spacing="10.0">
+                                                    <children>
+                                                        <Label text="in" styleClass="social-badge" />
+                                                        <Label text="gh" styleClass="social-badge" />
+                                                        <Label text="tw" styleClass="social-badge" />
+                                                        <Label text="mail" styleClass="social-badge" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+
+                                <HBox alignment="CENTER" styleClass="footer-bottom-bar">
+                                    <children>
+                                        <Label text="(c) 2026 Decide$ - All rights reserved" styleClass="footer-bottom-text" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>

@@ -10,14 +10,21 @@ public class Imprevus {
 
 
 
-    public Imprevus(int id, String titre, String type, double budget, String message_educatif) {
-        this.id = id;
+    public Imprevus( String titre, String type, double budget, String message_educatif) {
         this.titre = titre;
         this.type = type;
         this.budget = budget;
         this.message_educatif = message_educatif;
     }
     public Imprevus() {
+    }
+
+    public Imprevus(int id, String titre, String type, double budget, String messageEducatif) {
+        this.id = id;
+        this.titre = titre;
+        this.type = type;
+        this.budget = budget;
+        this.message_educatif = messageEducatif;
     }
 
     public int getId() { return this.id; }

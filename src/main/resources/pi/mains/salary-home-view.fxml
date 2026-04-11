@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="900.0" prefWidth="1460.0"
+            styleClass="salary-home-root"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pi.controllers.UserTransactionController.SalaryHomeController">
+
+    <children>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    pannable="true"
+                    styleClass="salary-scroll"
+                    AnchorPane.topAnchor="0.0"
+                    AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0">
+
+            <content>
+                <StackPane prefWidth="1460.0" styleClass="scroll-content">
+                    <children>
+
+                        <ImageView fitWidth="1460.0"
+                                   fitHeight="1220.0"
+                                   preserveRatio="false"
+                                   pickOnBounds="true">
+                            <image>
+                                <Image url="@../images/a15.jpg" />
+                            </image>
+                        </ImageView>
+
+                        <Pane styleClass="salary-home-overlay" />
+
+                        <VBox spacing="0">
+
+                            <!-- NAVBAR -->
+                            <HBox alignment="CENTER_LEFT"
+                                  minHeight="82.0"
+                                  prefHeight="82.0"
+                                  maxHeight="82.0"
+                                  styleClass="top-bar">
+                                <padding>
+                                    <Insets top="12" right="34" bottom="12" left="34" />
+                                </padding>
+
+                                <children>
+                                    <HBox alignment="CENTER_LEFT" spacing="12">
+                                        <children>
+                                            <StackPane prefWidth="46" prefHeight="46" styleClass="brand-logo-box">
+                                                <children>
+                                                    <Label text="DS" styleClass="brand-icon" />
+                                                </children>
+                                            </StackPane>
+
+                                            <VBox spacing="1">
+                                                <children>
+                                                    <Label text="DecideS" styleClass="brand-label" />
+                                                    <Label text="Professional Salary Platform" styleClass="brand-subtitle" />
+                                                </children>
+                                            </VBox>
+                                        </children>
+                                    </HBox>
+
+                                    <Region HBox.hgrow="ALWAYS" />
+
+                                    <HBox alignment="CENTER" spacing="28" styleClass="nav-center-box">
+                                        <children>
+                                            <Label text="Home" styleClass="nav-link active-link" />
+                                            <Button text="About"
+                                                    mnemonicParsing="false"
+                                                    styleClass="nav-link-button"
+                                                    onAction="#handleOpenAboutAction" />
+                                            <Button text="Services"
+                                                    mnemonicParsing="false"
+                                                    styleClass="nav-link-button"
+                                                    onAction="#handleOpenServiceAction" />
+                                            <Label text="Pricing" styleClass="nav-link" />
+                                            <Button text="Contact"
+                                                    mnemonicParsing="false"
+                                                    styleClass="nav-link-button"
+                                                    onAction="#handleOpenContactAction" />
+                                        </children>
+                                    </HBox>
+
+                                    <Region HBox.hgrow="ALWAYS" />
+
+                                    <HBox alignment="CENTER_RIGHT" spacing="12">
+                                        <children>
+                                            <HBox alignment="CENTER" spacing="8" styleClass="profile-pill">
+                                                <children>
+                                                    <Label text="U" styleClass="profile-icon" />
+                                                    <Label fx:id="profileNameLabel" text="aziz" styleClass="profile-name" />
+                                                </children>
+                                            </HBox>
+
+                                            <Button text="Dashboard"
+                                                    mnemonicParsing="false"
+                                                    styleClass="header-button secondary-header-button" />
+
+                                            <Button text="Logout"
+                                                    mnemonicParsing="false"
+                                                    styleClass="header-button primary-header-button" />
+                                        </children>
+                                    </HBox>
+                                </children>
+                            </HBox>
+
+                            <!-- HERO -->
+                            <HBox alignment="CENTER_LEFT" styleClass="hero-section">
+                                <padding>
+                                    <Insets top="70" right="70" bottom="70" left="70" />
+                                </padding>
+
+                                <children>
+                                    <VBox spacing="26" maxWidth="620" styleClass="hero-panel">
+                                        <children>
+                                            <Label text="SMART SALARY MANAGEMENT"
+                                                   styleClass="eyebrow-label" />
+
+                                            <Label fx:id="welcomeLabel"
+                                                   text="Take control of your salary with clarity and confidence."
+                                                   wrapText="true"
+                                                   styleClass="hero-title" />
+
+                                            <Label text="Track your income, plan monthly expenses, and unlock actionable insights with a secure and elegant workspace."
+                                                   wrapText="true"
+                                                   styleClass="hero-copy" />
+
+                                            <Label fx:id="userNameLabel"
+                                                   text=""
+                                                   visible="false"
+                                                   managed="false"
+                                                   styleClass="user-info" />
+
+                                            <HBox alignment="CENTER_LEFT" spacing="14">
+                                                <children>
+                                                    <Label text="100% Secure" styleClass="inline-stat" />
+                                                    <Label text="Real-time Insights" styleClass="inline-stat" />
+                                                    <Label text="Smart Planning" styleClass="inline-stat" />
+                                                </children>
+                                            </HBox>
+
+                                            <HBox alignment="CENTER_LEFT" spacing="14">
+                                                <children>
+                                                    <Button text="Get Started"
+                                                            mnemonicParsing="false"
+                                                            styleClass="hero-button" />
+                                                    <Button text="Learn More"
+                                                            mnemonicParsing="false"
+                                                            styleClass="hero-outline-button" />
+                                                </children>
+                                            </HBox>
+                                        </children>
+                                    </VBox>
+
+                                    <Region HBox.hgrow="ALWAYS" />
+
+                                    <VBox spacing="18" maxWidth="420" styleClass="hero-side-panel">
+                                        <children>
+                                            <VBox spacing="10" styleClass="glass-card featured-glass-card">
+                                                <children>
+                                                    <Label text="Financial Overview" styleClass="mini-card-title" />
+                                                    <Label text="Monitor your salary flow and make better decisions every month."
+                                                           wrapText="true"
+                                                           styleClass="mini-card-text" />
+                                                    <HBox spacing="14">
+                                                        <children>
+                                                            <VBox spacing="4" styleClass="metric-box">
+                                                                <children>
+                                                                    <Label text="+24%" styleClass="metric-value" />
+                                                                    <Label text="Savings Growth" styleClass="metric-label" />
+                                                                </children>
+                                                            </VBox>
+                                                            <VBox spacing="4" styleClass="metric-box">
+                                                                <children>
+                                                                    <Label text="Live" styleClass="metric-value" />
+                                                                    <Label text="Salary Insights" styleClass="metric-label" />
+                                                                </children>
+                                                            </VBox>
+                                                        </children>
+                                                    </HBox>
+                                                </children>
+                                            </VBox>
+
+                                            <HBox spacing="18">
+                                                <children>
+                                                    <VBox spacing="8" prefWidth="200" styleClass="glass-card">
+                                                        <children>
+                                                            <Label text="Budget Control" styleClass="mini-card-title" />
+                                                            <Label text="Stay aligned with your monthly goals."
+                                                                   wrapText="true"
+                                                                   styleClass="mini-card-text" />
+                                                        </children>
+                                                    </VBox>
+
+                                                    <VBox spacing="8" prefWidth="200" styleClass="glass-card">
+                                                        <children>
+                                                            <Label text="Data Security" styleClass="mini-card-title" />
+                                                            <Label text="Your information is protected at every step."
+                                                                   wrapText="true"
+                                                                   styleClass="mini-card-text" />
+                                                        </children>
+                                                    </VBox>
+                                                </children>
+                                            </HBox>
+                                        </children>
+                                    </VBox>
+                                </children>
+                            </HBox>
+
+                            <!-- FEATURES -->
+                            <VBox alignment="TOP_CENTER" spacing="24" styleClass="info-section">
+                                <padding>
+                                    <Insets top="52" right="34" bottom="50" left="34" />
+                                </padding>
+
+                                <children>
+                                    <Label text="Why DecideS Works" styleClass="info-title" />
+                                    <Label text="Achieve financial stability with practical tools, automated guidance, and a premium experience built for confidence."
+                                           wrapText="true"
+                                           styleClass="info-subtitle" />
+
+                                    <FlowPane alignment="CENTER" hgap="18" vgap="18" prefWrapLength="1180">
+                                        <children>
+
+                                            <VBox prefWidth="280" spacing="12" styleClass="feature-card">
+                                                <children>
+                                                    <Label text="OV" styleClass="feature-badge" />
+                                                    <Label text="Clear Overview" styleClass="feature-title" />
+                                                    <Label text="Get a complete and simple view of your income, expenses, and financial balance."
+                                                           wrapText="true"
+                                                           styleClass="feature-text" />
+                                                </children>
+                                            </VBox>
+
+                                            <VBox prefWidth="280" spacing="12" styleClass="feature-card">
+                                                <children>
+                                                    <Label text="AI" styleClass="feature-badge" />
+                                                    <Label text="Automated Insights" styleClass="feature-title" />
+                                                    <Label text="Receive personalized recommendations to improve salary planning and reduce waste."
+                                                           wrapText="true"
+                                                           styleClass="feature-text" />
+                                                </children>
+                                            </VBox>
+
+                                            <VBox prefWidth="280" spacing="12" styleClass="feature-card">
+                                                <children>
+                                                    <Label text="MP" styleClass="feature-badge" />
+                                                    <Label text="Monthly Planning" styleClass="feature-title" />
+                                                    <Label text="Build healthier financial habits using structured monthly monitoring tools."
+                                                           wrapText="true"
+                                                           styleClass="feature-text" />
+                                                </children>
+                                            </VBox>
+
+                                            <VBox prefWidth="280" spacing="12" styleClass="feature-card">
+                                                <children>
+                                                    <Label text="SC" styleClass="feature-badge secondary-badge" />
+                                                    <Label text="Secure Workspace" styleClass="feature-title" />
+                                                    <Label text="Protect your salary data with a reliable and secure user experience."
+                                                           wrapText="true"
+                                                           styleClass="feature-text" />
+                                                </children>
+                                            </VBox>
+
+                                            <VBox prefWidth="578" spacing="16" styleClass="testimonial-card">
+                                                <children>
+                                                    <HBox alignment="CENTER_LEFT" spacing="14">
+                                                        <children>
+                                                            <Label text="AB" styleClass="avatar-badge" />
+                                                            <VBox spacing="2">
+                                                                <children>
+                                                                    <Label text="Ready to manage your salary better?"
+                                                                           styleClass="feature-title" />
+                                                                    <Label text="Verified salary workspace user"
+                                                                           styleClass="testimonial-role" />
+                                                                </children>
+                                                            </VBox>
+                                                        </children>
+                                                    </HBox>
+
+                                                    <Label text="DecideS helps you understand where your money goes, improve your budget, and make every salary cycle more efficient."
+                                                           wrapText="true"
+                                                           styleClass="feature-text" />
+
+                                                    <Label text="Aziz B." styleClass="testimonial-name" />
+                                                </children>
+                                            </VBox>
+
+                                        </children>
+                                    </FlowPane>
+
+                                    <!-- FOOTER -->
+                                    <VBox spacing="22" styleClass="page-footer">
+                                        <children>
+                                            <HBox alignment="TOP_LEFT" spacing="40">
+                                                <children>
+                                                    <VBox spacing="10" prefWidth="320">
+                                                        <children>
+                                                            <Label text="DecideS" styleClass="footer-brand" />
+                                                            <Label text="A modern platform designed to simplify salary management, monthly planning, and secure financial visibility."
+                                                                   wrapText="true"
+                                                                   styleClass="footer-copy" />
+                                                        </children>
+                                                    </VBox>
+
+                                                    <Region HBox.hgrow="ALWAYS" />
+
+                                                    <VBox spacing="10">
+                                                        <children>
+                                                            <Label text="Navigation" styleClass="footer-heading" />
+                                                            <Label text="Home" styleClass="footer-link" />
+                                                            <Label text="About Us" styleClass="footer-link" />
+                                                            <Label text="Services" styleClass="footer-link" />
+                                                        </children>
+                                                    </VBox>
+
+                                                    <VBox spacing="10">
+                                                        <children>
+                                                            <Label text="Resources" styleClass="footer-heading" />
+                                                            <Label text="Insights" styleClass="footer-link" />
+                                                            <Label text="Support" styleClass="footer-link" />
+                                                            <Label text="Security" styleClass="footer-link" />
+                                                        </children>
+                                                    </VBox>
+
+                                                    <VBox spacing="10">
+                                                        <children>
+                                                            <Label text="Contact" styleClass="footer-heading" />
+                                                            <Label text="contact@decides.com" styleClass="footer-link" />
+                                                            <Label text="+216 00 000 000" styleClass="footer-link" />
+                                                            <Label text="Tunis, Tunisia" styleClass="footer-link" />
+                                                        </children>
+                                                    </VBox>
+                                                </children>
+                                            </HBox>
+
+                                            <HBox alignment="CENTER_LEFT" spacing="16" styleClass="footer-bottom-bar">
+                                                <children>
+                                                    <Label text="© 2026 DecideS. All rights reserved." styleClass="footer-bottom-text" />
+                                                    <Region HBox.hgrow="ALWAYS" />
+                                                    <HBox spacing="10">
+                                                        <children>
+                                                            <Label text="in" styleClass="social-badge" />
+                                                            <Label text="ig" styleClass="social-badge" />
+                                                            <Label text="fb" styleClass="social-badge" />
+                                                        </children>
+                                                    </HBox>
+                                                </children>
+                                            </HBox>
+                                        </children>
+                                    </VBox>
+
+                                </children>
+                            </VBox>
+                        </VBox>
+                    </children>
+                </StackPane>
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>
