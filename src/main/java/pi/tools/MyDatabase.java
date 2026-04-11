@@ -9,12 +9,14 @@ public class MyDatabase {
     String user="root";
     String mdp ="";
     private Connection cnx;
+    private SQLException connectionError;
     static MyDatabase myDb;
     private MyDatabase(){
         try {
-            cnx = DriverManager.getConnection(url, user, mdp);            System.out.println("cnx etablie !!");
+            cnx = DriverManager.getConnection(url, user, mdp);
+            System.out.println("cnx etablie !!");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            this.connectionError = e;
         }
     }
     public static MyDatabase getInstance(){
@@ -25,6 +27,11 @@ public class MyDatabase {
     }
 
     public Connection getCnx() {
+        if (cnx == null) {
+            String message = "Unable to connect to MySQL at " + url +
+                    ". Check that the MySQL server is running, the database 'decides_db' exists, and the credentials are correct.";
+            throw new IllegalStateException(message, connectionError);
+        }
         return cnx;
     }
 }
