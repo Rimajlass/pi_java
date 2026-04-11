@@ -16,7 +16,8 @@ public class Main {
         ImprevusService service = new ImprevusService();
 
         // ajout
-        Imprevus i1 = new Imprevus("Panne voiture", "Transport",500.50, "Prévoir une épargne d'urgence");        service.ajouter(i1);
+        Imprevus i1 = new Imprevus("Panne voiture", "Transport",500.50, "Prévoir une épargne d'urgence");
+        service.ajouter(i1);
 
         // affichage
         System.out.println("=== Liste des imprévus ===");
