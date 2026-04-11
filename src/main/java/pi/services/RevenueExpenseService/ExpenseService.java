@@ -1,4 +1,4 @@
-package pi.services;
+package pi.services.RevenueExpenseService;
 
 import pi.entities.Expense;
 import pi.entities.Revenue;

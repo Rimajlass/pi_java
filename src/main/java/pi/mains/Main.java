@@ -1,50 +1,20 @@
 package pi.mains;
 
-import pi.entities.Revenue;
-import pi.entities.User;
-import pi.services.RevenueService;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
+import java.io.IOException;
 
-public class Main {
-    public static void main(String[] args) {
-        RevenueService revenueService = new RevenueService();
+public class Main extends Application {
 
-        User user = new User();
-        user.setId(1);
-
-        try {
-            Revenue revenue = new Revenue(
-                    user,
-                    1200.0,
-                    "salary",
-                    LocalDate.now(),
-                    "simple revenue test",
-                    LocalDateTime.now()
-            );
-
-            revenueService.add(revenue);
-            System.out.println("Added revenue: " + revenue);
-
-            Revenue fetchedRevenue = revenueService.getById(revenue.getId());
-            System.out.println("Fetched revenue: " + fetchedRevenue);
-
-            revenue.setAmount(1400.0);
-            revenueService.update(revenue);
-            System.out.println("Updated revenue: " + revenueService.getById(revenue.getId()));
-
-            List<Revenue> revenues = revenueService.getAll();
-            System.out.println("Revenue count: " + revenues.size());
-
-            revenueService.delete(revenue.getId());
-            System.out.println("Deleted revenue id: " + revenue.getId());
-        } catch (SQLException e) {
-            System.out.println("SQL error: " + e.getMessage());
-        } catch (IllegalArgumentException e) {
-            System.out.println("Validation error: " + e.getMessage());
-        }
+    @Override
+    public void start(Stage stage) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/Expense/Revenue/salary-expense-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1400, 900);
+        stage.setTitle("Income & Expense Management");
+        stage.setScene(scene);
+        stage.show();
     }
 }

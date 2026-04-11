@@ -1,4 +1,4 @@
-package pi.services;
+package pi.services.RevenueExpenseService;
 
 import pi.entities.Revenue;
 import pi.entities.User;
@@ -35,8 +35,9 @@ public class RevenueService implements IRevenueService {
     @Override
     public void add(Revenue revenue) throws SQLException {
         validateRevenue(revenue);
+        Connection cnx = requireConnection();
 
-        try (PreparedStatement ps = this.connection.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = cnx.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
             fillStatement(ps, revenue);
             ps.executeUpdate();
 
@@ -54,8 +55,9 @@ public class RevenueService implements IRevenueService {
             throw new IllegalArgumentException("Revenue id is required for update");
         }
         validateRevenue(revenue);
+        Connection cnx = requireConnection();
 
-        try (PreparedStatement ps = this.connection.prepareStatement(UPDATE_SQL)) {
+        try (PreparedStatement ps = cnx.prepareStatement(UPDATE_SQL)) {
             fillStatement(ps, revenue);
             ps.setInt(7, revenue.getId());
             ps.executeUpdate();
@@ -64,7 +66,8 @@ public class RevenueService implements IRevenueService {
 
     @Override
     public void delete(int id) throws SQLException {
-        try (PreparedStatement ps = this.connection.prepareStatement(DELETE_SQL)) {
+        Connection cnx = requireConnection();
+        try (PreparedStatement ps = cnx.prepareStatement(DELETE_SQL)) {
             ps.setInt(1, id);
             ps.executeUpdate();
         }
@@ -72,7 +75,8 @@ public class RevenueService implements IRevenueService {
 
     @Override
     public Revenue getById(int id) throws SQLException {
-        try (PreparedStatement ps = this.connection.prepareStatement(SELECT_BY_ID_SQL)) {
+        Connection cnx = requireConnection();
+        try (PreparedStatement ps = cnx.prepareStatement(SELECT_BY_ID_SQL)) {
             ps.setInt(1, id);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -88,8 +92,9 @@ public class RevenueService implements IRevenueService {
     @Override
     public List<Revenue> getAll() throws SQLException {
         List<Revenue> revenues = new ArrayList<>();
+        Connection cnx = requireConnection();
 
-        try (Statement st = this.connection.createStatement();
+        try (Statement st = cnx.createStatement();
              ResultSet rs = st.executeQuery(SELECT_ALL_SQL)) {
             while (rs.next()) {
                 revenues.add(mapRevenue(rs));
@@ -141,5 +146,12 @@ public class RevenueService implements IRevenueService {
 
     private Timestamp toSqlTimestamp(LocalDateTime value) {
         return value != null ? Timestamp.valueOf(value) : null;
+    }
+
+    private Connection requireConnection() throws SQLException {
+        if (this.connection == null || this.connection.isClosed()) {
+            throw new SQLException("Database connection is not available. Check MySQL server and credentials in MyDatabase.");
+        }
+        return this.connection;
     }
 }
