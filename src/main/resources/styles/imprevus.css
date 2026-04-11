@@ -1,0 +1,329 @@
+.root {
+    -fx-font-family: "Segoe UI";
+    -fx-background-color: #f4f7fc;
+    -fx-text-fill: #23324c;
+}
+
+.topbar {
+    -fx-background-color: white;
+    -fx-border-color: #e7eef8;
+    -fx-border-width: 0 0 1 0;
+}
+
+.brand-label {
+    -fx-text-fill: #2473ff;
+    -fx-font-size: 28px;
+    -fx-font-weight: 800;
+}
+
+.nav-item {
+    -fx-text-fill: #485a73;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.nav-item.active {
+    -fx-text-fill: #2d72ff;
+}
+
+.pill-button {
+    -fx-background-radius: 999;
+    -fx-padding: 8 18 8 18;
+    -fx-font-weight: 700;
+}
+
+.cyan-pill {
+    -fx-background-color: #10c2f3;
+    -fx-text-fill: white;
+}
+
+.red-pill {
+    -fx-background-color: white;
+    -fx-text-fill: #ff5468;
+    -fx-border-color: #ff99a4;
+    -fx-border-radius: 999;
+}
+
+.hero-banner {
+    -fx-background-color: linear-gradient(to right, rgba(8,56,88,0.96), rgba(18,130,165,0.80)),
+        linear-gradient(to bottom, #0f5c80, #1b87a4);
+}
+
+.hero-title {
+    -fx-text-fill: white;
+    -fx-font-size: 28px;
+    -fx-font-weight: 800;
+}
+
+.hero-subtitle {
+    -fx-text-fill: #d9edf8;
+    -fx-font-size: 12px;
+}
+
+.hero-path {
+    -fx-text-fill: #d2eaf7;
+    -fx-font-size: 11px;
+}
+
+.hero-chip {
+    -fx-background-color: rgba(255,255,255,0.15);
+    -fx-text-fill: white;
+    -fx-border-color: rgba(255,255,255,0.35);
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+    -fx-font-weight: 700;
+}
+
+.alt-chip {
+    -fx-background-color: rgba(255,194,92,0.28);
+}
+
+.page-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.page-scroll > .viewport {
+    -fx-background-color: #f4f7fc;
+}
+
+.metric-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(60, 89, 132, 0.10), 16, 0.16, 0, 4);
+}
+
+.blue-metric {
+    -fx-border-color: transparent transparent #68a1ff transparent;
+    -fx-border-width: 0 0 3 0;
+}
+
+.green-metric {
+    -fx-border-color: transparent transparent #50c48d transparent;
+    -fx-border-width: 0 0 3 0;
+}
+
+.red-metric {
+    -fx-border-color: transparent transparent #ff8c9b transparent;
+    -fx-border-width: 0 0 3 0;
+}
+
+.metric-top {
+    -fx-text-fill: #536987;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.metric-value {
+    -fx-text-fill: #1d2f4b;
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+}
+
+.green-text {
+    -fx-text-fill: #1ea56d;
+}
+
+.red-text {
+    -fx-text-fill: #f25067;
+}
+
+.content-card {
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-border-color: #e8eef7;
+    -fx-border-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(68, 88, 120, 0.08), 18, 0.12, 0, 4);
+}
+
+.compact-card {
+    -fx-max-width: 380;
+}
+
+.detail-card {
+    -fx-min-width: 500;
+}
+
+.assistant-card {
+    -fx-min-width: 500;
+}
+
+.small-badge {
+    -fx-background-color: #eaf1ff;
+    -fx-text-fill: #2d72ff;
+    -fx-background-radius: 999;
+    -fx-padding: 4 10 4 10;
+    -fx-font-size: 10px;
+    -fx-font-weight: 800;
+}
+
+.card-title {
+    -fx-text-fill: #253756;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+}
+
+.field-label {
+    -fx-text-fill: #516681;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.text-field,
+.text-area,
+.combo-box,
+.date-picker {
+    -fx-background-color: white;
+    -fx-border-color: #dbe6f3;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 6 8 6 8;
+}
+
+.file-button,
+.light-button,
+.mini-outline-button {
+    -fx-background-color: white;
+    -fx-text-fill: #4d607b;
+    -fx-border-color: #d7e2ef;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-font-weight: 700;
+}
+
+.primary-wide-button {
+    -fx-background-color: #2f75ff;
+    -fx-text-fill: white;
+    -fx-background-radius: 6;
+    -fx-font-weight: 800;
+}
+
+.secondary-fill {
+    -fx-background-color: #2f75ff;
+}
+
+.danger-light {
+    -fx-text-fill: #de5160;
+}
+
+.tiny-hint {
+    -fx-text-fill: #8392a8;
+    -fx-font-size: 10px;
+}
+
+.risk-header {
+    -fx-text-fill: #ef5462;
+    -fx-font-weight: 800;
+}
+
+.opportunity-header {
+    -fx-text-fill: #21ad72;
+    -fx-font-weight: 800;
+}
+
+.warning-circle {
+    -fx-background-color: #ffecef;
+    -fx-background-radius: 999;
+    -fx-border-color: #ffd7dc;
+    -fx-border-radius: 999;
+}
+
+.selected-label {
+    -fx-text-fill: #7b8ca4;
+    -fx-font-size: 10px;
+    -fx-font-weight: 800;
+}
+
+.selected-title {
+    -fx-text-fill: #142640;
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+}
+
+.detail-box {
+    -fx-background-color: #fbfcff;
+    -fx-border-color: #dbe6f3;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.impact-label {
+    -fx-text-fill: #f04f66;
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+}
+
+.assistant-title {
+    -fx-text-fill: #243555;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+}
+
+.assistant-title.small {
+    -fx-font-size: 13px;
+}
+
+.action-row {
+    -fx-alignment: center-left;
+    -fx-font-weight: 800;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 12 16 12 16;
+}
+
+.action-blue {
+    -fx-background-color: #eef4ff;
+    -fx-border-color: #d5e2ff;
+    -fx-text-fill: #2b69f2;
+}
+
+.action-gold {
+    -fx-background-color: #fff7e8;
+    -fx-border-color: #ffe3ae;
+    -fx-text-fill: #bb7a00;
+}
+
+.action-cyan {
+    -fx-background-color: #eefcff;
+    -fx-border-color: #c5eef6;
+    -fx-text-fill: #0f93ad;
+}
+
+.outline-wide-button {
+    -fx-background-color: white;
+    -fx-text-fill: #2c73ff;
+    -fx-border-color: #8fb6ff;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-font-weight: 700;
+}
+
+.list-view,
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: #e3ebf6;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.list-cell {
+    -fx-padding: 10 10 10 10;
+    -fx-border-color: transparent transparent #eef2f7 transparent;
+}
+
+.list-cell:filled:selected {
+    -fx-background-color: #eef4ff;
+    -fx-text-fill: #1f4ca8;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #f5f8fd;
+    -fx-background-radius: 8 8 0 0;
+}
+
+.table-view .column-header,
+.table-view .filler {
+    -fx-size: 34px;
+    -fx-border-color: transparent transparent #e4ebf6 transparent;
+}

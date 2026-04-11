@@ -16,14 +16,13 @@ public class ImprevusService {
     }
 
     public void ajouter(Imprevus i) {
-        String req = "INSERT INTO imprevus (titre, type, budget, message_educatif) VALUES (?, ?, ?, ?)";
+        String req = "INSERT INTO imprevus (titre, type, budget) VALUES (?, ?, ?)";
 
         try {
             PreparedStatement ps = cnx.prepareStatement(req);
             ps.setString(1, i.getTitre());
             ps.setString(2, i.getType());
             ps.setDouble(3, i.getBudget());
-            ps.setString(4, i.getMessage_educatif());
 
             ps.executeUpdate();
             System.out.println("Imprévu ajouté avec succès !");
@@ -45,8 +44,7 @@ public class ImprevusService {
                         rs.getInt("id"),
                         rs.getString("titre"),
                         rs.getString("type"),
-                        rs.getDouble("budget"),
-                        rs.getString("message_educatif")
+                        rs.getDouble("budget")
                 );
                 liste.add(i);
             }
@@ -70,9 +68,7 @@ public class ImprevusService {
                         rs.getInt("id"),
                         rs.getString("titre"),
                         rs.getString("type"),
-                        rs.getDouble("budget"),
-                        rs.getString("message_educatif")
-                );
+                        rs.getDouble("budget"));
             }
         } catch (SQLException e) {
             System.out.println("Erreur recherche : " + e.getMessage());
@@ -82,15 +78,14 @@ public class ImprevusService {
     }
 
     public void modifier(Imprevus i) {
-        String req = "UPDATE imprevus SET titre = ?, type = ?, budget = ?, message_educatif = ? WHERE id = ?";
+        String req = "UPDATE imprevus SET titre = ?, type = ?, budget = ? WHERE id = ?";
 
         try {
             PreparedStatement ps = cnx.prepareStatement(req);
             ps.setString(1, i.getTitre());
             ps.setString(2, i.getType());
             ps.setDouble(3, i.getBudget());
-            ps.setString(4, i.getMessage_educatif());
-            ps.setInt(5, i.getId());
+            ps.setInt(4, i.getId());
 
             System.out.println("ID envoyé = " + i.getId());
 
