@@ -1,50 +1,38 @@
 package pi.mains;
 
-import pi.entities.Revenue;
-import pi.entities.User;
-import pi.services.RevenueService;
+import pi.entities.Imprevus;
+import pi.services.ImprevusCasreelService.ImprevusService;
 
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        RevenueService revenueService = new RevenueService();
 
-        User user = new User();
-        user.setId(1);
+        ImprevusService service = new ImprevusService();
 
-        try {
-            Revenue revenue = new Revenue(
-                    user,
-                    1200.0,
-                    "salary",
-                    LocalDate.now(),
-                    "simple revenue test",
-                    LocalDateTime.now()
-            );
+        // ajout
+        Imprevus i1 = new Imprevus("Panne voiture", "Transport",500.50, "Prévoir une épargne d'urgence");        service.ajouter(i1);
 
-            revenueService.add(revenue);
-            System.out.println("Added revenue: " + revenue);
-
-            Revenue fetchedRevenue = revenueService.getById(revenue.getId());
-            System.out.println("Fetched revenue: " + fetchedRevenue);
-
-            revenue.setAmount(1400.0);
-            revenueService.update(revenue);
-            System.out.println("Updated revenue: " + revenueService.getById(revenue.getId()));
-
-            List<Revenue> revenues = revenueService.getAll();
-            System.out.println("Revenue count: " + revenues.size());
-
-            revenueService.delete(revenue.getId());
-            System.out.println("Deleted revenue id: " + revenue.getId());
-        } catch (SQLException e) {
-            System.out.println("SQL error: " + e.getMessage());
-        } catch (IllegalArgumentException e) {
-            System.out.println("Validation error: " + e.getMessage());
+        // affichage
+        System.out.println("=== Liste des imprévus ===");
+        for (Imprevus i : service.afficher()) {
+            System.out.println(i);
         }
+
+        // modification
+        Imprevus imp = service.getById(1);
+
+        if (imp != null) {
+            System.out.println("ID récupéré = " + imp.getId());
+            System.out.println("Titre avant modif = " + imp.getTitre());
+
+            imp.setTitre("ok");
+            imp.setBudget(650);
+            service.modifier(imp);
+        } else {
+            System.out.println("Aucun imprévu avec id = 1");
+        }
+
+        // suppression
+        service.supprimer(7);
     }
 }
