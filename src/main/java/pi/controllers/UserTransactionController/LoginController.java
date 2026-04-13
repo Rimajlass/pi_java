@@ -80,13 +80,7 @@ public class LoginController {
                 feedbackLabel.getStyleClass().add("feedback-success");
             }
 
-            if (user.hasRole("ROLE_SALARY")) {
-                openSalaryHome(user);
-                return;
-            }
-
-            String rememberMessage = rememberMeCheckBox.isSelected() ? " Session will be remembered." : "";
-            feedbackLabel.setText("Signed in as " + user.getNom() + " (" + user.getEmail() + ")." + rememberMessage);
+            openSalaryHome(user);
         } catch (Exception e) {
             feedbackLabel.getStyleClass().remove("feedback-success");
             if (!feedbackLabel.getStyleClass().contains("feedback-error")) {

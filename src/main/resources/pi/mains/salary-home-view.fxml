@@ -23,7 +23,7 @@
     <children>
         <ScrollPane fitToWidth="true"
                     hbarPolicy="NEVER"
-                    vbarPolicy="AS_NEEDED"
+                    vbarPolicy="ALWAYS"
                     pannable="true"
                     styleClass="salary-scroll"
                     AnchorPane.topAnchor="0.0"
@@ -36,7 +36,7 @@
                     <children>
 
                         <ImageView fitWidth="1460.0"
-                                   fitHeight="1220.0"
+                                   fitHeight="1500.0"
                                    preserveRatio="false"
                                    pickOnBounds="true">
                             <image>
