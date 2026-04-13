@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="15" alignment="CENTER"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="pi.controllers.InvestissementController.AdminController"
+      prefWidth="900" prefHeight="700">
+
+    <Label text="Panel Admin" style="-fx-font-size: 20px;"/>
+
+    <Label text="Investissements" style="-fx-font-size: 16px;"/>
+
+    <TextField fx:id="investSearch" promptText="Rechercher par crypto..." prefWidth="250"/>
+
+    <TableView fx:id="investTable" prefWidth="850" prefHeight="250">
+        <columns>
+            <TableColumn fx:id="colCrypto" text="Crypto" prefWidth="150"/>
+            <TableColumn fx:id="colAmount" text="Montant" prefWidth="130"/>
+            <TableColumn fx:id="colQuantity" text="Quantité" prefWidth="130"/>
+            <TableColumn fx:id="colProfitLoss" text="Gain/Perte (USD)" prefWidth="150"/>
+            <TableColumn fx:id="colDeleteInvest" text="Supprimer" prefWidth="100"/>
+        </columns>
+    </TableView>
+
+    <Label text="Objectifs" style="-fx-font-size: 16px;"/>
+
+    <TextField fx:id="objectifSearch" promptText="Rechercher par nom..." prefWidth="250"/>
+
+    <TableView fx:id="objectifTable" prefWidth="850" prefHeight="250">
+        <columns>
+            <TableColumn fx:id="colName" text="Nom" prefWidth="150"/>
+            <TableColumn fx:id="colInitial" text="Montant initial" prefWidth="130"/>
+            <TableColumn fx:id="colTarget" text="Objectif" prefWidth="130"/>
+            <TableColumn fx:id="colCurrent" text="Valeur actuelle" prefWidth="130"/>
+            <TableColumn fx:id="colCompleted" text="Statut" prefWidth="100"/>
+            <TableColumn fx:id="colModifyObj" text="Modifier" prefWidth="100"/>
+            <TableColumn fx:id="colDeleteObj" text="Supprimer" prefWidth="100"/>
+        </columns>
+    </TableView>
+
+</VBox>

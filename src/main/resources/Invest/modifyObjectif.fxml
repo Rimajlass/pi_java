@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="15" alignment="CENTER"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="pi.controllers.InvestissementController.ModifyObjectifController"
+      prefWidth="400" prefHeight="500">
+
+    <Label text="Modifier l'objectif" style="-fx-font-size: 18px;"/>
+
+    <TextField fx:id="nameField" promptText="Nom de l'objectif" prefWidth="250"/>
+
+    <TextField fx:id="multiplierField" promptText="Multiplicateur (ex: 2)" prefWidth="250"/>
+
+    <Label text="Investissements disponibles:"/>
+
+    <ListView fx:id="investList" prefWidth="350" prefHeight="200"/>
+
+    <Label fx:id="totalLabel" text="Total investi: 0.0 USD"/>
+
+    <Label fx:id="targetLabel" text="Objectif: 0.0 USD"/>
+
+    <Button text="Confirmer" onAction="#confirm" prefWidth="150"/>
+
+</VBox>

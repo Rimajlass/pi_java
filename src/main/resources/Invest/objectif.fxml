@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="15" alignment="CENTER"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="pi.controllers.InvestissementController.ObjectifController"
+      prefWidth="700" prefHeight="500">
+
+    <Label text="Mes Objectifs" style="-fx-font-size: 18px;"/>
+
+    <Button text="Créer un objectif" onAction="#goToCreate" prefWidth="180"/>
+
+    <TextField fx:id="objectifSearch" promptText="Rechercher par nom..." prefWidth="250"/>
+
+    <TableView fx:id="objectifTable" prefWidth="650" prefHeight="400">
+        <columns>
+            <TableColumn fx:id="colName" text="Nom" prefWidth="150"/>
+            <TableColumn fx:id="colInitial" text="Montant initial" prefWidth="130"/>
+            <TableColumn fx:id="colTarget" text="Objectif" prefWidth="130"/>
+            <TableColumn fx:id="colCurrent" text="Valeur actuelle" prefWidth="130"/>
+            <TableColumn fx:id="colCompleted" text="Statut" prefWidth="100"/>
+            <TableColumn fx:id="colModify" text="Modifier" prefWidth="100"/>
+            <TableColumn fx:id="colDelete" text="Supprimer" prefWidth="100"/>
+
+        </columns>
+    </TableView>
+
+</VBox>

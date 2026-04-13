@@ -8,6 +8,9 @@ public class Crypto {
     private String apiid;
     private double currentprice;
 
+    public Crypto() {
+    }
+
     public Crypto(String name, String symbol, String apiid, double currentprice) {
         this.name = name;
         this.symbol = symbol;
@@ -23,28 +26,52 @@ public class Crypto {
         this.currentprice = currentprice;
     }
 
-    public int getId() { return this.id; }
+    public int getId() {
+        return id;
+    }
 
-    public void setId(int id) { this.id = id; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getName() { return this.name; }
+    public String getName() {
+        return name;
+    }
 
-    public void setName(String name) { this.name = name; }
+    public String getSymbolUpper() {
+        return symbol != null ? symbol.toUpperCase() : "";
+    }
 
-    public String getSymbol() { return this.symbol; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public void setSymbol(String symbol) { this.symbol = symbol; }
+    public String getSymbol() {
+        return symbol;
+    }
 
-    public String getApiid() { return this.apiid; }
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
 
-    public void setApiid(String apiid) { this.apiid = apiid; }
+    public String getApiid() {
+        return apiid;
+    }
 
-    public double getCurrentprice() { return this.currentprice; }
+    public void setApiid(String apiid) {
+        this.apiid = apiid;
+    }
 
-    public void setCurrentprice(double currentprice) { this.currentprice = currentprice; }
+    public double getCurrentprice() {
+        return currentprice;
+    }
+
+    public void setCurrentprice(double currentprice) {
+        this.currentprice = currentprice;
+    }
 
     @Override
     public String toString() {
-        return "Crypto{" + "id=" + this.id + ", symbol='" + this.symbol + '\'' + ", currentprice=" + this.currentprice + '}';
+        return name; // important pour ComboBox
     }
 }

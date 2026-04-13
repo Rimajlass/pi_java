@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="10" alignment="CENTER"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="pi.controllers.InvestissementController.CryptoController"
+      prefWidth="500" prefHeight="600">
+
+    <Button text="Refresh Prices"
+            onAction="#refresh"
+            prefWidth="200"/>
+
+    <TableView fx:id="table" prefWidth="400" prefHeight="200">
+        <columns>
+            <TableColumn fx:id="colName"
+                         text="Nom"
+                         prefWidth="200"/>
+
+            <TableColumn fx:id="colPrice"
+                         text="Prix (USD)"
+                         prefWidth="200"/>
+        </columns>
+    </TableView>
+    <Button text="Objectifs" onAction="#goToObjectifs"/>
+    <Button text="Admin" onAction="#goToAdmin"/>
+
+    <Button text="Investir" onAction="#goToInvest"/>
+
+    <TextField fx:id="investSearch" promptText="Rechercher par crypto..." prefWidth="250"/>
+
+    <TableView fx:id="investTable" prefWidth="400" prefHeight="200">
+        <columns>
+            <TableColumn fx:id="colCrypto" text="Crypto" prefWidth="130"/>
+            <TableColumn fx:id="colAmount" text="Montant" prefWidth="130"/>
+            <TableColumn fx:id="colQuantity" text="Quantité" prefWidth="130"/>
+            <TableColumn fx:id="colDelete" text="Supprimer" prefWidth="100"/>
+            <TableColumn fx:id="colProfitLoss" text="Gain/Perte (USD)" prefWidth="130"/>
+            <TableColumn fx:id="colModify" text="Modifier" prefWidth="100"/>
+
+
+        </columns>
+    </TableView>
+
+</VBox>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="15" alignment="CENTER"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="pi.controllers.InvestissementController.InvestissementController"
+      prefWidth="400" prefHeight="300">
+
+    <Label text="Faire un investissement" style="-fx-font-size: 18px;"/>
+
+    <!-- Choix crypto -->
+    <ComboBox fx:id="cryptoBox" prefWidth="200"/>
+
+    <!-- Montant -->
+    <TextField fx:id="amountField" promptText="Montant en USD" prefWidth="200"/>
+
+    <!-- Bouton -->
+    <Button text="Investir" onAction="#invest"/>
+
+</VBox>
