@@ -8,6 +8,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class SavingsValidationTest {
@@ -115,5 +116,63 @@ class SavingsValidationTest {
         );
 
         assertEquals("Date invalide. Format attendu: yyyy-mm-dd.", exception.getMessage());
+    }
+
+    @Test
+    void shouldAcceptValidGoalAndContributionInputs() {
+        assertDoesNotThrow(() -> SavingsValidation.validateGoal(
+                "Emergency Fund",
+                new BigDecimal("5000.00"),
+                new BigDecimal("1200.00"),
+                Date.valueOf(LocalDate.now().plusDays(30)),
+                4
+        ));
+        assertDoesNotThrow(() -> SavingsValidation.validateContribution(
+                new BigDecimal("150.00"),
+                new BigDecimal("900.00"),
+                new BigDecimal("400.00")
+        ));
+    }
+
+    @Test
+    void shouldRejectEmptyMoneyInput() {
+        SavingsValidationException exception = assertThrows(
+                SavingsValidationException.class,
+                () -> SavingsValidation.parseRequiredMoney(" ", "amount required")
+        );
+
+        assertEquals("amount required", exception.getMessage());
+    }
+
+    @Test
+    void shouldRejectCurrentAmountGreaterThanTarget() {
+        SavingsValidationException exception = assertThrows(
+                SavingsValidationException.class,
+                () -> SavingsValidation.validateGoal(
+                        "Trip",
+                        new BigDecimal("1000.00"),
+                        new BigDecimal("1200.00"),
+                        Date.valueOf(LocalDate.now().plusDays(10)),
+                        3
+                )
+        );
+
+        assertEquals("Le montant actuel ne peut pas depasser le montant cible.", exception.getMessage());
+    }
+
+    @Test
+    void shouldRejectPriorityOutsideAllowedRange() {
+        SavingsValidationException exception = assertThrows(
+                SavingsValidationException.class,
+                () -> SavingsValidation.validateGoal(
+                        "Trip",
+                        new BigDecimal("1000.00"),
+                        new BigDecimal("200.00"),
+                        Date.valueOf(LocalDate.now().plusDays(10)),
+                        6
+                )
+        );
+
+        assertEquals("La priorite doit etre comprise entre 1 et 5.", exception.getMessage());
     }
 }

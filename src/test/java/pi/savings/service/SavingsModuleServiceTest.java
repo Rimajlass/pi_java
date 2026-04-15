@@ -39,6 +39,21 @@ class SavingsModuleServiceTest {
     }
 
     @Test
+    void shouldReturnZeroHistoryStatsWhenThereAreNoTransactions() {
+        SavingsModuleService service = new SavingsModuleService(false);
+
+        SavingsModuleService.HistoryStats stats = service.calculateHistoryStats(List.of());
+
+        assertEquals(0, stats.transactionCount());
+        assertEquals(0, stats.depositCount());
+        assertEquals(0, stats.goalContributionCount());
+        assertEquals(new BigDecimal("0.00"), stats.totalDeposited());
+        assertEquals(new BigDecimal("0.00"), stats.totalContributedToGoals());
+        assertEquals(new BigDecimal("0.00"), stats.averageAmount());
+        assertEquals("--/--/----", stats.latestTransactionDate());
+    }
+
+    @Test
     void shouldExportHistoryToCsvAndPdf() throws Exception {
         SavingsModuleService service = new SavingsModuleService(false);
         List<SavingsTransactionRepository.TransactionRow> rows = List.of(
@@ -82,6 +97,21 @@ class SavingsModuleServiceTest {
         assertTrue(pdfContent.contains("Goals Report"));
         assertTrue(pdfContent.contains("Bike"));
         assertTrue(pdfContent.contains("Trip"));
+    }
+
+    @Test
+    void shouldCalculateGoalStatsForEmptyGoalList() {
+        SavingsModuleService service = new SavingsModuleService(false);
+
+        SavingsModuleService.GoalStats stats = service.calculateGoalStats(List.of());
+
+        assertEquals(0, stats.goalCount());
+        assertEquals(0, stats.completedGoalCount());
+        assertEquals(0, stats.completionRate());
+        assertEquals(new BigDecimal("0.00"), stats.totalTarget());
+        assertEquals(new BigDecimal("0.00"), stats.totalCurrent());
+        assertEquals(new BigDecimal("0.00"), stats.remainingAmount());
+        assertEquals("--/--/----", stats.nearestDeadline());
     }
 
     private static SavingsModuleService.GoalSnapshot goalSnapshot(

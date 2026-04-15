@@ -16,6 +16,7 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
@@ -32,8 +33,9 @@ import pi.savings.service.SavingsModuleService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 final class SavingsGoalsView {
 
@@ -473,6 +475,8 @@ final class SavingsGoalsView {
         rateField = new TextField();
         rateField.getStyleClass().add("field");
         rateField.setPrefWidth(90);
+        rateField.setTextFormatter(createMoneyTextFormatter(3));
+        rateField.setOnAction(event -> handleUpdateRate());
 
         Button saveRateButton = actionButton("Save", "primary-btn");
         saveRateButton.setPadding(new Insets(10, 16, 10, 16));
@@ -481,10 +485,14 @@ final class SavingsGoalsView {
         depositAmountField = new TextField();
         depositAmountField.setPromptText("Ex: 200");
         depositAmountField.getStyleClass().add("field");
+        depositAmountField.setTextFormatter(createMoneyTextFormatter(7));
+        depositAmountField.setOnAction(event -> handleDeposit());
 
         depositDescriptionField = new TextField();
         depositDescriptionField.setPromptText("Ex: monthly savings");
         depositDescriptionField.getStyleClass().add("field");
+        depositDescriptionField.setTextFormatter(createLengthFormatter(120));
+        depositDescriptionField.setOnAction(event -> handleDeposit());
 
         Button saveDepositButton = actionButton("Save Deposit", "primary-btn");
         saveDepositButton.setOnAction(event -> handleDeposit());
@@ -631,20 +639,36 @@ final class SavingsGoalsView {
         goalNameField = new TextField();
         goalNameField.setPromptText("Ex: Buy a car");
         goalNameField.getStyleClass().add("field");
+        goalNameField.setTextFormatter(createLengthFormatter(60));
+        goalNameField.setOnAction(event -> handleSaveGoal());
 
         goalTargetField = new TextField();
         goalTargetField.getStyleClass().add("field");
+        goalTargetField.setPromptText("Ex: 10000");
+        goalTargetField.setTextFormatter(createMoneyTextFormatter(7));
+        goalTargetField.setOnAction(event -> handleSaveGoal());
 
         goalCurrentField = new TextField("0");
         goalCurrentField.getStyleClass().add("field");
+        goalCurrentField.setTextFormatter(createMoneyTextFormatter(7));
+        goalCurrentField.setOnAction(event -> handleSaveGoal());
 
         goalDeadlinePicker = new DatePicker();
         goalDeadlinePicker.setPromptText("yyyy-mm-dd");
         goalDeadlinePicker.getStyleClass().add("field");
         goalDeadlinePicker.setEditable(false);
+        goalDeadlinePicker.setDayCellFactory(picker -> new javafx.scene.control.DateCell() {
+            @Override
+            public void updateItem(java.time.LocalDate item, boolean empty) {
+                super.updateItem(item, empty);
+                setDisable(empty || item == null || item.isBefore(java.time.LocalDate.now()));
+            }
+        });
 
         goalPriorityField = new TextField("3");
         goalPriorityField.getStyleClass().add("field");
+        goalPriorityField.setTextFormatter(createPriorityFormatter());
+        goalPriorityField.setOnAction(event -> handleSaveGoal());
 
         addGoalButton = actionButton("Add Goal", "primary-btn");
         addGoalButton.setOnAction(event -> handleSaveGoal());
@@ -781,10 +805,18 @@ final class SavingsGoalsView {
         contributeField.setPromptText("Add TND");
         contributeField.getStyleClass().add("field");
         contributeField.setPrefWidth(120);
+        contributeField.setTextFormatter(createMoneyTextFormatter(7));
         contributeField.setOnAction(event -> handleContribute(goal, contributeField));
 
         Button contributeButton = actionButton("Contribute", "primary-btn");
         contributeButton.setOnAction(event -> handleContribute(goal, contributeField));
+
+        boolean goalReached = goal.current().compareTo(goal.target()) >= 0;
+        if (goalReached) {
+            contributeField.setDisable(true);
+            contributeField.setPromptText("Goal reached");
+            contributeButton.setDisable(true);
+        }
 
         Button editButton = actionButton("Edit", "ghost-btn");
         editButton.setOnAction(event -> startGoalEdit(goal));
@@ -1377,5 +1409,42 @@ final class SavingsGoalsView {
 
     private String goalsSortDirectionValue() {
         return goalsDirectionComboBox == null || goalsDirectionComboBox.getValue() == null ? "Descending" : goalsDirectionComboBox.getValue();
+    }
+
+    private TextFormatter<String> createMoneyTextFormatter(int maxIntegerDigits) {
+        UnaryOperator<TextFormatter.Change> filter = change -> {
+            String next = change.getControlNewText();
+            if (next.isEmpty()) {
+                return change;
+            }
+
+            String normalized = next.replace(',', '.');
+            if (!normalized.matches("\\d{0," + maxIntegerDigits + "}(\\.\\d{0,2})?")) {
+                return null;
+            }
+
+            if (next.contains(",")) {
+                change.setText(change.getText().replace(',', '.'));
+            }
+            return change;
+        };
+        return new TextFormatter<>(filter);
+    }
+
+    private TextFormatter<String> createPriorityFormatter() {
+        UnaryOperator<TextFormatter.Change> filter = change -> {
+            String next = change.getControlNewText();
+            if (next.isEmpty() || next.matches("[1-5]?")) {
+                return change;
+            }
+            return null;
+        };
+        return new TextFormatter<>(filter);
+    }
+
+    private TextFormatter<String> createLengthFormatter(int maxLength) {
+        UnaryOperator<TextFormatter.Change> filter = change ->
+                change.getControlNewText().length() <= maxLength ? change : null;
+        return new TextFormatter<>(filter);
     }
 }

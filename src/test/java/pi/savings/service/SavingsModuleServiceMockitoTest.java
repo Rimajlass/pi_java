@@ -23,6 +23,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -165,7 +166,13 @@ class SavingsModuleServiceMockitoTest {
 
         service.createGoal(1, "Emergency Fund", "3000", "500", "2026-12-01", "4");
 
-        verify(financialGoalRepository).insert(any(FinancialGoal.class));
+        verify(financialGoalRepository).insert(argThat(goal ->
+                goal.getSavingAccountId() == 5
+                        && "Emergency Fund".equals(goal.getNom())
+                        && goal.getMontantCible() == 3000.0
+                        && goal.getMontantActuel() == 500.0
+                        && goal.getPriorite() == 4
+        ));
     }
 
     @Test
@@ -181,6 +188,28 @@ class SavingsModuleServiceMockitoTest {
         );
 
         assertEquals("Goal introuvable.", exception.getMessage());
+    }
+
+    @Test
+    void shouldUpdateExistingGoalWithNewValues() throws Exception {
+        SavingAccount account = savingAccount(5, 1, "1500.00", "3.50", LocalDate.of(2026, 4, 1));
+        FinancialGoal goal = goal(99, 5, "Car", "5000.00", "1000.00", LocalDate.of(2026, 12, 1), 3);
+
+        when(savingAccountRepository.findLatestByUserId(1)).thenReturn(Optional.of(account));
+        when(financialGoalRepository.findByIdAndSavingAccountId(99, 5)).thenReturn(Optional.of(goal));
+        when(financialGoalRepository.findBySavingAccountId(5)).thenReturn(List.of(goal));
+        when(savingsTransactionRepository.findSavingsHistoryByUserId(1)).thenReturn(List.of());
+
+        service.updateGoal(1, 99, "New Car", "6500", "2500", "2026-11-20", "5");
+
+        verify(financialGoalRepository).update(argThat(updatedGoal ->
+                updatedGoal.getId() == 99
+                        && "New Car".equals(updatedGoal.getNom())
+                        && updatedGoal.getMontantCible() == 6500.0
+                        && updatedGoal.getMontantActuel() == 2500.0
+                        && updatedGoal.getPriorite() == 5
+                        && Date.valueOf(LocalDate.of(2026, 11, 20)).equals(updatedGoal.getDateLimite())
+        ));
     }
 
     @Test
@@ -221,6 +250,28 @@ class SavingsModuleServiceMockitoTest {
     }
 
     @Test
+    void shouldRollbackContributionWhenGoalUpdateFails() throws Exception {
+        SavingAccount account = savingAccount(5, 1, "2000.00", "3.50", LocalDate.of(2026, 4, 1));
+        FinancialGoal goal = goal(22, 5, "Car", "3000.00", "1000.00", LocalDate.of(2026, 12, 1), 5);
+
+        when(savingAccountRepository.findLatestByUserId(1)).thenReturn(Optional.of(account));
+        when(financialGoalRepository.findByIdAndSavingAccountId(22, 5)).thenReturn(Optional.of(goal));
+        when(savingAccountRepository.getConnection()).thenReturn(connection);
+        when(connection.getAutoCommit()).thenReturn(true);
+        doThrow(new SQLException("goal update failed")).when(financialGoalRepository)
+                .addContribution(22, 5, 300.0, connection);
+
+        SavingsModuleService.SavingsModuleException exception = assertThrows(
+                SavingsModuleService.SavingsModuleException.class,
+                () -> service.contributeToGoal(1, 22, "300")
+        );
+
+        assertEquals("Impossible d'enregistrer la contribution.", exception.getMessage());
+        verify(connection).rollback();
+        verify(savingsTransactionRepository, never()).insertGoalContribution(anyInt(), any(BigDecimal.class), anyString(), any(Connection.class));
+    }
+
+    @Test
     void shouldDeleteGoalForAccount() throws Exception {
         SavingAccount account = savingAccount(5, 1, "100.00", "3.50", LocalDate.of(2026, 4, 1));
 
@@ -231,6 +282,18 @@ class SavingsModuleServiceMockitoTest {
         service.deleteGoal(1, 77);
 
         verify(financialGoalRepository).delete(77, 5);
+    }
+
+    @Test
+    void shouldWrapDashboardLoadingSqlErrors() throws Exception {
+        when(savingAccountRepository.findLatestByUserId(1)).thenThrow(new SQLException("db down"));
+
+        SavingsModuleService.SavingsModuleException exception = assertThrows(
+                SavingsModuleService.SavingsModuleException.class,
+                () -> service.loadDashboard(1)
+        );
+
+        assertEquals("Impossible de charger le module Savings & Goals.", exception.getMessage());
     }
 
     private static SavingAccount savingAccount(int id, int userId, String balance, String rate, LocalDate createdOn) {
