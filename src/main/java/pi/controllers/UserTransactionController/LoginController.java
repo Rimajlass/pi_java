@@ -80,7 +80,11 @@ public class LoginController {
                 feedbackLabel.getStyleClass().add("feedback-success");
             }
 
-            openSalaryHome(user);
+            if (user.hasRole("ROLE_ADMIN")) {
+                openAdminBackend(user);
+            } else {
+                openSalaryHome(user);
+            }
         } catch (Exception e) {
             feedbackLabel.getStyleClass().remove("feedback-success");
             if (!feedbackLabel.getStyleClass().contains("feedback-error")) {
@@ -142,6 +146,22 @@ public class LoginController {
         scene.getStylesheets().add(Main.class.getResource("/pi/styles/salary-home.css").toExternalForm());
 
         stage.setTitle("Salary Home");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    private void openAdminBackend(User user) throws IOException {
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/pi/mains/admin-backend-view.fxml"));
+        Parent root = loader.load();
+        AdminBackendController controller = loader.getController();
+        controller.setUser(user);
+
+        Stage stage = (Stage) feedbackLabel.getScene().getWindow();
+        stage.setUserData(user);
+        Scene scene = new Scene(root, 1460, 780);
+        scene.getStylesheets().add(Main.class.getResource("/pi/styles/admin-backend.css").toExternalForm());
+
+        stage.setTitle("Admin Backend");
         stage.setScene(scene);
         stage.show();
     }

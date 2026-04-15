@@ -1,0 +1,69 @@
+/* Cartes KPI — aligné sur la maquette web */
+.tx-mgmt-kpi-row {
+    -fx-spacing: 10;
+}
+
+.tx-mgmt-kpi {
+    -fx-padding: 12px 14px;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.15), 14, 0.12, 0, 4);
+}
+
+.tx-mgmt-kpi-expense {
+    -fx-background-color: linear-gradient(to bottom right, #ef4444, #b91c1c);
+}
+
+.tx-mgmt-kpi-saving {
+    -fx-background-color: linear-gradient(to bottom right, #22c55e, #15803d);
+}
+
+.tx-mgmt-kpi-investment {
+    -fx-background-color: linear-gradient(to bottom right, #3b82f6, #1d4ed8);
+}
+
+.tx-mgmt-kpi-label {
+    -fx-text-fill: rgba(255, 255, 255, 0.92);
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.tx-mgmt-kpi-value {
+    -fx-text-fill: white;
+    -fx-font-size: 22px;
+    -fx-font-weight: 800;
+}
+
+.field-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #64748b;
+}
+
+.tx-mgmt-table {
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+}
+
+.tx-mgmt-table .column-header-background {
+    -fx-background-color: #eef2ff;
+}
+
+.tx-mini-outline {
+    -fx-background-color: transparent;
+    -fx-border-color: #4f5ec7;
+    -fx-border-radius: 8px;
+    -fx-text-fill: #4f5ec7;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-padding: 4px 10px;
+}
+
+.tx-mini-outline-secondary {
+    -fx-background-color: transparent;
+    -fx-border-color: #94a3b8;
+    -fx-border-radius: 8px;
+    -fx-text-fill: #475569;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-padding: 4px 10px;
+}

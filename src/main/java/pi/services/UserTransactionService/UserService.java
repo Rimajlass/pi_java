@@ -87,6 +87,20 @@ public class UserService {
         return null;
     }
 
+    public void updateSoldeTotal(int userId, double soldeTotal) {
+        String sql = "UPDATE `user` SET solde_total = ? WHERE id = ?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setDouble(1, soldeTotal);
+            ps.setInt(2, userId);
+            int n = ps.executeUpdate();
+            if (n == 0) {
+                throw new IllegalStateException("Utilisateur introuvable pour mise à jour du solde.");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la mise à jour du solde : " + e.getMessage(), e);
+        }
+    }
+
     public User findByEmail(String email) {
         String sql = "SELECT * FROM `user` WHERE LOWER(email) = ?";
 
