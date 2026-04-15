@@ -68,6 +68,18 @@
     -fx-opacity: 1.0;
 }
 
+.nav-button-active .text {
+    -fx-fill: #34ddff;
+}
+
+.nav-button-active:disabled {
+    -fx-opacity: 1.0;
+}
+
+.nav-button-active:disabled .text {
+    -fx-fill: #34ddff;
+}
+
 .profile-pill {
     -fx-background-color: rgba(255,255,255,0.10);
     -fx-background-radius: 999px;
@@ -141,6 +153,28 @@
     -fx-border-radius: 22px;
     -fx-padding: 18 22 18 22;
     -fx-effect: dropshadow(gaussian, rgba(24, 43, 73, 0.12), 16, 0.14, 0, 5);
+}
+
+.service-card-button {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 22px;
+    -fx-border-color: #d6deea;
+    -fx-border-radius: 22px;
+    -fx-padding: 18 22 18 22;
+    -fx-effect: dropshadow(gaussian, rgba(24, 43, 73, 0.12), 16, 0.14, 0, 5);
+    -fx-cursor: hand;
+    -fx-alignment: top-left;
+    -fx-content-display: graphic-only;
+    -fx-text-alignment: left;
+}
+
+.service-card-button:hover {
+    -fx-border-color: #8db7ff;
+    -fx-background-color: #f9fbff;
+}
+
+.service-card-button:pressed {
+    -fx-background-color: #eef4ff;
 }
 
 .service-title {

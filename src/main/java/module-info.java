@@ -6,8 +6,14 @@ module Pidev3A47 {
 
     exports pi.mains;
     exports pi.savings.ui;
+    exports pi.entities;
+    exports pi.services.RevenueExpenseService;
+    exports pi.tools;
 
     opens pi.mains to javafx.fxml;
     opens pi.controllers.UserTransactionController to javafx.fxml;
+    opens pi.controllers.ExpenseRevenueController.BACK to javafx.fxml;
+    opens pi.controllers.ExpenseRevenueController.FRONT to javafx.fxml;
+    opens pi.controllers.ExpenseRevenueController.UPDATE to javafx.fxml;
     opens pi.savings.ui to javafx.fxml;
 }

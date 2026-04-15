@@ -302,6 +302,10 @@ public class TransactionsManagementController {
             String key = menuLabel.getText();
             if ("Users".equalsIgnoreCase(key)) {
                 handleNavUsers();
+            } else if ("Revenues".equalsIgnoreCase(key)) {
+                openRevenueBackOffice();
+            } else if ("Expenses".equalsIgnoreCase(key)) {
+                openExpenseBackOffice();
             }
         }
     }
@@ -446,6 +450,30 @@ public class TransactionsManagementController {
                 + "\nDescription: " + (t.getDescription() != null ? t.getDescription() : "-")
                 + "\nSource: " + (t.getModuleSource() != null ? t.getModuleSource() : "-");
         showInfo("Transaction #" + t.getId(), msg);
+    }
+
+    private void openRevenueBackOffice() {
+        try {
+            Stage stage = (Stage) userLabel.getScene().getWindow();
+            Parent root = FXMLLoader.load(Main.class.getResource("/Expense/Revenue/BACK/revenue-back-view.fxml"));
+            stage.setTitle("Revenue Back Office");
+            stage.setScene(new Scene(root, 1400, 900));
+            stage.show();
+        } catch (IOException e) {
+            showError("Navigation error", "Unable to open revenue back office:\n" + String.valueOf(e.getMessage()));
+        }
+    }
+
+    private void openExpenseBackOffice() {
+        try {
+            Stage stage = (Stage) userLabel.getScene().getWindow();
+            Parent root = FXMLLoader.load(Main.class.getResource("/Expense/Revenue/BACK/expense-back-view.fxml"));
+            stage.setTitle("Expense Back Office");
+            stage.setScene(new Scene(root, 1400, 900));
+            stage.show();
+        } catch (IOException e) {
+            showError("Navigation error", "Unable to open expense back office:\n" + String.valueOf(e.getMessage()));
+        }
     }
 
     private void showInfo(String title, String content) {

@@ -1,5 +1,6 @@
 package pi.savings.ui;
 
+import javafx.fxml.FXMLLoader;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -28,9 +29,17 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import javafx.stage.Stage;
+import pi.controllers.ExpenseRevenueController.FRONT.SalaryExpenseController;
+import pi.controllers.UserTransactionController.AboutController;
+import pi.controllers.UserTransactionController.ContactController;
+import pi.controllers.UserTransactionController.SalaryHomeController;
+import pi.controllers.UserTransactionController.ServiceController;
+import pi.entities.User;
+import pi.mains.Main;
 import pi.savings.repository.SavingsTransactionRepository;
 import pi.savings.service.SavingsModuleService;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -85,8 +94,7 @@ final class SavingsGoalsView {
 
         VBox page = new VBox();
         page.getStyleClass().add("page");
-        page.getChildren().add(buildHeader());
-        page.getChildren().add(buildHero());
+        page.getChildren().add(buildTopShell());
         page.getChildren().add(buildContent());
         page.getChildren().add(buildFooter());
 
@@ -153,55 +161,55 @@ final class SavingsGoalsView {
         }
     }
 
-    private HBox buildHeader() {
+    private VBox buildTopShell() {
+        VBox topShell = new VBox(18);
+        topShell.getStyleClass().add("top-shell");
+        topShell.setPadding(new Insets(22, 28, 0, 28));
+
         HBox header = new HBox(24);
-        header.getStyleClass().add("top-header");
+        header.getStyleClass().add("top-nav");
         header.setAlignment(Pos.CENTER_LEFT);
 
         HBox brand = new HBox(12);
         brand.setAlignment(Pos.CENTER_LEFT);
-        StackPane logo = iconBubble("$");
-        logo.getStyleClass().add("brand-bubble");
+        Label brandBadge = new Label("DS");
+        brandBadge.getStyleClass().add("brand-badge");
         Label brandName = new Label("Decide$");
-        brandName.getStyleClass().add("brand-name");
-        brand.getChildren().addAll(logo, brandName);
+        brandName.getStyleClass().add("brand-mark");
+        brand.getChildren().addAll(brandBadge, brandName);
 
         HBox nav = new HBox(
-                headerNavButton("Home", "Main navigation remains informational in desktop mode."),
-                headerNavButton("About", "About section remains informational in desktop mode."),
-                headerNavButton("Service", "Service section remains informational in desktop mode."),
-                headerNavButton("Income & Expenses", "Income & Expenses section remains informational in desktop mode."),
-                headerNavButton("Savings", "You are already inside the Savings module."),
-                headerNavButton("Unexpected Events", "Unexpected Events section remains informational in desktop mode."),
-                headerNavButton("Contact", "Contact section remains informational in desktop mode.")
+                headerNavButton("Home", this::openHomePage),
+                headerNavButton("About", this::openAboutPage),
+                headerNavButton("Service", this::openServicePage),
+                headerNavButton("Contact", this::openContactPage)
         );
-        nav.getStyleClass().add("top-nav");
+        nav.getStyleClass().add("nav-links");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Button themeButton = actionButton("Theme", "header-icon-btn");
-        themeButton.setOnAction(event -> showInfo("Theme switching is not connected yet."));
+        HBox profilePill = new HBox(10);
+        profilePill.getStyleClass().add("profile-pill");
+        profilePill.setAlignment(Pos.CENTER);
+        Label profileIcon = new Label("S");
+        profileIcon.getStyleClass().add("profile-icon");
+        Label profileName = new Label("Savings Workspace");
+        profileName.getStyleClass().add("profile-name");
+        profilePill.getChildren().addAll(profileIcon, profileName);
 
         Button startButton = actionButton("To Start", "header-start-btn");
-        startButton.setOnAction(event -> {
-            tabPane.getSelectionModel().select(0);
-            showInfo("Navigation focus moved to the Savings workspace.");
-        });
+        startButton.setOnAction(event -> openHomePage());
 
         Button logoutButton = actionButton("Logout", "header-logout-btn");
-        logoutButton.setOnAction(event -> showInfo("Logout action is not connected in this desktop prototype."));
+        logoutButton.setOnAction(event -> openLoginPage());
 
-        HBox actions = new HBox(12, themeButton, startButton, logoutButton);
-        actions.setAlignment(Pos.CENTER_RIGHT);
+        HBox headerActions = new HBox(12, profilePill, startButton, logoutButton);
+        headerActions.setAlignment(Pos.CENTER_RIGHT);
 
-        header.getChildren().addAll(brand, nav, spacer, actions);
-        return header;
-    }
-
-    private VBox buildHero() {
+        header.getChildren().addAll(brand, nav, spacer, headerActions);
         VBox hero = new VBox(14);
-        hero.getStyleClass().add("hero");
+        hero.getStyleClass().add("hero-banner");
         hero.setAlignment(Pos.CENTER);
 
         Label title = new Label("Savings & Goals");
@@ -234,7 +242,8 @@ final class SavingsGoalsView {
         actions.setAlignment(Pos.CENTER);
 
         hero.getChildren().addAll(title, subtitle, breadcrumb, actions);
-        return hero;
+        topShell.getChildren().addAll(header, hero);
+        return topShell;
     }
 
     private VBox buildContent() {
@@ -1328,13 +1337,86 @@ final class SavingsGoalsView {
         return null;
     }
 
-    private Button headerNavButton(String text, String message) {
+    private Button headerNavButton(String text, Runnable action) {
         Button button = actionButton(text, "header-nav-btn");
-        button.setOnAction(event -> showInfo(message));
+        button.setOnAction(event -> action.run());
         if ("Savings".equals(text)) {
             button.getStyleClass().add("header-nav-active");
         }
         return button;
+    }
+
+    private void openHomePage() {
+        navigateToPage("/pi/mains/salary-home-view.fxml", "/pi/styles/salary-home.css", "Salary Home");
+    }
+
+    private void openAboutPage() {
+        navigateToPage("/pi/mains/about-view.fxml", "/pi/styles/about.css", "About Us");
+    }
+
+    private void openServicePage() {
+        navigateToPage("/pi/mains/service-view.fxml", "/pi/styles/service.css", "Services");
+    }
+
+    private void openRevenueExpensePage() {
+        navigateToPage("/Expense/Revenue/FRONT/salary-expense-view.fxml", null, "Income & Expense Management");
+    }
+
+    private void openContactPage() {
+        navigateToPage("/pi/mains/contact-view.fxml", "/pi/styles/contact.css", "Contact");
+    }
+
+    private void openLoginPage() {
+        navigateToPage("/pi/mains/login-view.fxml", "/pi/styles/login.css", "User Secure Login", false);
+    }
+
+    private void navigateToPage(String fxmlPath, String cssPath, String title) {
+        navigateToPage(fxmlPath, cssPath, title, true);
+    }
+
+    private void navigateToPage(String fxmlPath, String cssPath, String title, boolean preserveUserData) {
+        Window owner = currentWindow();
+        if (!(owner instanceof Stage stage)) {
+            showError("Navigation window is unavailable.");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource(fxmlPath));
+            Parent root = loader.load();
+            Object userData = preserveUserData ? stage.getUserData() : null;
+            applyUserContext(loader.getController(), userData);
+
+            Scene scene = new Scene(root, 1460, 780);
+            if (cssPath != null) {
+                scene.getStylesheets().add(Main.class.getResource(cssPath).toExternalForm());
+            }
+
+            stage.setUserData(userData);
+            stage.setTitle(title);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException exception) {
+            showError("Impossible d'ouvrir " + title + ".");
+        }
+    }
+
+    private void applyUserContext(Object targetController, Object userData) {
+        if (!(userData instanceof User user) || targetController == null) {
+            return;
+        }
+
+        if (targetController instanceof SalaryHomeController salaryHomeController) {
+            salaryHomeController.setUser(user);
+        } else if (targetController instanceof ServiceController serviceController) {
+            serviceController.setUser(user);
+        } else if (targetController instanceof AboutController aboutController) {
+            aboutController.setUser(user);
+        } else if (targetController instanceof ContactController contactController) {
+            contactController.setUser(user);
+        } else if (targetController instanceof SalaryExpenseController salaryExpenseController) {
+            salaryExpenseController.setUser(user);
+        }
     }
 
     private Button tabPill(String text, boolean active) {

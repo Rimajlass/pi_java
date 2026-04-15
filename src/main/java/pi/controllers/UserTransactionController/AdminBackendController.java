@@ -16,6 +16,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import pi.controllers.ExpenseRevenueController.BACK.AdminRevenueExpenseBackOfficeFactory;
 import pi.entities.User;
 import pi.mains.Main;
 import pi.savings.ui.AdminSavingsBackOfficeFactory;
@@ -86,6 +87,8 @@ public class AdminBackendController {
     private User currentUser;
     private Parent savingsWorkspace;
     private Parent goalsWorkspace;
+    private Parent revenueWorkspace;
+    private Parent expenseWorkspace;
 
     @FXML
     public void initialize() {
@@ -143,6 +146,8 @@ public class AdminBackendController {
             switch (key.toLowerCase()) {
                 case "users" -> showUsersWorkspace();
                 case "transactions" -> handleNavTransactions();
+                case "revenues" -> showRevenueWorkspace();
+                case "expenses" -> showExpenseWorkspace();
                 case "savings" -> showSavingsWorkspace();
                 case "goals" -> showGoalsWorkspace();
                 default -> showPlaceholderWorkspace(key);
@@ -268,6 +273,32 @@ public class AdminBackendController {
             savingsWorkspace = AdminSavingsBackOfficeFactory.buildSavingsWorkspace();
         }
         replaceWorkspace(savingsWorkspace);
+    }
+
+    private void showRevenueWorkspace() {
+        headerLabel.setText("Revenues");
+        headerSubtitle.setText("Manage revenues in the shared admin workspace while keeping the blue sidebar visible.");
+        if (addUserButton != null) {
+            addUserButton.setManaged(false);
+            addUserButton.setVisible(false);
+        }
+        if (revenueWorkspace == null) {
+            revenueWorkspace = AdminRevenueExpenseBackOfficeFactory.buildRevenueWorkspace();
+        }
+        replaceWorkspace(revenueWorkspace);
+    }
+
+    private void showExpenseWorkspace() {
+        headerLabel.setText("Expenses");
+        headerSubtitle.setText("Manage expenses in the shared admin workspace while keeping the blue sidebar visible.");
+        if (addUserButton != null) {
+            addUserButton.setManaged(false);
+            addUserButton.setVisible(false);
+        }
+        if (expenseWorkspace == null) {
+            expenseWorkspace = AdminRevenueExpenseBackOfficeFactory.buildExpenseWorkspace();
+        }
+        replaceWorkspace(expenseWorkspace);
     }
 
     private void showGoalsWorkspace() {

@@ -110,7 +110,8 @@
 
                                             <Button text="Dashboard"
                                                     mnemonicParsing="false"
-                                                    styleClass="header-button secondary-header-button" />
+                                                    styleClass="header-button secondary-header-button"
+                                                    onAction="#handleOpenServiceAction" />
 
                                             <Button text="Logout"
                                                     mnemonicParsing="false"
@@ -160,10 +161,12 @@
                                                 <children>
                                                     <Button text="Get Started"
                                                             mnemonicParsing="false"
-                                                            styleClass="hero-button" />
+                                                            styleClass="hero-button"
+                                                            onAction="#handleOpenServiceAction" />
                                                     <Button text="Learn More"
                                                             mnemonicParsing="false"
-                                                            styleClass="hero-outline-button" />
+                                                            styleClass="hero-outline-button"
+                                                            onAction="#handleOpenAboutAction" />
                                                 </children>
                                             </HBox>
                                         </children>

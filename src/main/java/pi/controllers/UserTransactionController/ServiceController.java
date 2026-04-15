@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import pi.controllers.ExpenseRevenueController.FRONT.SalaryExpenseController;
 import pi.entities.User;
 import pi.mains.Main;
 import pi.savings.ui.SavingsGoalsApp;
@@ -69,6 +70,15 @@ public class ServiceController {
             openSavingsGoals((Node) event.getSource());
         } catch (Exception e) {
             throw new RuntimeException("Impossible d'ouvrir l'interface Savings & Goals.", e);
+        }
+    }
+
+    @FXML
+    private void handleOpenRevenueExpenseAction(ActionEvent event) {
+        try {
+            openRevenueExpense((Node) event.getSource());
+        } catch (IOException e) {
+            throw new RuntimeException("Impossible d'ouvrir la page Revenus & Expenses.", e);
         }
     }
 
@@ -151,5 +161,23 @@ public class ServiceController {
         Object userData = stage.getUserData();
         stage.setUserData(userData);
         new SavingsGoalsApp().start(stage);
+    }
+
+    private void openRevenueExpense(Node source) throws IOException {
+        Stage stage = (Stage) source.getScene().getWindow();
+        Object userData = stage.getUserData();
+
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/Expense/Revenue/FRONT/salary-expense-view.fxml"));
+        Parent root = loader.load();
+        SalaryExpenseController controller = loader.getController();
+        if (userData instanceof User user) {
+            controller.setUser(user);
+        }
+
+        Scene scene = new Scene(root, 1460, 780);
+        stage.setUserData(userData);
+        stage.setTitle("Income & Expense Management");
+        stage.setScene(scene);
+        stage.show();
     }
 }
