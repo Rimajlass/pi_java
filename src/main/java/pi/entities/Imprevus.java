@@ -6,25 +6,22 @@ public class Imprevus {
     private String titre;
     private String type;
     private double budget;
-    private String message_educatif;
 
 
 
-    public Imprevus( String titre, String type, double budget, String message_educatif) {
+    public Imprevus( String titre, String type, double budget) {
         this.titre = titre;
         this.type = type;
         this.budget = budget;
-        this.message_educatif = message_educatif;
     }
     public Imprevus() {
     }
 
-    public Imprevus(int id, String titre, String type, double budget, String messageEducatif) {
+    public Imprevus(int id, String titre, String type, double budget) {
         this.id = id;
         this.titre = titre;
         this.type = type;
         this.budget = budget;
-        this.message_educatif = messageEducatif;
     }
 
     public int getId() { return this.id; }
@@ -43,9 +40,7 @@ public class Imprevus {
 
     public void setBudget(double budget) { this.budget = budget; }
 
-    public String getMessage_educatif() { return this.message_educatif; }
 
-    public void setMessage_educatif(String message_educatif) { this.message_educatif = message_educatif; }
 
     @Override
     public String toString() {

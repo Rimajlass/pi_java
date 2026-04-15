@@ -147,7 +147,7 @@
                                             </graphic>
                                         </Button>
 
-                                        <VBox spacing="10.0" prefWidth="430.0" styleClass="service-card">
+                                        <VBox spacing="10.0" prefWidth="430.0" styleClass="service-card" onMouseClicked="#handleOpenUnexpectedRealCases">
                                             <children>
                                                 <Label text="Unexpected events &amp; real cases" styleClass="service-title" />
                                                 <Label text="Prepare for emergency costs with clear and proactive planning."

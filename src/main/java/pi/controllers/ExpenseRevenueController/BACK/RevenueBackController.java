@@ -149,6 +149,8 @@ public class RevenueBackController {
                 openWindow("/pi/mains/admin-backend-view.fxml", "Admin Backend");
             } else if ("Transactions".equalsIgnoreCase(key)) {
                 openWindow("/pi/mains/transactions-management-view.fxml", "Transactions Management");
+            } else if ("Unexpected Events".equalsIgnoreCase(key) || "Real Cases".equalsIgnoreCase(key)) {
+                openWindow("/back-office-view.fxml", "Unexpected Events & Real Cases");
             } else if ("Expenses".equalsIgnoreCase(key)) {
                 handleOpenExpenseInterface();
             }

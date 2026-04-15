@@ -17,6 +17,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import pi.controllers.ExpenseRevenueController.BACK.AdminRevenueExpenseBackOfficeFactory;
+import pi.controllers.ImprevusCasreelController.AdminUnexpectedCasesBackOfficeFactory;
 import pi.entities.User;
 import pi.mains.Main;
 import pi.savings.ui.AdminSavingsBackOfficeFactory;
@@ -89,6 +90,8 @@ public class AdminBackendController {
     private Parent goalsWorkspace;
     private Parent revenueWorkspace;
     private Parent expenseWorkspace;
+    private Parent unexpectedWorkspace;
+    private Parent realCasesWorkspace;
 
     @FXML
     public void initialize() {
@@ -146,6 +149,8 @@ public class AdminBackendController {
             switch (key.toLowerCase()) {
                 case "users" -> showUsersWorkspace();
                 case "transactions" -> handleNavTransactions();
+                case "unexpected events" -> showUnexpectedWorkspace();
+                case "real cases" -> showRealCasesWorkspace();
                 case "revenues" -> showRevenueWorkspace();
                 case "expenses" -> showExpenseWorkspace();
                 case "savings" -> showSavingsWorkspace();
@@ -299,6 +304,32 @@ public class AdminBackendController {
             expenseWorkspace = AdminRevenueExpenseBackOfficeFactory.buildExpenseWorkspace();
         }
         replaceWorkspace(expenseWorkspace);
+    }
+
+    private void showUnexpectedWorkspace() {
+        headerLabel.setText("Unexpected Events");
+        headerSubtitle.setText("Manage unexpected events while keeping the same admin sidebar visible.");
+        if (addUserButton != null) {
+            addUserButton.setManaged(false);
+            addUserButton.setVisible(false);
+        }
+        if (unexpectedWorkspace == null) {
+            unexpectedWorkspace = AdminUnexpectedCasesBackOfficeFactory.buildWorkspace();
+        }
+        replaceWorkspace(unexpectedWorkspace);
+    }
+
+    private void showRealCasesWorkspace() {
+        headerLabel.setText("Real Cases");
+        headerSubtitle.setText("Manage real cases while keeping the same admin sidebar visible.");
+        if (addUserButton != null) {
+            addUserButton.setManaged(false);
+            addUserButton.setVisible(false);
+        }
+        if (realCasesWorkspace == null) {
+            realCasesWorkspace = AdminUnexpectedCasesBackOfficeFactory.buildWorkspace();
+        }
+        replaceWorkspace(realCasesWorkspace);
     }
 
     private void showGoalsWorkspace() {
