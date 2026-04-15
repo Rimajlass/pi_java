@@ -1,52 +1,80 @@
 package pi.entities;
 
-import java.time.LocalDate;
+import java.sql.Date;
 
 public class SavingAccount {
-
     private int id;
-    private User user;
-    private Double sold;
-    private LocalDate dateCreation;
-    private Double tauxInteret;
+    private int userId;
+    private double sold;
+    private Date dateCreation;
+    private double tauxInteret;
 
-    public SavingAccount(User user, Double sold, LocalDate dateCreation, Double tauxInteret) {
-        this.user = user;
+    public SavingAccount() {
+    }
+
+    public SavingAccount(int userId, double sold, Date dateCreation, double tauxInteret) {
+        this.userId = userId;
         this.sold = sold;
         this.dateCreation = dateCreation;
         this.tauxInteret = tauxInteret;
     }
 
-    public SavingAccount(int id, User user, Double sold, LocalDate dateCreation, Double tauxInteret) {
+    public SavingAccount(int id, int userId, double sold, Date dateCreation, double tauxInteret) {
         this.id = id;
-        this.user = user;
+        this.userId = userId;
         this.sold = sold;
         this.dateCreation = dateCreation;
         this.tauxInteret = tauxInteret;
     }
 
-    public int getId() { return this.id; }
+    public int getId() {
+        return id;
+    }
 
-    public void setId(int id) { this.id = id; }
+    public int getUserId() {
+        return userId;
+    }
 
-    public User getUser() { return this.user; }
+    public double getSold() {
+        return sold;
+    }
 
-    public void setUser(User user) { this.user = user; }
+    public Date getDateCreation() {
+        return dateCreation;
+    }
 
-    public Double getSold() { return this.sold; }
+    public double getTauxInteret() {
+        return tauxInteret;
+    }
 
-    public void setSold(Double sold) { this.sold = sold; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public LocalDate getDateCreation() { return this.dateCreation; }
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
 
-    public void setDateCreation(LocalDate dateCreation) { this.dateCreation = dateCreation; }
+    public void setSold(double sold) {
+        this.sold = sold;
+    }
 
-    public Double getTauxInteret() { return this.tauxInteret; }
+    public void setDateCreation(Date dateCreation) {
+        this.dateCreation = dateCreation;
+    }
 
-    public void setTauxInteret(Double tauxInteret) { this.tauxInteret = tauxInteret; }
+    public void setTauxInteret(double tauxInteret) {
+        this.tauxInteret = tauxInteret;
+    }
 
     @Override
     public String toString() {
-        return "SavingAccount{" + "id=" + this.id + ", sold=" + this.sold + '}';
+        return "SavingAccount{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", sold=" + sold +
+                ", dateCreation=" + dateCreation +
+                ", tauxInteret=" + tauxInteret +
+                '}';
     }
 }

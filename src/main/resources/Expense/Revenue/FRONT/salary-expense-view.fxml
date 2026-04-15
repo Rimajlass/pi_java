@@ -26,26 +26,32 @@
                     <children>
                         <HBox alignment="CENTER_LEFT" styleClass="top-nav">
                             <children>
-                                <Label styleClass="brand-mark" text="Decide$" />
-                                <Region HBox.hgrow="ALWAYS" />
-                                <HBox alignment="CENTER" spacing="30.0" styleClass="nav-links">
+                                <HBox alignment="CENTER_LEFT" spacing="12.0">
                                     <children>
-                                        <Label styleClass="nav-link" text="Home" />
-                                        <Label styleClass="nav-link" text="About" />
-                                        <Label styleClass="nav-link" text="Service" />
-                                        <Label styleClass="nav-link-active" text="Income &amp; Expenses" />
-                                        <Label styleClass="nav-link" text="Savings" />
-                                        <Label styleClass="nav-link" text="Unexpected Events &amp; Real Cases" />
-                                        <Label styleClass="nav-link" text="Contact" />
+                                        <Label styleClass="brand-badge" text="DS" />
+                                        <Label styleClass="brand-mark" text="Decide$" />
                                     </children>
                                 </HBox>
                                 <Region HBox.hgrow="ALWAYS" />
-                                <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                                <HBox alignment="CENTER" spacing="30.0" styleClass="nav-links">
                                     <children>
-                                        <Button mnemonicParsing="false" styleClass="profile-button" text="amine" />
-                                        <Button mnemonicParsing="false" styleClass="ghost-round-button" text="Theme" />
-                                        <Button mnemonicParsing="false" styleClass="cyan-pill-button" text="To Start" />
-                                        <Button mnemonicParsing="false" styleClass="outline-pill-button" text="Logout" />
+                                        <Button mnemonicParsing="false" onAction="#handleOpenHomeAction" styleClass="nav-button" text="Home" />
+                                        <Button mnemonicParsing="false" onAction="#handleOpenAboutAction" styleClass="nav-button" text="About" />
+                                        <Button mnemonicParsing="false" onAction="#handleOpenServiceAction" styleClass="nav-button nav-button-active" text="Service" />
+                                        <Button mnemonicParsing="false" onAction="#handleOpenContactAction" styleClass="nav-button" text="Contact" />
+                                    </children>
+                                </HBox>
+                                <Region HBox.hgrow="ALWAYS" />
+                                <HBox alignment="CENTER_RIGHT" spacing="14.0">
+                                    <children>
+                                        <HBox alignment="CENTER" spacing="10.0" styleClass="profile-pill">
+                                            <children>
+                                                <Label styleClass="profile-icon" text="U" />
+                                                <Label styleClass="profile-name" text="amine" />
+                                            </children>
+                                        </HBox>
+                                        <Button mnemonicParsing="false" onAction="#handleOpenHomeAction" styleClass="header-button start-button" text="To Start" />
+                                        <Button mnemonicParsing="false" onAction="#handleLogoutAction" styleClass="header-button logout-button" text="Logout" />
                                     </children>
                                 </HBox>
                             </children>

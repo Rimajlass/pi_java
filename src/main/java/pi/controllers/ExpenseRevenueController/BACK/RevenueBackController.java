@@ -18,12 +18,15 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import pi.controllers.ExpenseRevenueController.UPDATE.RevenueEditController;
 import pi.entities.Revenue;
 import pi.entities.User;
+import pi.mains.Main;
 import pi.services.RevenueExpenseService.RevenueService;
 
 import java.io.IOException;
@@ -69,6 +72,8 @@ public class RevenueBackController {
     private TableColumn<Revenue, String> revenueDescriptionColumn;
     @FXML
     private TableColumn<Revenue, Revenue> revenueActionColumn;
+    @FXML
+    private VBox menuList;
 
     private final RevenueService revenueService = new RevenueService();
     private final ObservableList<Revenue> revenues = FXCollections.observableArrayList();
@@ -118,12 +123,49 @@ public class RevenueBackController {
         openWindow("/Expense/Revenue/FRONT/salary-expense-view.fxml", "Income & Expense Front Office");
     }
 
+    @FXML
+    private void handleOpenFrontInterfaceFromSidebar(MouseEvent event) {
+        handleOpenFrontInterface();
+    }
+
+    @FXML
+    private void handleSidebarSelection(MouseEvent event) {
+        if (!(event.getSource() instanceof HBox selectedRow) || menuList == null) {
+            return;
+        }
+
+        menuList.getChildren().stream()
+                .filter(HBox.class::isInstance)
+                .map(HBox.class::cast)
+                .forEach(row -> row.getStyleClass().remove("menu-row-active"));
+
+        if (!selectedRow.getStyleClass().contains("menu-row-active")) {
+            selectedRow.getStyleClass().add("menu-row-active");
+        }
+
+        if (selectedRow.getChildren().size() >= 2 && selectedRow.getChildren().get(1) instanceof Label menuLabel) {
+            String key = menuLabel.getText();
+            if ("Users".equalsIgnoreCase(key)) {
+                openWindow("/pi/mains/admin-backend-view.fxml", "Admin Backend");
+            } else if ("Transactions".equalsIgnoreCase(key)) {
+                openWindow("/pi/mains/transactions-management-view.fxml", "Transactions Management");
+            } else if ("Expenses".equalsIgnoreCase(key)) {
+                handleOpenExpenseInterface();
+            }
+        }
+    }
+
+    @FXML
+    private void handleLogout() {
+        openWindow("/pi/mains/login-view.fxml", "User Secure Login");
+    }
+
     private void openWindow(String resource, String title) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource(resource));
+            Parent root = FXMLLoader.load(Main.class.getResource(resource));
             Stage stage = new Stage();
             stage.setTitle(title);
-            stage.setScene(new Scene(root, 1400, 900));
+            stage.setScene(new Scene(root, 1460, 900));
             if (feedbackLabel != null && feedbackLabel.getScene() != null) {
                 stage.initOwner(feedbackLabel.getScene().getWindow());
             }

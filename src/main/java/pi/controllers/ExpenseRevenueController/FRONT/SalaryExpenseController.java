@@ -4,8 +4,10 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -28,6 +30,7 @@ import pi.controllers.ExpenseRevenueController.UPDATE.RevenueEditController;
 import pi.entities.Expense;
 import pi.entities.Revenue;
 import pi.entities.User;
+import pi.mains.Main;
 import pi.services.RevenueExpenseService.ExpenseService;
 import pi.services.RevenueExpenseService.RevenueService;
 
@@ -238,6 +241,31 @@ public class SalaryExpenseController {
     @FXML
     private void handleRefresh() {
         loadData();
+    }
+
+    @FXML
+    private void handleOpenHomeAction(ActionEvent event) {
+        openPage(event, "/pi/mains/salary-home-view.fxml", "/pi/styles/salary-home.css", "Salary Home");
+    }
+
+    @FXML
+    private void handleOpenAboutAction(ActionEvent event) {
+        openPage(event, "/pi/mains/about-view.fxml", "/pi/styles/about.css", "About Us");
+    }
+
+    @FXML
+    private void handleOpenServiceAction(ActionEvent event) {
+        openPage(event, "/pi/mains/service-view.fxml", "/pi/styles/service.css", "Services");
+    }
+
+    @FXML
+    private void handleOpenContactAction(ActionEvent event) {
+        openPage(event, "/pi/mains/contact-view.fxml", "/pi/styles/contact.css", "Contact");
+    }
+
+    @FXML
+    private void handleLogoutAction(ActionEvent event) {
+        openPage(event, "/pi/mains/login-view.fxml", "/pi/styles/login.css", "User Secure Login");
     }
 
     private void configureFilters() {
@@ -755,6 +783,29 @@ public class SalaryExpenseController {
         expenseDatePicker.setValue(LocalDate.now());
         expenseCategoryComboBox.setValue("Alimentation");
         expenseRevenueComboBox.getSelectionModel().clearSelection();
+    }
+
+    private void openPage(ActionEvent event, String fxmlPath, String cssPath, String title) {
+        try {
+            Node source = (Node) event.getSource();
+            Stage stage = (Stage) source.getScene().getWindow();
+            Object userData = stage.getUserData();
+
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource(fxmlPath));
+            Parent root = loader.load();
+
+            Scene scene = new Scene(root, 1460, 780);
+            if (cssPath != null) {
+                scene.getStylesheets().add(Main.class.getResource(cssPath).toExternalForm());
+            }
+
+            stage.setUserData("/pi/mains/login-view.fxml".equals(fxmlPath) ? null : userData);
+            stage.setTitle(title);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException exception) {
+            showError("Unable to open page: " + exception.getMessage());
+        }
     }
 
     private void showInfo(String message) {
