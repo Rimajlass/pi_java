@@ -12,11 +12,11 @@ public class MainFx extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader(MainFx.class.getResource("/imprevus-view.fxml"));
-        Scene scene = new Scene(loader.load(), 1100, 720);
-        stage.setTitle("Gestion des imprevus");
+        Scene scene = new Scene(loader.load(), 1500, 950);
+        stage.setTitle("Unexpected Events & Real Cases");
         stage.setScene(scene);
-        stage.setMinWidth(1000);
-        stage.setMinHeight(680);
+        stage.setMinWidth(1200);
+        stage.setMinHeight(760);
         stage.show();
     }
 
