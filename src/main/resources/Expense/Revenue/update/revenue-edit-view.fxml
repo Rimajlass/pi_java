@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="420.0" prefWidth="520.0" styleClass="dialog-root" stylesheets="@../../../styles/salary-expense.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.ExpenseRevenueController.RevenueEditController">
+<VBox prefHeight="420.0" prefWidth="520.0" styleClass="dialog-root" stylesheets="@../../../styles/RevenueExpenseFRONT/salary-expense.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.ExpenseRevenueController.UPDATE.RevenueEditController">
     <children>
         <Label styleClass="dialog-title" text="Modify Revenue" />
         <Label styleClass="dialog-subtitle" text="Update the selected revenue and save the new values." />

@@ -1,4 +1,4 @@
-package pi.controllers.ExpenseRevenueController;
+package pi.controllers.ExpenseRevenueController.UPDATE;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;

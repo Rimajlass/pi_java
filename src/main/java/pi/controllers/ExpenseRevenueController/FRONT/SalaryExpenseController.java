@@ -1,4 +1,4 @@
-package pi.controllers.ExpenseRevenueController;
+package pi.controllers.ExpenseRevenueController.FRONT;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -13,14 +13,18 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import pi.controllers.ExpenseRevenueController.UPDATE.ExpenseEditController;
+import pi.controllers.ExpenseRevenueController.UPDATE.RevenueEditController;
 import pi.entities.Expense;
 import pi.entities.Revenue;
 import pi.entities.User;
@@ -51,6 +55,24 @@ public class SalaryExpenseController {
     private Label lastTransactionLabel;
     @FXML
     private Label feedbackLabel;
+    @FXML
+    private Button overviewNavButton;
+    @FXML
+    private Button revenueNavButton;
+    @FXML
+    private Button expenseNavButton;
+    @FXML
+    private VBox overviewPanel;
+    @FXML
+    private VBox revenuePanel;
+    @FXML
+    private VBox expensePanel;
+    @FXML
+    private ScrollPane overviewPanelScroll;
+    @FXML
+    private ScrollPane revenuePanelScroll;
+    @FXML
+    private ScrollPane expensePanelScroll;
 
     @FXML
     private TextField revenueAmountField;
@@ -60,6 +82,14 @@ public class SalaryExpenseController {
     private DatePicker revenueDatePicker;
     @FXML
     private TextArea revenueDescriptionArea;
+    @FXML
+    private TextField revenueAmountFieldSecondary;
+    @FXML
+    private ComboBox<String> revenueTypeComboBoxSecondary;
+    @FXML
+    private DatePicker revenueDatePickerSecondary;
+    @FXML
+    private TextArea revenueDescriptionAreaSecondary;
     @FXML
     private TextField revenueSearchField;
     @FXML
@@ -128,23 +158,48 @@ public class SalaryExpenseController {
         configureRevenueTable();
         configureExpenseTable();
         configureFormDefaults();
+        configureBackOfficeNavigation();
         loadData();
     }
 
     @FXML
     private void handleAddRevenue() {
+        addRevenueFromForm(
+                revenueAmountField,
+                revenueTypeComboBox,
+                revenueDatePicker,
+                revenueDescriptionArea
+        );
+    }
+
+    @FXML
+    private void handleAddRevenueFromRevenuePanel() {
+        addRevenueFromForm(
+                revenueAmountFieldSecondary,
+                revenueTypeComboBoxSecondary,
+                revenueDatePickerSecondary,
+                revenueDescriptionAreaSecondary
+        );
+    }
+
+    private void addRevenueFromForm(
+            TextField amountField,
+            ComboBox<String> typeComboBox,
+            DatePicker datePicker,
+            TextArea descriptionArea
+    ) {
         try {
             Revenue revenue = new Revenue();
             revenue.setUser(currentUser);
-            revenue.setAmount(parseAmount(revenueAmountField.getText(), "Revenue amount"));
-            revenue.setType(requireValue(revenueTypeComboBox.getValue(), "Revenue type"));
-            revenue.setReceivedAt(Objects.requireNonNullElse(revenueDatePicker.getValue(), LocalDate.now()));
-            revenue.setDescription(normalizeText(revenueDescriptionArea.getText()));
+            revenue.setAmount(parseAmount(amountField.getText(), "Revenue amount"));
+            revenue.setType(requireValue(typeComboBox.getValue(), "Revenue type"));
+            revenue.setReceivedAt(Objects.requireNonNullElse(datePicker.getValue(), LocalDate.now()));
+            revenue.setDescription(normalizeText(descriptionArea.getText()));
             revenue.setCreatedAt(LocalDateTime.now());
 
             revenueService.add(revenue);
             showInfo("Revenue added successfully.");
-            clearRevenueForm();
+            clearRevenueForms();
             loadData();
         } catch (Exception exception) {
             showError(exception.getMessage());
@@ -159,10 +214,13 @@ public class SalaryExpenseController {
                 throw new IllegalArgumentException("Select an associated revenue before adding an expense.");
             }
 
+            double expenseAmount = parseAmount(expenseAmountField.getText(), "Expense amount");
+            validateExpenseAgainstRevenue(expenseAmount, linkedRevenue);
+
             Expense expense = new Expense(
                     linkedRevenue,
                     currentUser,
-                    parseAmount(expenseAmountField.getText(), "Expense amount"),
+                    expenseAmount,
                     requireValue(expenseCategoryComboBox.getValue(), "Expense category"),
                     Objects.requireNonNullElse(expenseDatePicker.getValue(), LocalDate.now()),
                     normalizeText(expenseDescriptionArea.getText())
@@ -184,6 +242,9 @@ public class SalaryExpenseController {
 
     private void configureFilters() {
         revenueTypeComboBox.setItems(FXCollections.observableArrayList("FIXE", "BONUS", "FREELANCE", "OTHER"));
+        if (revenueTypeComboBoxSecondary != null) {
+            revenueTypeComboBoxSecondary.setItems(FXCollections.observableArrayList("FIXE", "BONUS", "FREELANCE", "OTHER"));
+        }
         expenseCategoryComboBox.setItems(FXCollections.observableArrayList(
                 "Alimentation", "Transport", "Loyer", "Sante", "Education", "Loisirs", "Other"
         ));
@@ -198,6 +259,98 @@ public class SalaryExpenseController {
         expenseSortByComboBox.valueProperty().addListener((observable, oldValue, newValue) -> refreshExpenseTable());
         revenueDirectionComboBox.valueProperty().addListener((observable, oldValue, newValue) -> refreshRevenueTable());
         expenseDirectionComboBox.valueProperty().addListener((observable, oldValue, newValue) -> refreshExpenseTable());
+        expenseAmountField.textProperty().addListener((observable, oldValue, newValue) -> validateExpenseInputHint());
+        expenseRevenueComboBox.valueProperty().addListener((observable, oldValue, newValue) -> validateExpenseInputHint());
+    }
+
+    private void configureBackOfficeNavigation() {
+        if (overviewPanel == null || revenuePanel == null) {
+            return;
+        }
+        showPanel("overview");
+    }
+
+    @FXML
+    private void handleShowOverview() {
+        showPanel("overview");
+    }
+
+    @FXML
+    private void handleShowRevenuePanel() {
+        showPanel("revenue");
+    }
+
+    @FXML
+    private void handleShowExpensePanel() {
+        showPanel("expense");
+    }
+
+    @FXML
+    private void handleOpenFrontInterface() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Expense/Revenue/FRONT/salary-expense-view.fxml"));
+            Parent root = loader.load();
+
+            Stage frontStage = new Stage();
+            frontStage.setTitle("Income & Expense Front Office");
+            frontStage.setScene(new Scene(root, 1400, 900));
+            if (feedbackLabel != null && feedbackLabel.getScene() != null) {
+                frontStage.initOwner(feedbackLabel.getScene().getWindow());
+            }
+            frontStage.show();
+            showInfo("Front interface opened in a new window.");
+        } catch (IOException exception) {
+            showError("Unable to open front interface: " + exception.getMessage());
+        }
+    }
+
+    private void showPanel(String panelName) {
+        boolean overviewVisible = "overview".equals(panelName);
+        boolean revenueVisible = "revenue".equals(panelName);
+        boolean expenseVisible = "expense".equals(panelName);
+
+        if (overviewPanelScroll != null) {
+            overviewPanelScroll.setVisible(overviewVisible);
+            overviewPanelScroll.setManaged(overviewVisible);
+        } else if (overviewPanel != null) {
+            overviewPanel.setVisible(overviewVisible);
+            overviewPanel.setManaged(overviewVisible);
+        }
+        if (revenuePanelScroll != null) {
+            revenuePanelScroll.setVisible(revenueVisible);
+            revenuePanelScroll.setManaged(revenueVisible);
+        } else if (revenuePanel != null) {
+            revenuePanel.setVisible(revenueVisible);
+            revenuePanel.setManaged(revenueVisible);
+        }
+        if (expensePanelScroll != null) {
+            expensePanelScroll.setVisible(expenseVisible);
+            expensePanelScroll.setManaged(expenseVisible);
+        } else if (expensePanel != null) {
+            expensePanel.setVisible(expenseVisible);
+            expensePanel.setManaged(expenseVisible);
+        }
+
+        updateSidebarSelection(overviewVisible, revenueVisible, expenseVisible);
+    }
+
+    private void updateSidebarSelection(boolean overviewVisible, boolean revenueVisible, boolean expenseVisible) {
+        updateNavButtonState(overviewNavButton, overviewVisible);
+        updateNavButtonState(revenueNavButton, revenueVisible);
+        updateNavButtonState(expenseNavButton, expenseVisible);
+    }
+
+    private void updateNavButtonState(Button button, boolean active) {
+        if (button == null) {
+            return;
+        }
+        if (active) {
+            if (!button.getStyleClass().contains("sidebar-button-active")) {
+                button.getStyleClass().add("sidebar-button-active");
+            }
+        } else {
+            button.getStyleClass().remove("sidebar-button-active");
+        }
     }
 
     private void configureRevenueTable() {
@@ -267,12 +420,18 @@ public class SalaryExpenseController {
 
     private void configureFormDefaults() {
         revenueTypeComboBox.setValue("FIXE");
+        if (revenueTypeComboBoxSecondary != null) {
+            revenueTypeComboBoxSecondary.setValue("FIXE");
+        }
         expenseCategoryComboBox.setValue("Alimentation");
         revenueSortByComboBox.setValue("Date");
         expenseSortByComboBox.setValue("Date");
         revenueDirectionComboBox.setValue("Desc");
         expenseDirectionComboBox.setValue("Desc");
         revenueDatePicker.setValue(LocalDate.now());
+        if (revenueDatePickerSecondary != null) {
+            revenueDatePickerSecondary.setValue(LocalDate.now());
+        }
         expenseDatePicker.setValue(LocalDate.now());
         feedbackLabel.setText("Connected as user id 1.");
     }
@@ -287,9 +446,11 @@ public class SalaryExpenseController {
 
             revenues.setAll(revenueData);
             expenses.setAll(expenseData);
-            expenseRevenueComboBox.setItems(FXCollections.observableArrayList(revenueData));
-            expenseRevenueComboBox.setCellFactory(listView -> new RevenueListCell());
-            expenseRevenueComboBox.setButtonCell(new RevenueListCell());
+            if (expenseRevenueComboBox != null) {
+                expenseRevenueComboBox.setItems(FXCollections.observableArrayList(revenueData));
+                expenseRevenueComboBox.setCellFactory(listView -> new RevenueListCell());
+                expenseRevenueComboBox.setButtonCell(new RevenueListCell());
+            }
 
             refreshRevenueTable();
             refreshExpenseTable();
@@ -362,10 +523,18 @@ public class SalaryExpenseController {
             lastTransactionDate = lastExpenseDate;
         }
 
-        totalIncomeLabel.setText(formatMoney(totalIncome));
-        totalExpensesLabel.setText(formatMoney(totalExpenses));
-        netBalanceLabel.setText(formatMoney(netBalance));
-        lastTransactionLabel.setText(lastTransactionDate == null ? "--/--/----" : formatDate(lastTransactionDate));
+        if (totalIncomeLabel != null) {
+            totalIncomeLabel.setText(formatMoney(totalIncome));
+        }
+        if (totalExpensesLabel != null) {
+            totalExpensesLabel.setText(formatMoney(totalExpenses));
+        }
+        if (netBalanceLabel != null) {
+            netBalanceLabel.setText(formatMoney(netBalance));
+        }
+        if (lastTransactionLabel != null) {
+            lastTransactionLabel.setText(lastTransactionDate == null ? "--/--/----" : formatDate(lastTransactionDate));
+        }
     }
 
     private Comparator<Revenue> buildRevenueComparator() {
@@ -504,6 +673,48 @@ public class SalaryExpenseController {
         return amount;
     }
 
+    private void validateExpenseAgainstRevenue(double expenseAmount, Revenue linkedRevenue) {
+        if (linkedRevenue != null && expenseAmount > linkedRevenue.getAmount()) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            Locale.US,
+                            "Expense amount %.2f TND cannot be greater than the selected revenue %.2f TND.",
+                            expenseAmount,
+                            linkedRevenue.getAmount()
+                    )
+            );
+        }
+    }
+
+    private void validateExpenseInputHint() {
+        Revenue linkedRevenue = expenseRevenueComboBox.getValue();
+        String rawAmount = normalizeText(expenseAmountField.getText());
+
+        if (linkedRevenue == null || rawAmount.isBlank()) {
+            return;
+        }
+
+        try {
+            double expenseAmount = parseAmount(rawAmount, "Expense amount");
+            if (expenseAmount > linkedRevenue.getAmount()) {
+                showInfo(String.format(
+                        Locale.US,
+                        "Warning: expense %.2f TND is greater than selected revenue %.2f TND.",
+                        expenseAmount,
+                        linkedRevenue.getAmount()
+                ));
+            } else {
+                showInfo(String.format(
+                        Locale.US,
+                        "Selected revenue limit: %.2f TND.",
+                        linkedRevenue.getAmount()
+                ));
+            }
+        } catch (IllegalArgumentException ignored) {
+            // Keep existing feedback unchanged until the user enters a valid number.
+        }
+    }
+
     private String requireValue(String value, String fieldName) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(fieldName + " is required.");
@@ -511,11 +722,31 @@ public class SalaryExpenseController {
         return value;
     }
 
-    private void clearRevenueForm() {
-        revenueAmountField.clear();
-        revenueDescriptionArea.clear();
-        revenueDatePicker.setValue(LocalDate.now());
-        revenueTypeComboBox.setValue("FIXE");
+    private void clearRevenueForms() {
+        if (revenueAmountField != null) {
+            revenueAmountField.clear();
+        }
+        if (revenueDescriptionArea != null) {
+            revenueDescriptionArea.clear();
+        }
+        if (revenueDatePicker != null) {
+            revenueDatePicker.setValue(LocalDate.now());
+        }
+        if (revenueTypeComboBox != null) {
+            revenueTypeComboBox.setValue("FIXE");
+        }
+        if (revenueAmountFieldSecondary != null) {
+            revenueAmountFieldSecondary.clear();
+        }
+        if (revenueDescriptionAreaSecondary != null) {
+            revenueDescriptionAreaSecondary.clear();
+        }
+        if (revenueDatePickerSecondary != null) {
+            revenueDatePickerSecondary.setValue(LocalDate.now());
+        }
+        if (revenueTypeComboBoxSecondary != null) {
+            revenueTypeComboBoxSecondary.setValue("FIXE");
+        }
     }
 
     private void clearExpenseForm() {

@@ -11,9 +11,9 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/Expense/Revenue/salary-expense-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/Expense/Revenue/BACK/revenue-back-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1400, 900);
-        stage.setTitle("Income & Expense Management");
+        stage.setTitle("Revenue Back Office");
         stage.setScene(scene);
         stage.show();
     }

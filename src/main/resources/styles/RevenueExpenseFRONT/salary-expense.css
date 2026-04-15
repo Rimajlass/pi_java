@@ -97,7 +97,7 @@
     -fx-padding: 40 20 40 20;
     -fx-background-color: linear-gradient(rgba(6, 32, 43, 0.62), rgba(6, 32, 43, 0.48)),
         linear-gradient(to right, rgba(4, 20, 30, 0.78), rgba(8, 82, 112, 0.42));
-    -fx-background-image: url("../images/salary-hero.png");
+    -fx-background-image: url("../../images/salary-hero.png");
     -fx-background-size: cover;
     -fx-background-position: center center;
     -fx-background-repeat: no-repeat;
