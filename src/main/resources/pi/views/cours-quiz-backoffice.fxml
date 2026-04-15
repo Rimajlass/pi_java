@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="18.0"
+      styleClass="page-shell"
+      stylesheets="@../styles/learning-dashboard.css"
+      xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="pi.controllers.CoursQuizBackOfficeController">
+
+    <padding>
+        <Insets top="18.0" right="18.0" bottom="18.0" left="18.0"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="topbar-card">
+        <VBox spacing="2.0">
+            <Label text="Decide$" styleClass="brand-title"/>
+            <Label text="Back Office (Cours &amp; Quiz)" styleClass="brand-subtitle"/>
+        </VBox>
+
+        <Region HBox.hgrow="ALWAYS"/>
+
+        <Button text="Retour Front" onAction="#onBackToFront"
+                styleClass="pill-button"/>
+    </HBox>
+
+    <TabPane tabClosingPolicy="UNAVAILABLE"
+             styleClass="backoffice-tabs"
+             VBox.vgrow="ALWAYS"
+             style="-fx-background-color: transparent;">
+        <tabs>
+            <Tab text="Cours">
+                <content>
+                    <fx:include source="cours-view.fxml"/>
+                </content>
+            </Tab>
+            <Tab text="Quiz">
+                <content>
+                    <fx:include source="quiz-view.fxml"/>
+                </content>
+            </Tab>
+        </tabs>
+    </TabPane>
+
+</VBox>
+

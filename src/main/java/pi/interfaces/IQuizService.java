@@ -9,4 +9,5 @@ public interface IQuizService {
     void supprimer(int id);
     List<Quiz> afficher();
     Quiz recupererParId(int id);
+    List<Quiz> rechercher(String critere);
 }

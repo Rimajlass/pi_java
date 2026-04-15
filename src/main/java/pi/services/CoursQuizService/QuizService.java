@@ -1,4 +1,4 @@
-package pi.services;
+package pi.services.CoursQuizService;
 
 import pi.entities.Cours;
 import pi.entities.Quiz;
@@ -141,5 +141,41 @@ public class QuizService implements IQuizService {
         }
 
         return quiz;
+    }
+
+    @Override
+    public List<Quiz> rechercher(String critere) {
+        List<Quiz> list = new ArrayList<>();
+        String sql = "SELECT * FROM quiz WHERE question LIKE ?";
+
+        try {
+            PreparedStatement ps = cnx.prepareStatement(sql);
+            ps.setString(1, "%" + critere + "%");
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Cours cours = new Cours();
+                cours.setId(rs.getInt("cours_id"));
+
+                User user = new User();
+                user.setId(rs.getInt("user_id"));
+
+                Quiz q = new Quiz(
+                        rs.getInt("id"),
+                        cours,
+                        user,
+                        rs.getString("question"),
+                        rs.getString("choix_reponses"),
+                        rs.getString("reponse_correcte"),
+                        rs.getInt("points_valeur")
+                );
+
+                list.add(q);
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur recherche Quiz : " + e.getMessage());
+        }
+
+        return list;
     }
 }

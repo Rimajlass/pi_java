@@ -2,7 +2,7 @@ package pi.mains;
 
 import pi.entities.Cours;
 import pi.entities.User;
-import pi.services.CoursService;
+import pi.services.CoursQuizService.CoursService;
 
 public class MainCours {
     public static void main(String[] args) {

@@ -9,4 +9,5 @@ public interface ICoursService {
     void supprimer(int id);
     List<Cours> afficher();
     Cours recupererParId(int id);
+    List<Cours> rechercher(String critere);
 }

@@ -1,4 +1,4 @@
-package pi.services;
+package pi.services.CoursQuizService;
 
 import pi.entities.Cours;
 import pi.entities.User;
@@ -19,6 +19,7 @@ public class CoursService implements ICoursService {
 
     @Override
     public void ajouter(Cours cours) {
+        cours.validate();
         String sql = "INSERT INTO cours (user_id, titre, contenu_texte, type_media, url_media) VALUES (?, ?, ?, ?, ?)";
 
         try {
@@ -38,6 +39,7 @@ public class CoursService implements ICoursService {
 
     @Override
     public void modifier(Cours cours) {
+        cours.validate();
         String sql = "UPDATE cours SET user_id=?, titre=?, contenu_texte=?, type_media=?, url_media=? WHERE id=?";
 
         try {
@@ -130,5 +132,39 @@ public class CoursService implements ICoursService {
         }
 
         return cours;
+    }
+
+    @Override
+    public List<Cours> rechercher(String critere) {
+        List<Cours> list = new ArrayList<>();
+        String sql = "SELECT * FROM cours WHERE titre LIKE ? OR contenu_texte LIKE ?";
+
+        try {
+            PreparedStatement ps = cnx.prepareStatement(sql);
+            String searchPattern = "%" + critere + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                User user = new User();
+                user.setId(rs.getInt("user_id"));
+
+                Cours c = new Cours(
+                        rs.getInt("id"),
+                        user,
+                        rs.getString("titre"),
+                        rs.getString("contenu_texte"),
+                        rs.getString("type_media"),
+                        rs.getString("url_media")
+                );
+
+                list.add(c);
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur recherche Cours : " + e.getMessage());
+        }
+
+        return list;
     }
 }

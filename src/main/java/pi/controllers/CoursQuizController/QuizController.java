@@ -12,7 +12,7 @@ import javafx.scene.control.TextField;
 import pi.entities.Cours;
 import pi.entities.Quiz;
 import pi.entities.User;
-import pi.services.QuizService;
+import pi.services.CoursQuizService.QuizService;
 
 public class QuizController {
 
@@ -43,6 +43,9 @@ public class QuizController {
     @FXML
     private TextField pointsValeurField;
 
+    @FXML
+    private TextField searchField;
+    
     private final QuizService quizService = new QuizService();
 
     @FXML
@@ -122,6 +125,9 @@ public class QuizController {
         String coursIdText = coursIdField.getText().trim();
         String userIdText = userIdField.getText().trim();
         String question = questionField.getText().trim();
+        if (!question.endsWith("?")) {
+            throw new IllegalArgumentException("La question doit se terminer par un '?'.");
+        }
         String choixReponses = choixReponsesField.getText().trim();
         String reponseCorrecte = reponseCorrecteField.getText().trim();
         String pointsText = pointsValeurField.getText().trim();
@@ -194,6 +200,16 @@ public class QuizController {
         alert.showAndWait();
     }
 
+    @FXML
+    private void rechercherQuiz() {
+        String critere = searchField.getText() != null ? searchField.getText().trim() : "";
+        if (critere.isEmpty()) {
+            actualiserTable();
+        } else {
+            quizTable.setItems(FXCollections.observableArrayList(quizService.rechercher(critere)));
+        }
+    }
+    
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setHeaderText("Validation");

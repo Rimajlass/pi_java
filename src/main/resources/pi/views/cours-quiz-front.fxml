@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true"
+            hbarPolicy="NEVER"
+            vbarPolicy="AS_NEEDED"
+            pannable="true"
+            styleClass="page-scroll"
+            stylesheets="@../styles/learning-dashboard.css"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pi.controllers.CoursQuizFrontController">
+
+    <content>
+        <VBox spacing="22.0" styleClass="page-shell">
+            <padding>
+                <Insets top="18.0" right="28.0" bottom="28.0" left="28.0"/>
+            </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="topbar-card">
+        <VBox spacing="2.0">
+            <Label text="Decide$" styleClass="brand-title"/>
+            <Label text="Learning (Cours &amp; Quiz)" styleClass="brand-subtitle"/>
+        </VBox>
+
+        <Region HBox.hgrow="ALWAYS"/>
+
+        <Button text="Back Office" onAction="#onOpenBackOffice" styleClass="pill-button"/>
+    </HBox>
+
+    <StackPane styleClass="hero-card">
+        <VBox spacing="12.0" maxWidth="900.0">
+            <Label text="Cours &amp; Quiz" styleClass="hero-title-centered"/>
+            <Label text="1) Choisir un cours • 2) Lire et apprendre • 3) Passer le quiz • 4) Obtenir votre score"
+                   wrapText="true"
+                   styleClass="hero-text"/>
+            <Label fx:id="breadcrumbLabel" text="Catalogue des cours" styleClass="hero-breadcrumb"/>
+
+            <HBox spacing="12.0" alignment="CENTER_LEFT">
+                <VBox spacing="4.0" styleClass="mini-kpi-card">
+                    <Label text="Cours" styleClass="mini-kpi-label"/>
+                    <Label fx:id="kpiCourseCount" text="0" styleClass="mini-kpi-value"/>
+                </VBox>
+                <VBox spacing="4.0" styleClass="mini-kpi-card">
+                    <Label text="Quiz" styleClass="mini-kpi-label"/>
+                    <Label fx:id="kpiQuizCount" text="0" styleClass="mini-kpi-value"/>
+                </VBox>
+                <VBox spacing="4.0" styleClass="mini-kpi-card">
+                    <Label text="Meilleur score" styleClass="mini-kpi-label"/>
+                    <Label fx:id="kpiBestScore" text="0 pts" styleClass="mini-kpi-value"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </StackPane>
+
+    <StackPane fx:id="stateStack">
+
+        <!-- STATE 1: Catalog -->
+        <VBox fx:id="catalogPane" spacing="14.0" styleClass="content-card">
+            <HBox alignment="CENTER_LEFT">
+                <VBox spacing="4.0">
+                    <Label text="Cours disponibles" styleClass="section-title"/>
+                    <Label text="Recherchez par mots-cle et cliquez sur un cours pour le lire."
+                           styleClass="section-subtitle"/>
+                </VBox>
+            </HBox>
+
+            <HBox spacing="12.0" alignment="CENTER_LEFT">
+                <TextField fx:id="courseSearchField"
+                           promptText="Ex: budget, investissement, epargne..."
+                           styleClass="text-input search-input"/>
+                <Button text="Rechercher" onAction="#onSearchCourses"
+                        styleClass="action-button"
+                        style="-fx-background-color: linear-gradient(to right, #0a4f7a, #178bb5); -fx-text-fill: white;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Actualiser" onAction="#onRefreshCourses"
+                        styleClass="action-button"
+                        style="-fx-background-color: #14a36f; -fx-text-fill: white;"/>
+            </HBox>
+
+            <FlowPane fx:id="courseCardsPane"
+                      hgap="14.0" vgap="14.0"
+                      prefWrapLength="1040.0"
+                      styleClass="course-cards"/>
+        </VBox>
+
+        <!-- STATE 2: Reader -->
+        <VBox fx:id="readerPane" spacing="14.0" styleClass="content-card" visible="false" managed="false">
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <Button text="← Retour" onAction="#onBackToCatalog"
+                        styleClass="action-button"
+                        style="-fx-background-color: rgba(255,255,255,0.20); -fx-text-fill: #12314a;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Passer le quiz" onAction="#onGoToQuiz"
+                        styleClass="action-button"
+                        style="-fx-background-color: linear-gradient(to right, #15b6c9, #0c7dd6); -fx-text-fill: white;"/>
+            </HBox>
+
+            <VBox spacing="6.0">
+                <Label fx:id="readerTitleLabel" text="-" styleClass="detail-title" wrapText="true"/>
+                <Label fx:id="readerMetaLabel" text="" styleClass="detail-meta" wrapText="true"/>
+            </VBox>
+
+            <Separator/>
+
+            <VBox spacing="10.0">
+                <Label text="Contenu du cours" styleClass="field-label"/>
+                <TextArea fx:id="readerContentArea"
+                          editable="false"
+                          wrapText="true"
+                          prefRowCount="16"
+                          styleClass="reader-area"/>
+            </VBox>
+
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <Label text="Lien media:" styleClass="field-label"/>
+                <Hyperlink fx:id="readerMediaLink" text="" onAction="#onCopyMediaLink"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Copier lien" onAction="#onCopyMediaLink"
+                        styleClass="action-button"
+                        style="-fx-background-color: rgba(15, 106, 166, 0.10); -fx-text-fill: #0f6aa6;"/>
+            </HBox>
+
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <Label text="Quiz disponibles:" styleClass="field-label"/>
+                <Label fx:id="readerQuizCountLabel" text="0" styleClass="detail-meta"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="readerBestScoreLabel" text="" styleClass="detail-meta"/>
+            </HBox>
+        </VBox>
+
+        <!-- STATE 3: Quiz -->
+        <VBox fx:id="quizPane" spacing="14.0" styleClass="content-card" visible="false" managed="false">
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <Button text="← Retour au cours" onAction="#onBackToReader"
+                        styleClass="action-button"
+                        style="-fx-background-color: rgba(255,255,255,0.20); -fx-text-fill: #12314a;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Abandonner" onAction="#onBackToReader"
+                        styleClass="action-button"
+                        style="-fx-background-color: #ef5f73; -fx-text-fill: white;"/>
+            </HBox>
+
+            <VBox spacing="4.0">
+                <Label fx:id="quizTitleLabel" text="Quiz" styleClass="section-title"/>
+                <Label fx:id="quizSubtitleLabel" text="" styleClass="section-subtitle" wrapText="true"/>
+            </VBox>
+
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <Label fx:id="quizProgressLabel" text="1/1" styleClass="detail-meta"/>
+                <ProgressBar fx:id="quizProgressBar" progress="0.0" styleClass="progress-bar" HBox.hgrow="ALWAYS"/>
+            </HBox>
+
+            <Label fx:id="quizQuestionLabel" text="Question" wrapText="true" styleClass="runner-question"/>
+            <VBox fx:id="quizChoicesBox" spacing="8.0"/>
+
+            <HBox spacing="10.0" alignment="CENTER_RIGHT">
+                <Button fx:id="quizPrevButton" text="Precedent" onAction="#onQuizPrev"
+                        styleClass="action-button"
+                        style="-fx-background-color: rgba(255,255,255,0.20); -fx-text-fill: #12314a;"/>
+                <Button fx:id="quizNextButton" text="Suivant" onAction="#onQuizNext"
+                        styleClass="action-button"
+                        style="-fx-background-color: linear-gradient(to right, #0a4f7a, #178bb5); -fx-text-fill: white;"/>
+                <Button fx:id="quizSubmitButton" text="Valider" onAction="#onQuizSubmit"
+                        visible="false" managed="false"
+                        styleClass="action-button"
+                        style="-fx-background-color: #14a36f; -fx-text-fill: white;"/>
+            </HBox>
+        </VBox>
+
+        <!-- STATE 4: Score -->
+        <VBox fx:id="scorePane" spacing="14.0" styleClass="content-card" visible="false" managed="false">
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <Button text="← Retour aux cours" onAction="#onBackToCatalog"
+                        styleClass="action-button"
+                        style="-fx-background-color: rgba(255,255,255,0.20); -fx-text-fill: #12314a;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Reessayer" onAction="#onRetryQuiz"
+                        styleClass="action-button"
+                        style="-fx-background-color: linear-gradient(to right, #15b6c9, #0c7dd6); -fx-text-fill: white;"/>
+            </HBox>
+
+            <VBox spacing="4.0">
+                <Label text="Votre score" styleClass="section-title"/>
+                <Label fx:id="scoreSubtitleLabel" text="" styleClass="section-subtitle" wrapText="true"/>
+            </VBox>
+
+            <Label fx:id="scoreValueLabel" text="" styleClass="detail-title"/>
+            <VBox fx:id="scoreDetailsBox" spacing="10.0"/>
+        </VBox>
+
+    </StackPane>
+
+        </VBox>
+    </content>
+</ScrollPane>

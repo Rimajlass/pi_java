@@ -11,7 +11,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import pi.entities.Cours;
 import pi.entities.User;
-import pi.services.CoursService;
+import pi.services.CoursQuizService.CoursService;
 
 public class CoursController {
 
@@ -38,6 +38,9 @@ public class CoursController {
     @FXML
     private TextField urlMediaField;
 
+    @FXML
+    private TextField searchField;
+    
     private final CoursService coursService = new CoursService();
 
     @FXML
@@ -132,6 +135,8 @@ public class CoursController {
         cours.setTypeMedia(typeMedia);
         cours.setUrlMedia(urlMedia);
 
+        cours.validate();
+
         if (requireId) {
             String idText = idField.getText().trim();
             if (idText.isEmpty()) {
@@ -175,6 +180,16 @@ public class CoursController {
         alert.showAndWait();
     }
 
+    @FXML
+    private void rechercherCours() {
+        String critere = searchField.getText() != null ? searchField.getText().trim() : "";
+        if (critere.isEmpty()) {
+            actualiserTable();
+        } else {
+            coursTable.setItems(FXCollections.observableArrayList(coursService.rechercher(critere)));
+        }
+    }
+    
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setHeaderText("Validation");
