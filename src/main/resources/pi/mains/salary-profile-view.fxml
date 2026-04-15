@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="900.0" prefWidth="1460.0" styleClass="salary-profile-root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.UserTransactionController.SalaryProfileController">
+    <children>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="salary-profile-scroll" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <content>
+                <VBox spacing="14.0" styleClass="salary-shell">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <children>
+                                <Label styleClass="salary-title" text="My Salary Profile" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Button mnemonicParsing="false" styleClass="salary-top-btn" text="Reclamations" />
+                                <Button mnemonicParsing="false" onAction="#handleBackToDashboard" styleClass="salary-top-btn" text="Back to dashboard" />
+                                <Button mnemonicParsing="false" onAction="#handleLogout" styleClass="salary-top-btn salary-top-btn-danger" text="Logout" />
+                            </children>
+                        </HBox>
+
+                        <HBox spacing="12.0">
+                            <children>
+                                <VBox spacing="10.0" styleClass="profile-card" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                            <children>
+                                                <Label fx:id="profileInitialLabel" styleClass="avatar-circle" text="U" />
+                                                <VBox spacing="2.0">
+                                                    <children>
+                                                        <Label fx:id="profileNameLabel" styleClass="profile-name" text="wael" />
+                                                        <Label fx:id="profileEmailLabel" styleClass="profile-email" text="wael@finance.com" />
+                                                    </children>
+                                                </VBox>
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <VBox alignment="CENTER_RIGHT" spacing="2.0">
+                                                    <children>
+                                                        <Label fx:id="headerBalanceLabel" styleClass="balance-main" text="0.00 TND" />
+                                                        <Label styleClass="balance-sub" text="1 TND = 0.3442 USD" />
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label styleClass="field-label" text="Full name" />
+                                                        <TextField fx:id="fullNameField" styleClass="field-input" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label styleClass="field-label" text="Email" />
+                                                        <TextField fx:id="emailField" styleClass="field-input" />
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label styleClass="field-label" text="New password" />
+                                                        <TextField fx:id="passwordField" promptText="Leave blank to keep current" styleClass="field-input" />
+                                                    </children>
+                                                </VBox>
+                                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label styleClass="field-label" text="Profile image" />
+                                                        <Button mnemonicParsing="false" styleClass="field-upload-btn" text="Choose file" />
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="10.0" styleClass="side-balance-card">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT">
+                                            <children>
+                                                <Label styleClass="side-title" text="Live Balance" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <ComboBox prefWidth="90.0" promptText="USD" styleClass="mini-combo" />
+                                            </children>
+                                        </HBox>
+                                        <HBox alignment="BASELINE_LEFT" spacing="6.0">
+                                            <children>
+                                                <Label fx:id="liveBalanceLabel" styleClass="side-amount" text="0.00" />
+                                                <Label styleClass="side-currency" text="USD" />
+                                            </children>
+                                        </HBox>
+                                        <Label styleClass="side-rate" text="1 TND = 0.3442 USD" />
+                                        <Label styleClass="side-chip" text="API currency sync + AI widgets" />
+                                        <Label styleClass="side-foot" text="Live API sync active" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <HBox spacing="12.0">
+                            <children>
+                                <VBox spacing="10.0" styleClass="dark-card" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label styleClass="card-title-light" text="Recent Transactions" />
+                                        <Label styleClass="card-text-light" text="Trend chart placeholder" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="8.0" styleClass="light-card" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label styleClass="card-title-dark" text="AI Spending Insights" />
+                                        <Label styleClass="card-text-dark" text="Total expense" />
+                                        <Label fx:id="metricExpenseLabel" styleClass="metric-value-dark" text="0.00 TND" />
+                                        <Label styleClass="card-text-dark" text="Savings" />
+                                        <Label fx:id="metricSavingsLabel" styleClass="metric-value-dark" text="0.00 TND" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="8.0" styleClass="dark-card converter-card">
+                                    <children>
+                                        <Label styleClass="card-title-light" text="Converter" />
+                                        <TextField promptText="1" styleClass="field-input-dark" />
+                                        <HBox spacing="8.0">
+                                            <children>
+                                                <ComboBox promptText="USD" styleClass="mini-combo" HBox.hgrow="ALWAYS" />
+                                                <ComboBox promptText="EUR" styleClass="mini-combo" HBox.hgrow="ALWAYS" />
+                                            </children>
+                                        </HBox>
+                                        <Button mnemonicParsing="false" styleClass="convert-btn" text="Convert" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <VBox spacing="10.0" styleClass="behavior-card">
+                            <children>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <Label styleClass="card-title-dark" text="AI Behavior Profile" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label styleClass="trend-chip" text="Trend +0" />
+                                        <Label styleClass="trend-chip secondary" text="Local fallback" />
+                                    </children>
+                                </HBox>
+                                <HBox spacing="14.0">
+                                    <children>
+                                        <VBox alignment="CENTER" spacing="8.0" prefWidth="140.0">
+                                            <children>
+                                                <Label styleClass="score-circle" text="50" />
+                                                <Label styleClass="small-note" text="/100 score" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label styleClass="field-label" text="Regularity" />
+                                                <ProgressBar progress="0.5" styleClass="metric-bar" />
+                                                <Label styleClass="field-label" text="Saving Discipline" />
+                                                <ProgressBar progress="0.5" styleClass="metric-bar" />
+                                                <Label styleClass="field-label" text="Monthly Stability" />
+                                                <ProgressBar progress="0.5" styleClass="metric-bar" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="8.0" styleClass="transactions-card">
+                            <children>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <Label styleClass="transactions-title" text="My Transactions" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label styleClass="records-chip" text="Records:" />
+                                        <Label fx:id="txCountLabel" styleClass="records-chip count" text="0" />
+                                    </children>
+                                </HBox>
+                                <TableView fx:id="txTable" minHeight="260.0" prefHeight="340.0" styleClass="salary-tx-table" VBox.vgrow="ALWAYS" />
+                            </children>
+                        </VBox>
+
+                        <HBox alignment="TOP_LEFT" spacing="40.0" styleClass="profile-footer">
+                            <children>
+                                <VBox spacing="8.0" prefWidth="330.0">
+                                    <children>
+                                        <Label styleClass="footer-brand" text="Decide$" />
+                                        <Label styleClass="footer-text" text="Decide$ helps you manage your salary, control expenses, and build a secure financial future." wrapText="true" />
+                                    </children>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS" />
+                                <VBox spacing="8.0">
+                                    <children>
+                                        <Label styleClass="footer-heading" text="Quick Links" />
+                                        <Label styleClass="footer-link" text="Home" />
+                                        <Label styleClass="footer-link" text="About" />
+                                        <Label styleClass="footer-link" text="Services" />
+                                        <Label styleClass="footer-link" text="Contact" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="8.0">
+                                    <children>
+                                        <Label styleClass="footer-heading" text="Connect with us" />
+                                        <Label styleClass="footer-link" text="LinkedIn  |  GitHub  |  X  |  Mail" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="24.0" left="28.0" right="28.0" top="24.0" />
+                    </padding>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>

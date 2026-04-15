@@ -1,0 +1,184 @@
+.sign-up-root {
+    -fx-background-color: #050914;
+    -fx-font-family: "Segoe UI";
+}
+
+.sign-up-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-fit-to-width: true;
+}
+
+.sign-up-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.sign-up-scroll-content {
+    -fx-background-color: #050914;
+    -fx-min-height: 980px;
+}
+
+.sign-up-image {
+    -fx-background-image: url("/pi/images/a3.jpg");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+}
+
+.sign-up-overlay {
+    -fx-background-color:
+        radial-gradient(center 12% 28%, radius 58%, rgba(20, 121, 214, 0.42), transparent 62%),
+        linear-gradient(to right, rgba(4, 18, 38, 0.68), rgba(4, 18, 38, 0.28) 40%, rgba(4, 18, 38, 0.04) 72%, transparent 100%),
+        linear-gradient(to bottom, rgba(2, 8, 18, 0.20), rgba(2, 8, 18, 0.34));
+}
+
+.brand-mark {
+    -fx-text-fill: #26b4ff;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-letter-spacing: 3px;
+}
+
+.hero-title {
+    -fx-text-fill: #f7f7fb;
+    -fx-font-family: "Georgia";
+    -fx-font-size: 34px;
+    -fx-font-weight: 700;
+}
+
+.hero-line {
+    -fx-background-color: #25c3ff;
+    -fx-background-radius: 999px;
+}
+
+.hero-subtitle {
+    -fx-text-fill: rgba(236, 241, 251, 0.92);
+    -fx-font-size: 13px;
+    -fx-line-spacing: 3px;
+}
+
+.sign-up-card {
+    -fx-background-color: rgba(16, 26, 47, 0.87);
+    -fx-background-radius: 18px;
+    -fx-border-color: rgba(122, 152, 213, 0.24);
+    -fx-border-radius: 18px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.38), 28, 0.18, 0, 14);
+}
+
+.card-title {
+    -fx-text-fill: #f4f7ff;
+    -fx-font-size: 34px;
+    -fx-font-weight: 800;
+}
+
+.card-subtitle {
+    -fx-text-fill: #91afd2;
+    -fx-font-size: 12px;
+    -fx-padding: -6 0 6 0;
+}
+
+.feedback-label {
+    -fx-background-color: rgba(109, 168, 255, 0.08);
+    -fx-background-radius: 8px;
+    -fx-border-color: rgba(110, 183, 255, 0.18);
+    -fx-border-radius: 8px;
+    -fx-padding: 8 10 8 10;
+    -fx-text-fill: #b6d9ff;
+    -fx-font-size: 12px;
+}
+
+.feedback-error {
+    -fx-background-color: rgba(131, 29, 44, 0.52);
+    -fx-border-color: rgba(232, 92, 110, 0.5);
+    -fx-text-fill: #ffb7bf;
+}
+
+.feedback-success {
+    -fx-background-color: rgba(18, 87, 57, 0.45);
+    -fx-border-color: rgba(59, 210, 140, 0.45);
+    -fx-text-fill: #bbf6dc;
+}
+
+.field-label {
+    -fx-text-fill: #d9e7ff;
+    -fx-font-size: 10px;
+    -fx-font-weight: 800;
+}
+
+.helper-text {
+    -fx-text-fill: rgba(187, 204, 228, 0.72);
+    -fx-font-size: 10px;
+}
+
+.sign-up-field,
+.sign-up-combo {
+    -fx-pref-height: 40px;
+    -fx-background-color: rgba(12, 20, 39, 0.96);
+    -fx-background-radius: 10px;
+    -fx-border-color: rgba(112, 139, 188, 0.24);
+    -fx-border-radius: 10px;
+    -fx-text-fill: #eef5ff;
+    -fx-prompt-text-fill: rgba(222, 232, 248, 0.36);
+}
+
+.sign-up-combo .list-cell {
+    -fx-text-fill: #eef5ff;
+    -fx-background-color: transparent;
+}
+
+.captcha-box {
+    -fx-background-color: #f3f5fb;
+    -fx-background-radius: 6px;
+    -fx-border-color: rgba(190, 200, 222, 0.8);
+    -fx-border-radius: 6px;
+    -fx-text-fill: #1e2431;
+    -fx-font-size: 24px;
+    -fx-font-style: italic;
+    -fx-font-weight: 700;
+    -fx-padding: 10 18 10 18;
+}
+
+.secondary-button {
+    -fx-background-color: rgba(43, 64, 98, 0.84);
+    -fx-background-radius: 8px;
+    -fx-text-fill: #d7e7ff;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.camera-box {
+    -fx-background-color: rgba(8, 13, 25, 0.9);
+    -fx-background-radius: 8px;
+    -fx-border-color: rgba(116, 142, 191, 0.24);
+    -fx-border-radius: 8px;
+}
+
+.mini-button {
+    -fx-background-color: rgba(78, 89, 109, 0.88);
+    -fx-background-radius: 6px;
+    -fx-text-fill: #f3f6fb;
+    -fx-font-size: 10px;
+    -fx-font-weight: 700;
+}
+
+.primary-button {
+    -fx-pref-height: 44px;
+    -fx-background-color: linear-gradient(to right, #1cb7f0, #1fd2ff);
+    -fx-background-radius: 12px;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+}
+
+.footer-text {
+    -fx-text-fill: #a1badb;
+    -fx-font-size: 12px;
+}
+
+.inline-link {
+    -fx-text-fill: #61c8ff;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
