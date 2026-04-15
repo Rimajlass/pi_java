@@ -130,6 +130,7 @@ class SavingsModuleServiceMockitoTest {
         when(savingAccountRepository.findLatestByUserId(1)).thenReturn(Optional.of(account));
         when(savingAccountRepository.getConnection()).thenReturn(connection);
         when(connection.getAutoCommit()).thenReturn(false);
+        when(savingsTransactionRepository.findSavingsHistoryByUserId(1)).thenReturn(List.of());
         doThrow(new SQLException("insert failed")).when(savingsTransactionRepository)
                 .insertDeposit(anyInt(), any(BigDecimal.class), anyString(), any(Connection.class));
 
@@ -180,6 +181,7 @@ class SavingsModuleServiceMockitoTest {
         SavingAccount account = savingAccount(5, 1, "1500.00", "3.50", LocalDate.of(2026, 4, 1));
 
         when(savingAccountRepository.findLatestByUserId(1)).thenReturn(Optional.of(account));
+        when(financialGoalRepository.findBySavingAccountId(5)).thenReturn(List.of());
         when(financialGoalRepository.findByIdAndSavingAccountId(99, 5)).thenReturn(Optional.empty());
 
         SavingsModuleService.SavingsModuleException exception = assertThrows(
@@ -294,6 +296,67 @@ class SavingsModuleServiceMockitoTest {
         );
 
         assertEquals("Impossible de charger le module Savings & Goals.", exception.getMessage());
+    }
+
+    @Test
+    void shouldRejectDuplicateGoalNameOnCreate() throws Exception {
+        SavingAccount account = savingAccount(5, 1, "1500.00", "3.50", LocalDate.of(2026, 4, 1));
+        FinancialGoal existingGoal = goal(10, 5, "Emergency Fund", "1000.00", "100.00", LocalDate.of(2026, 12, 1), 3);
+
+        when(savingAccountRepository.findLatestByUserId(1)).thenReturn(Optional.of(account));
+        when(financialGoalRepository.findBySavingAccountId(5)).thenReturn(List.of(existingGoal));
+
+        SavingsValidation.SavingsValidationException exception = assertThrows(
+                SavingsValidation.SavingsValidationException.class,
+                () -> service.createGoal(1, " emergency   fund ", "3000", "500", "2026-12-01", "4")
+        );
+
+        assertEquals("Un goal avec le meme nom existe deja.", exception.getMessage());
+        verify(financialGoalRepository, never()).insert(any(FinancialGoal.class));
+    }
+
+    @Test
+    void shouldRejectDuplicateGoalNameOnUpdate() throws Exception {
+        SavingAccount account = savingAccount(5, 1, "1500.00", "3.50", LocalDate.of(2026, 4, 1));
+        FinancialGoal currentGoal = goal(99, 5, "Car", "5000.00", "1000.00", LocalDate.of(2026, 12, 1), 3);
+        FinancialGoal existingGoal = goal(10, 5, "Emergency Fund", "1000.00", "100.00", LocalDate.of(2026, 12, 1), 3);
+
+        when(savingAccountRepository.findLatestByUserId(1)).thenReturn(Optional.of(account));
+        when(financialGoalRepository.findBySavingAccountId(5)).thenReturn(List.of(currentGoal, existingGoal));
+
+        SavingsValidation.SavingsValidationException exception = assertThrows(
+                SavingsValidation.SavingsValidationException.class,
+                () -> service.updateGoal(1, 99, "Emergency fund", "6500", "2500", "2026-11-20", "5")
+        );
+
+        assertEquals("Un goal avec le meme nom existe deja.", exception.getMessage());
+        verify(financialGoalRepository, never()).update(any(FinancialGoal.class));
+    }
+
+    @Test
+    void shouldRejectImmediateDuplicateDeposit() throws Exception {
+        SavingAccount account = savingAccount(5, 1, "1500.00", "3.50", LocalDate.of(2026, 4, 1));
+
+        when(savingAccountRepository.findLatestByUserId(1)).thenReturn(Optional.of(account));
+        when(savingsTransactionRepository.findSavingsHistoryByUserId(1)).thenReturn(List.of(
+                new SavingsTransactionRepository.TransactionRow(
+                        1,
+                        "EPARGNE",
+                        LocalDateTime.now(),
+                        new BigDecimal("250.00"),
+                        "Bonus",
+                        "SAVINGS",
+                        1
+                )
+        ));
+
+        SavingsValidation.SavingsValidationException exception = assertThrows(
+                SavingsValidation.SavingsValidationException.class,
+                () -> service.saveDeposit(1, "250", " bonus ")
+        );
+
+        assertEquals("Ce depot existe deja.", exception.getMessage());
+        verify(savingAccountRepository, never()).addToBalance(anyInt(), any(BigDecimal.class));
     }
 
     private static SavingAccount savingAccount(int id, int userId, String balance, String rate, LocalDate createdOn) {

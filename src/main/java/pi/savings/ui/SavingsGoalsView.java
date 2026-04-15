@@ -70,6 +70,7 @@ final class SavingsGoalsView {
     private Label feedbackLabel;
     private HBox feedbackBox;
     private TabPane tabPane;
+    private ScrollPane pageScrollPane;
     private Label historyCountValueLabel;
     private Label historyDepositsValueLabel;
     private Label historyContributionsValueLabel;
@@ -89,11 +90,11 @@ final class SavingsGoalsView {
         page.getChildren().add(buildContent());
         page.getChildren().add(buildFooter());
 
-        ScrollPane scrollPane = new ScrollPane(page);
-        scrollPane.setFitToWidth(true);
-        scrollPane.getStyleClass().add("page-scroll");
+        pageScrollPane = new ScrollPane(page);
+        pageScrollPane.setFitToWidth(true);
+        pageScrollPane.getStyleClass().add("page-scroll");
 
-        BorderPane root = new BorderPane(scrollPane);
+        BorderPane root = new BorderPane(pageScrollPane);
         root.getStylesheets().add(
                 SavingsGoalsView.class.getResource("/pi/savings/ui/savings-goals.css").toExternalForm()
         );
@@ -217,20 +218,10 @@ final class SavingsGoalsView {
         breadcrumb.getStyleClass().add("hero-breadcrumb");
 
         Button addDepositButton = actionButton("+ Add Deposit", "primary-hero-btn");
-        addDepositButton.setOnAction(event -> {
-            tabPane.getSelectionModel().select(0);
-            depositAmountField.requestFocus();
-        });
+        addDepositButton.setOnAction(event -> navigateToSavingsForm());
 
         Button createGoalButton = actionButton("Create Goal", "soft-hero-btn");
-        createGoalButton.setOnAction(event -> {
-            tabPane.getSelectionModel().select(1);
-            goalNameField.requestFocus();
-            showInfo("Goal creation form is ready.");
-        });
-
-        Button backOfficeButton = actionButton("Test Back Office", "soft-hero-btn");
-        backOfficeButton.setOnAction(event -> openGoalsBackOffice());
+        createGoalButton.setOnAction(event -> navigateToGoalsForm());
 
         Button calendarButton = actionButton("Calendar", "soft-hero-btn");
         calendarButton.setOnAction(event -> showInfo("Calendar action is planned for a later step."));
@@ -238,7 +229,7 @@ final class SavingsGoalsView {
         Button simulationButton = actionButton("What-if?", "soft-hero-btn");
         simulationButton.setOnAction(event -> showInfo("Simulation action is planned for a later step."));
 
-        HBox actions = new HBox(12, addDepositButton, createGoalButton, backOfficeButton, calendarButton, simulationButton);
+        HBox actions = new HBox(12, addDepositButton, createGoalButton, calendarButton, simulationButton);
         actions.getStyleClass().add("hero-actions");
         actions.setAlignment(Pos.CENTER);
 
@@ -927,6 +918,30 @@ final class SavingsGoalsView {
         goalPriorityField.setText("3");
         addGoalButton.setText("Add Goal");
         autoPlanButton.setText("Auto-plan (later)");
+    }
+
+    private void navigateToSavingsForm() {
+        if (tabPane != null) {
+            tabPane.getSelectionModel().select(0);
+        }
+        if (pageScrollPane != null) {
+            pageScrollPane.setVvalue(0.52);
+        }
+        if (depositAmountField != null) {
+            depositAmountField.requestFocus();
+        }
+    }
+
+    private void navigateToGoalsForm() {
+        if (tabPane != null) {
+            tabPane.getSelectionModel().select(1);
+        }
+        if (pageScrollPane != null) {
+            pageScrollPane.setVvalue(0.52);
+        }
+        if (goalNameField != null) {
+            goalNameField.requestFocus();
+        }
     }
 
     private void refreshAll() {

@@ -236,3 +236,77 @@
     -fx-font-size: 12px;
     -fx-font-weight: bold;
 }
+
+.stats-pie-chart,
+.stats-bar-chart {
+    -fx-background-color: rgba(255,255,255,0.82);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(8,26,58,0.07);
+    -fx-border-radius: 18;
+    -fx-padding: 10;
+}
+
+.stats-pie-chart .chart-content,
+.stats-bar-chart .chart-content {
+    -fx-padding: 10;
+}
+
+.stats-pie-chart .chart-title,
+.stats-bar-chart .chart-title {
+    -fx-text-fill: #163255;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.stats-pie-chart .chart-legend,
+.stats-bar-chart .chart-legend {
+    -fx-background-color: transparent;
+}
+
+.stats-pie-chart .chart-legend-item,
+.stats-bar-chart .chart-legend-item {
+    -fx-text-fill: #5c7694;
+    -fx-font-size: 11px;
+}
+
+.stats-pie-chart .chart-pie-label {
+    -fx-fill: #163255;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.stats-pie-chart .data0.chart-pie {
+    -fx-pie-color: #2375f6;
+}
+
+.stats-pie-chart .data1.chart-pie {
+    -fx-pie-color: #26c1e8;
+}
+
+.stats-pie-chart .data2.chart-pie {
+    -fx-pie-color: #8dd9ff;
+}
+
+.stats-bar-chart .axis {
+    -fx-tick-label-fill: #69829d;
+    -fx-font-size: 11px;
+}
+
+.stats-bar-chart .axis-label {
+    -fx-text-fill: #69829d;
+}
+
+.stats-bar-chart .chart-plot-background {
+    -fx-background-color: rgba(247,251,255,0.75);
+    -fx-background-radius: 14;
+}
+
+.stats-bar-chart .chart-vertical-grid-lines,
+.stats-bar-chart .chart-horizontal-grid-lines {
+    -fx-stroke: rgba(22,50,85,0.08);
+}
+
+.stats-bar-chart .default-color0.chart-bar {
+    -fx-bar-fill: linear-gradient(to top, #2375f6, #26c1e8);
+    -fx-background-radius: 10 10 0 0;
+}

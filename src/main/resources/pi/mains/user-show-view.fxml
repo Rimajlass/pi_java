@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="780.0" prefWidth="1460.0" styleClass="user-show-root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.UserTransactionController.UserShowController">
+    <children>
+        <VBox prefWidth="230.0" styleClass="side-nav" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <VBox spacing="4.0" styleClass="brand-wrap">
+                    <children>
+                        <Label styleClass="brand-label" text="Decide$" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="5.0" styleClass="menu-list">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row menu-row-active"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="U" /></children></StackPane><Label styleClass="menu-text" text="Users" /></children></HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="T" /></children></StackPane><Label styleClass="menu-text" text="Transactions" /></children></HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="CQ" /></children></StackPane><Label styleClass="menu-text" text="Course &amp; Quiz" /></children></HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="UE" /></children></StackPane><Label styleClass="menu-text" text="Unexpected Events" /></children></HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="RC" /></children></StackPane><Label styleClass="menu-text" text="Real Cases" /></children></HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="R" /></children></StackPane><Label styleClass="menu-text" text="Revenues" /></children></HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="E" /></children></StackPane><Label styleClass="menu-text" text="Expenses" /></children></HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="RP" /></children></StackPane><Label styleClass="menu-text" text="Reports" /></children></HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="I" /></children></StackPane><Label styleClass="menu-text" text="Investments" /></children></HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="O" /></children></StackPane><Label styleClass="menu-text" text="Objectives" /></children></HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="RE" /></children></StackPane><Label styleClass="menu-text" text="Reclamations" /></children></HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="G" /></children></StackPane><Label styleClass="menu-text" text="Goals" /></children></HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="S" /></children></StackPane><Label styleClass="menu-text" text="Statistics" /></children></HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="AI" /></children></StackPane><Label styleClass="menu-text" text="AI Quiz Generator" /></children></HBox>
+                    </children>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS" />
+                <Separator styleClass="side-separator" />
+                <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="profile-box">
+                    <children>
+                        <StackPane styleClass="profile-avatar"><children><Label styleClass="profile-avatar-text" text="AD" /></children></StackPane>
+                        <VBox spacing="1.0"><children><Label fx:id="sidebarNameLabel" styleClass="profile-name" text="admin" /><Label styleClass="profile-role" text="Admin Panel" /></children></VBox>
+                    </children>
+                    <padding><Insets bottom="12.0" left="12.0" right="12.0" top="12.0" /></padding>
+                </HBox>
+                <Button mnemonicParsing="false" onAction="#handleSignOut" styleClass="signout-button" text="Sign out" />
+            </children>
+            <padding><Insets bottom="16.0" left="12.0" right="12.0" top="20.0" /></padding>
+        </VBox>
+
+        <AnchorPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="230.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="page-scroll" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <content>
+                        <VBox spacing="12.0" styleClass="page-content">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" styleClass="page-header-card">
+                                    <children>
+                                        <VBox spacing="5.0">
+                                            <children>
+                                                <Label fx:id="pageTitleLabel" styleClass="page-title" text="User Profile #0" />
+                                                <Label fx:id="pageSubtitleLabel" styleClass="page-subtitle" text="Detailed account information and role overview" />
+                                            </children>
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Button mnemonicParsing="false" onAction="#handleTransactionsHistory" styleClass="btn btn-outline" text="Transaction history" />
+                                        <Button mnemonicParsing="false" onAction="#handleBackToList" styleClass="btn btn-muted" text="Back to list" />
+                                    </children>
+                                </HBox>
+
+                                <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="card">
+                                    <children>
+                                        <VBox alignment="CENTER" spacing="7.0" styleClass="avatar-block">
+                                            <children>
+                                                <StackPane styleClass="avatar-circle"><children><Label styleClass="avatar-circle-text" text="DECIDE$" /></children></StackPane>
+                                                <Button mnemonicParsing="false" styleClass="btn btn-outline avatar-btn" text="Changer la Photo" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label fx:id="nameLabel" styleClass="profile-name-main" text="User Name" />
+                                                <Label fx:id="emailLabel" styleClass="profile-email" text="user@email.com" />
+                                                <HBox fx:id="roleBadgesBox" spacing="8.0" />
+                                            </children>
+                                        </VBox>
+                                        <VBox alignment="CENTER_RIGHT" spacing="4.0" styleClass="balance-box">
+                                            <children>
+                                                <Label styleClass="balance-k" text="CURRENT BALANCE" />
+                                                <Label fx:id="balanceLabel" styleClass="balance-v" text="0.00 TND" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+
+                                <VBox spacing="10.0" styleClass="card">
+                                    <children>
+                                        <Label styleClass="section-title" text="User details" />
+                                        <VBox spacing="0.0" styleClass="details-table">
+                                            <children>
+                                                <HBox styleClass="details-row"><children><Label styleClass="k-col" text="ID" /><Label fx:id="idValueLabel" styleClass="v-col" text="-" /></children></HBox>
+                                                <HBox styleClass="details-row"><children><Label styleClass="k-col" text="Name" /><Label fx:id="nameDetailsValueLabel" styleClass="v-col" text="-" /></children></HBox>
+                                                <HBox styleClass="details-row"><children><Label styleClass="k-col" text="Email" /><Label fx:id="emailDetailsValueLabel" styleClass="v-col" text="-" /></children></HBox>
+                                                <HBox styleClass="details-row"><children><Label styleClass="k-col" text="Roles" /><Label fx:id="rolesValueLabel" styleClass="v-col" text="-" /></children></HBox>
+                                                <HBox styleClass="details-row"><children><Label styleClass="k-col" text="Balance" /><Label fx:id="balanceDetailsValueLabel" styleClass="v-col v-primary" text="-" /></children></HBox>
+                                                <HBox styleClass="details-row"><children><Label styleClass="k-col" text="Registration date" /><Label fx:id="registrationValueLabel" styleClass="v-col" text="-" /></children></HBox>
+                                                <HBox styleClass="details-row"><children><Label styleClass="k-col" text="Geo Country" /><Label fx:id="geoCountryValueLabel" styleClass="v-col" text="-" /></children></HBox>
+                                                <HBox styleClass="details-row"><children><Label styleClass="k-col" text="Geo Region / City" /><Label fx:id="geoRegionValueLabel" styleClass="v-col" text="-" /></children></HBox>
+                                                <HBox styleClass="details-row"><children><Label styleClass="k-col" text="Detected IP" /><Label fx:id="ipValueLabel" styleClass="v-col" text="-" /></children></HBox>
+                                                <HBox styleClass="details-row"><children><Label styleClass="k-col" text="VPN / Proxy" /><Label fx:id="vpnValueLabel" styleClass="v-col badge-good" text="No" /></children></HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="10.0" styleClass="card">
+                                    <children>
+                                        <Label styleClass="section-title" text="Statistics" />
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="TOTAL TRANSACTIONS" /><Label fx:id="totalTransactionsLabel" styleClass="stat-v" text="0" /></children></VBox>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="TOTAL REVENUES" /><Label fx:id="totalRevenuesLabel" styleClass="stat-v" text="0.00 TND" /></children></VBox>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="TOTAL EXPENSES" /><Label fx:id="totalExpensesLabel" styleClass="stat-v" text="0.00 TND" /></children></VBox>
+                                            </children>
+                                        </HBox>
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="SAVINGS TRANSACTIONS" /><Label fx:id="savingCountLabel" styleClass="stat-v" text="0" /></children></VBox>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="EXPENSE TRANSACTIONS" /><Label fx:id="expenseCountLabel" styleClass="stat-v" text="0" /></children></VBox>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="INVESTMENT TRANSACTIONS" /><Label fx:id="investmentCountLabel" styleClass="stat-v" text="0" /></children></VBox>
+                                            </children>
+                                        </HBox>
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="LAST ACTIVITY" /><Label fx:id="lastActivityLabel" styleClass="stat-v" text="-" /></children></VBox>
+                                            </children>
+                                        </HBox>
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="NET CASH FLOW" /><Label fx:id="netCashFlowLabel" styleClass="stat-v text-good" text="0.00 TND" /></children></VBox>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="FINANCIAL HEALTH" /><Label fx:id="financialHealthLabel" styleClass="stat-v" text="-" /></children></VBox>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="SAVINGS RATE" /><Label fx:id="savingsRateLabel" styleClass="stat-v" text="0.0%" /></children></VBox>
+                                            </children>
+                                        </HBox>
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <VBox spacing="8.0" styleClass="chart-box" HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label styleClass="chart-title" text="Revenue vs Expense Trend (6 months)" />
+                                                        <LineChart fx:id="trendChart" animated="false" createSymbols="false" prefHeight="220.0">
+                                                            <xAxis><CategoryAxis /></xAxis>
+                                                            <yAxis><NumberAxis autoRanging="true" /></yAxis>
+                                                        </LineChart>
+                                                    </children>
+                                                </VBox>
+                                                <VBox spacing="8.0" styleClass="chart-box chart-pie-box">
+                                                    <children>
+                                                        <Label styleClass="chart-title" text="Transaction Distribution" />
+                                                        <PieChart fx:id="distributionChart" labelsVisible="true" legendVisible="true" prefHeight="220.0" />
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+                                        <VBox spacing="6.0" styleClass="insights-box">
+                                            <children>
+                                                <Label styleClass="section-subtitle" text="Smart insights" />
+                                                <VBox fx:id="insightsBox" spacing="4.0" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="10.0" styleClass="card">
+                                    <children>
+                                        <Label styleClass="section-title" text="AI User Behavior Profile" />
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="FINANCIAL BEHAVIOR SCORE" /><Label fx:id="behaviorScoreLabel" styleClass="stat-v" text="0/100" /></children></VBox>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="PROFILE TYPE" /><Label fx:id="behaviorTypeLabel" styleClass="stat-v" text="-" /></children></VBox>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="SCORE TREND (VS PREVIOUS)" /><Label fx:id="scoreTrendLabel" styleClass="stat-v text-good" text="+0" /></children></VBox>
+                                            </children>
+                                        </HBox>
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="CURRENT WEEK EXPENSES" /><Label fx:id="currentWeekExpenseLabel" styleClass="stat-v" text="0.00 TND" /></children></VBox>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="PREVIOUS WEEK EXPENSES" /><Label fx:id="previousWeekExpenseLabel" styleClass="stat-v" text="0.00 TND" /></children></VBox>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="EXPENSE DELTA" /><Label fx:id="expenseDeltaLabel" styleClass="stat-v text-bad" text="+0%" /></children></VBox>
+                                            </children>
+                                        </HBox>
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="EXPENSE REGULARITY" /><Label fx:id="regularityLabel" styleClass="stat-v" text="0/100" /></children></VBox>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="IMPULSIVITY CONTROL" /><Label fx:id="impulsivityLabel" styleClass="stat-v" text="0/100" /></children></VBox>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="SAVING DISCIPLINE" /><Label fx:id="disciplineLabel" styleClass="stat-v" text="0/100" /></children></VBox>
+                                            </children>
+                                        </HBox>
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <VBox spacing="4.0" styleClass="stat-tile"><children><Label styleClass="stat-k" text="MONTHLY STABILITY" /><Label fx:id="stabilityLabel" styleClass="stat-v" text="0/100" /></children></VBox>
+                                                <Region HBox.hgrow="ALWAYS" />
+                                            </children>
+                                        </HBox>
+                                        <VBox spacing="6.0" styleClass="insights-box">
+                                            <children>
+                                                <Label styleClass="section-subtitle" text="Strengths" />
+                                                <VBox fx:id="strengthsBox" spacing="4.0" />
+                                                <Label styleClass="section-subtitle" text="Weaknesses" />
+                                                <VBox fx:id="weaknessesBox" spacing="4.0" />
+                                                <Label styleClass="section-subtitle" text="Adaptive Coaching (3 actions)" />
+                                                <VBox fx:id="actionsBox" spacing="4.0" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="6.0" styleClass="insights-box">
+                                            <children>
+                                                <Label styleClass="section-subtitle" text="AI Coaching Note (Local fallback)" />
+                                                <Label fx:id="aiNoteLabel" styleClass="insight-line" text="-" wrapText="true" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="10.0" styleClass="card">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                            <children>
+                                                <Label styleClass="section-title" text="Live API Data" />
+                                                <Label styleClass="live-badge" text="Live" />
+                                            </children>
+                                        </HBox>
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="BITCOIN (BTC)" /><Label fx:id="btcPriceLabel" styleClass="stat-v" text="\$0.00" /></children></VBox>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="ETHEREUM (ETH)" /><Label fx:id="ethPriceLabel" styleClass="stat-v" text="\$0.00" /></children></VBox>
+                                                <VBox spacing="4.0" styleClass="stat-tile" HBox.hgrow="ALWAYS"><children><Label styleClass="stat-k" text="TETHER (USDT)" /><Label fx:id="usdtPriceLabel" styleClass="stat-v" text="\$0.0000" /></children></VBox>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <HBox alignment="CENTER_LEFT" styleClass="card danger-zone">
+                                    <children>
+                                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label styleClass="danger-title" text="Danger zone" />
+                                                <Label styleClass="danger-subtitle" text="Deleting this user is permanent." />
+                                            </children>
+                                        </VBox>
+                                        <Button mnemonicParsing="false" onAction="#handleEditUser" styleClass="btn btn-primary" text="Edit" />
+                                        <Button mnemonicParsing="false" onAction="#handleDeleteUser" styleClass="btn btn-danger" text="Delete" />
+                                    </children>
+                                </HBox>
+
+                                <HBox alignment="CENTER_LEFT" styleClass="page-footer">
+                                    <children>
+                                        <Label styleClass="footer-brand" text="Decide$" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label styleClass="footer-center" text="© 2026 Decide$ - Admin. All rights reserved." />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Button mnemonicParsing="false" onAction="#handleSignOut" styleClass="footer-link" text="Sign out" />
+                                    </children>
+                                </HBox>
+                            </children>
+                            <padding><Insets bottom="18.0" left="18.0" right="18.0" top="14.0" /></padding>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </children>
+        </AnchorPane>
+    </children>
+</AnchorPane>

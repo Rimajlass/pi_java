@@ -7,6 +7,11 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -55,8 +60,15 @@ final class GoalsBackOfficeView {
     private Label activeSearchValue;
     private Label activeSortValue;
     private TabPane tabPane;
+    private PieChart statsPieChart;
+    private BarChart<String, Number> statsBarChart;
+    private Label chartSectionTitle;
 
     Parent build(SavingsUiController controller) {
+        return build(controller, "Goals", false);
+    }
+
+    Parent build(SavingsUiController controller, String initialTab, boolean embeddedMode) {
         this.controller = controller;
 
         BorderPane root = new BorderPane();
@@ -67,10 +79,17 @@ final class GoalsBackOfficeView {
 
         VBox page = new VBox(22);
         page.getStyleClass().add("backoffice-page");
-        page.getChildren().add(buildHeader());
+        if (!embeddedMode) {
+            page.getChildren().add(buildHeader());
+        }
         page.getChildren().add(buildBody());
 
         root.setCenter(page);
+        if (embeddedMode) {
+            page.setFillWidth(true);
+            page.setStyle("-fx-padding: 0;");
+        }
+        selectInitialTab(initialTab);
         initializeDataAsync();
         return root;
     }
@@ -150,9 +169,41 @@ final class GoalsBackOfficeView {
                 summaryBlock("Remaining amount", remainingAmountValue),
                 summaryBlock("Nearest deadline", nearestDeadlineValue),
                 summaryBlock("Active search", activeSearchValue),
-                summaryBlock("Active sort", activeSortValue)
+                summaryBlock("Active sort", activeSortValue),
+                buildChartsCard()
         );
         return panel;
+    }
+
+    private VBox buildChartsCard() {
+        VBox card = new VBox(12);
+        card.getStyleClass().add("summary-block");
+
+        chartSectionTitle = new Label("Savings charts");
+        chartSectionTitle.getStyleClass().add("card-title");
+
+        statsPieChart = new PieChart();
+        statsPieChart.setLegendVisible(true);
+        statsPieChart.setLabelsVisible(true);
+        statsPieChart.setPrefHeight(230);
+        statsPieChart.getStyleClass().add("stats-pie-chart");
+
+        CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setAutoRanging(true);
+        yAxis.setMinorTickVisible(false);
+        yAxis.setTickLabelsVisible(true);
+
+        statsBarChart = new BarChart<>(xAxis, yAxis);
+        statsBarChart.setLegendVisible(false);
+        statsBarChart.setAnimated(false);
+        statsBarChart.setCategoryGap(18);
+        statsBarChart.setBarGap(6);
+        statsBarChart.setPrefHeight(240);
+        statsBarChart.getStyleClass().add("stats-bar-chart");
+
+        card.getChildren().addAll(chartSectionTitle, statsPieChart, statsBarChart);
+        return card;
     }
 
     private VBox buildTablePanel() {
@@ -173,6 +224,17 @@ final class GoalsBackOfficeView {
         panel.getChildren().add(tabPane);
         VBox.setVgrow(tabPane, Priority.ALWAYS);
         return panel;
+    }
+
+    private void selectInitialTab(String initialTab) {
+        if (tabPane == null || initialTab == null) {
+            return;
+        }
+        if ("savings".equalsIgnoreCase(initialTab)) {
+            tabPane.getSelectionModel().select(0);
+        } else if ("goals".equalsIgnoreCase(initialTab)) {
+            tabPane.getSelectionModel().select(1);
+        }
     }
 
     private VBox buildSavingsTab() {
@@ -488,10 +550,47 @@ final class GoalsBackOfficeView {
         if (tabPane != null && tabPane.getSelectionModel().getSelectedIndex() == 0) {
             activeSearchValue.setText(savingsSearchValue().isBlank() ? "All savings rows" : savingsSearchValue());
             activeSortValue.setText(savingsSortFieldValue() + " / " + savingsSortDirectionValue());
+            refreshSavingsCharts();
         } else {
             activeSearchValue.setText(goalsSearchValue().isBlank() ? "All goals" : goalsSearchValue());
             activeSortValue.setText(goalsSortFieldValue() + " / " + goalsSortDirectionValue());
+            refreshGoalsCharts();
         }
+    }
+
+    private void refreshSavingsCharts() {
+        SavingsModuleService.HistoryStats stats = controller.calculateHistoryStats(List.copyOf(savingsItems));
+        chartSectionTitle.setText("Savings charts");
+
+        statsPieChart.setData(FXCollections.observableArrayList(
+                new PieChart.Data("Deposits", stats.totalDeposited().doubleValue()),
+                new PieChart.Data("Contributions", stats.totalContributedToGoals().doubleValue())
+        ));
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.getData().add(new XYChart.Data<>("Rows", stats.transactionCount()));
+        series.getData().add(new XYChart.Data<>("Deposits", stats.depositCount()));
+        series.getData().add(new XYChart.Data<>("Goals", stats.goalContributionCount()));
+
+        statsBarChart.getData().setAll(series);
+    }
+
+    private void refreshGoalsCharts() {
+        SavingsModuleService.GoalStats stats = controller.calculateGoalStats(List.copyOf(goalsItems));
+        int inProgressCount = Math.max(0, stats.goalCount() - stats.completedGoalCount());
+        chartSectionTitle.setText("Goals charts");
+
+        statsPieChart.setData(FXCollections.observableArrayList(
+                new PieChart.Data("Completed", stats.completedGoalCount()),
+                new PieChart.Data("In progress", inProgressCount)
+        ));
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.getData().add(new XYChart.Data<>("Target", stats.totalTarget().doubleValue()));
+        series.getData().add(new XYChart.Data<>("Current", stats.totalCurrent().doubleValue()));
+        series.getData().add(new XYChart.Data<>("Remaining", stats.remainingAmount().doubleValue()));
+
+        statsBarChart.getData().setAll(series);
     }
 
     private VBox cardTitle(String titleText, String subtitleText) {
@@ -521,6 +620,9 @@ final class GoalsBackOfficeView {
     }
 
     private void showInfo(String message) {
+        if (feedbackLabel == null) {
+            return;
+        }
         feedbackLabel.setText(message);
         feedbackLabel.getStyleClass().removeAll("feedback-error", "feedback-info");
         feedbackLabel.getStyleClass().add("feedback-info");
@@ -529,6 +631,9 @@ final class GoalsBackOfficeView {
     }
 
     private void showError(String message) {
+        if (feedbackLabel == null) {
+            return;
+        }
         feedbackLabel.setText(message);
         feedbackLabel.getStyleClass().removeAll("feedback-error", "feedback-info");
         feedbackLabel.getStyleClass().add("feedback-error");

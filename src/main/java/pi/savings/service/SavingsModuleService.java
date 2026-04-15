@@ -70,6 +70,9 @@ public class SavingsModuleService {
 
         try {
             SavingAccount account = getOrCreateAccount(userId);
+            List<SavingsTransactionRepository.TransactionRow> history =
+                    savingsTransactionRepository.findSavingsHistoryByUserId(userId);
+            ensureDepositIsNotDuplicate(amount, description, history);
             Connection connection = savingAccountRepository.getConnection();
             boolean previousAutoCommit = connection.getAutoCommit();
             connection.setAutoCommit(false);
@@ -120,6 +123,8 @@ public class SavingsModuleService {
 
         try {
             SavingAccount account = getOrCreateAccount(userId);
+            List<FinancialGoal> existingGoals = financialGoalRepository.findBySavingAccountId(account.getId());
+            ensureGoalNameIsUnique(nameText, existingGoals, null);
             FinancialGoal goal = new FinancialGoal(
                     account.getId(),
                     nameText.trim(),
@@ -152,6 +157,8 @@ public class SavingsModuleService {
 
         try {
             SavingAccount account = getOrCreateAccount(userId);
+            List<FinancialGoal> existingGoals = financialGoalRepository.findBySavingAccountId(account.getId());
+            ensureGoalNameIsUnique(nameText, existingGoals, goalId);
             FinancialGoal existingGoal = financialGoalRepository.findByIdAndSavingAccountId(goalId, account.getId())
                     .orElseThrow(() -> new SavingsModuleException("Goal introuvable.", null));
 
@@ -409,6 +416,43 @@ public class SavingsModuleService {
                 .multiply(new BigDecimal("100"))
                 .min(new BigDecimal("100"))
                 .doubleValue();
+    }
+
+    private void ensureGoalNameIsUnique(String rawName, List<FinancialGoal> goals, Integer ignoredGoalId) {
+        String normalizedName = normalizeText(rawName);
+        boolean duplicateExists = goals.stream()
+                .filter(goal -> ignoredGoalId == null || goal.getId() != ignoredGoalId)
+                .map(FinancialGoal::getNom)
+                .map(this::normalizeText)
+                .anyMatch(normalizedName::equals);
+
+        if (duplicateExists) {
+            throw new SavingsValidation.SavingsValidationException("Un goal avec le meme nom existe deja.");
+        }
+    }
+
+    private void ensureDepositIsNotDuplicate(
+            BigDecimal amount,
+            String description,
+            List<SavingsTransactionRepository.TransactionRow> history
+    ) {
+        if (history.isEmpty()) {
+            return;
+        }
+
+        SavingsTransactionRepository.TransactionRow latestTransaction = history.get(0);
+        boolean duplicateDeposit = "EPARGNE".equalsIgnoreCase(latestTransaction.type())
+                && latestTransaction.date().toLocalDate().isEqual(LocalDate.now())
+                && latestTransaction.amount().setScale(2, RoundingMode.HALF_UP).compareTo(amount) == 0
+                && normalizeText(latestTransaction.description()).equals(normalizeText(description));
+
+        if (duplicateDeposit) {
+            throw new SavingsValidation.SavingsValidationException("Ce depot existe deja.");
+        }
+    }
+
+    private String normalizeText(String value) {
+        return value == null ? "" : value.trim().replaceAll("\\s+", " ").toLowerCase();
     }
 
     public record DashboardSnapshot(
