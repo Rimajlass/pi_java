@@ -101,7 +101,7 @@
 
                                     <HBox alignment="CENTER_RIGHT" spacing="12">
                                         <children>
-                                            <HBox alignment="CENTER" spacing="8" styleClass="profile-pill">
+                                            <HBox alignment="CENTER" spacing="8" styleClass="profile-pill" onMouseClicked="#handleOpenProfileClick">
                                                 <children>
                                                     <Label text="U" styleClass="profile-icon" />
                                                     <Label fx:id="profileNameLabel" text="aziz" styleClass="profile-name" />
@@ -114,7 +114,8 @@
 
                                             <Button text="Logout"
                                                     mnemonicParsing="false"
-                                                    styleClass="header-button primary-header-button" />
+                                                    styleClass="header-button primary-header-button"
+                                                    onAction="#handleLogoutAction" />
                                         </children>
                                     </HBox>
                                 </children>

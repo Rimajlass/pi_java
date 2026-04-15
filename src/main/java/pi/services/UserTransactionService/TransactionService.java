@@ -74,12 +74,18 @@ public class TransactionService {
             String typeFilter,
             LocalDate from,
             LocalDate to,
-            String userNomLike
+            String userNomLike,
+            String sortBy,
+            String sortOrder
     ) {
         StringBuilder sql = new StringBuilder(TX_SELECT_BASE).append(" WHERE 1=1 ");
         List<Object> params = new ArrayList<>();
         appendAdminFilters(sql, params, typeFilter, from, to, userNomLike);
-        sql.append(" ORDER BY t.date DESC, t.id DESC ");
+        sql.append(" ORDER BY ")
+                .append(resolveTransactionSort(sortBy))
+                .append(" ")
+                .append(resolveSortOrder(sortOrder))
+                .append(", t.id DESC ");
 
         List<Transaction> list = new ArrayList<>();
         try (PreparedStatement ps = cnx.prepareStatement(sql.toString())) {
@@ -224,6 +230,25 @@ public class TransactionService {
             sql.append(" AND LOWER(u.nom) LIKE ? ");
             params.add("%" + userNomLike.trim().toLowerCase(Locale.ROOT) + "%");
         }
+    }
+
+    private static String resolveTransactionSort(String sortBy) {
+        if (sortBy == null) {
+            return "t.date";
+        }
+        return switch (sortBy.trim().toLowerCase(Locale.ROOT)) {
+            case "id" -> "t.id";
+            case "user" -> "u.nom";
+            case "type" -> "t.type";
+            case "amount" -> "t.montant";
+            case "description" -> "t.description";
+            case "source" -> "t.module_source";
+            default -> "t.date";
+        };
+    }
+
+    private static String resolveSortOrder(String sortOrder) {
+        return "ASC".equalsIgnoreCase(sortOrder) ? "ASC" : "DESC";
     }
 
     private static void bindParams(PreparedStatement ps, List<Object> params) throws SQLException {

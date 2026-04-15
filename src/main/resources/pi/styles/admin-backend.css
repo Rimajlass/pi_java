@@ -26,13 +26,15 @@
 }
 
 .menu-list {
-    -fx-padding: 8px 0 6px 0;
+    -fx-padding: 10px 0 6px 0;
 }
 
 .menu-row {
-    -fx-padding: 9px 11px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 12px;
+    -fx-padding: 10px 12px;
     -fx-background-color: transparent;
-    -fx-background-radius: 10px;
+    -fx-background-radius: 12px;
 }
 
 .menu-row:hover {
@@ -40,9 +42,9 @@
 }
 
 .menu-row-active {
-    -fx-background-color: rgba(122, 143, 255, 0.34);
+    -fx-background-color: rgba(132, 155, 255, 0.32);
     -fx-border-color: rgba(255, 255, 255, 0.14);
-    -fx-border-radius: 10px;
+    -fx-border-radius: 12px;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.17), 8, 0.1, 0, 2);
 }
 
@@ -51,21 +53,28 @@
 }
 
 .menu-icon {
-    -fx-pref-width: 18px;
-    -fx-pref-height: 18px;
-    -fx-background-color: transparent;
+    -fx-pref-width: 20px;
+    -fx-pref-height: 20px;
+    -fx-min-width: 20px;
+    -fx-min-height: 20px;
+    -fx-max-width: 20px;
+    -fx-max-height: 20px;
+    -fx-alignment: CENTER;
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    -fx-background-radius: 999px;
 }
 
 .menu-icon-text {
-    -fx-text-fill: #ffffff;
-    -fx-font-size: 13px;
+    -fx-font-family: "Segoe UI Symbol";
+    -fx-text-fill: #f2f6ff;
+    -fx-font-size: 12px;
     -fx-font-weight: 800;
 }
 
 .menu-text {
-    -fx-text-fill: #e6ebff;
-    -fx-font-size: 13px;
-    -fx-font-weight: 600;
+    -fx-text-fill: #eaf0ff;
+    -fx-font-size: 13.5px;
+    -fx-font-weight: 700;
 }
 
 .side-separator {
@@ -168,57 +177,49 @@
     -fx-font-size: 13px;
     -fx-font-weight: 700;
     -fx-cursor: hand;
-    -fx-background-radius: 10px;
-    -fx-padding: 10px 20px;
-    -fx-min-width: 132px;
+    -fx-background-radius: 9px;
+    -fx-padding: 11px 22px;
+    -fx-min-width: 170px;
+    -fx-text-fill: #ffffff;
+    -fx-border-width: 0;
+    -fx-effect: dropshadow(gaussian, rgba(32, 45, 98, 0.25), 10, 0.14, 0, 3);
 }
 
 .top-btn-my-profile {
-    -fx-background-color: #ebe8f9;
-    -fx-border-color: #7569a8;
-    -fx-border-width: 1.5px;
-    -fx-border-radius: 10px;
-    -fx-background-radius: 10px;
-    -fx-text-fill: #453a72;
-    -fx-effect: null;
+    -fx-background-color: linear-gradient(to bottom, #6278d9, #4e63c9);
 }
 
 .top-btn-my-profile:hover {
-    -fx-background-color: #e0dcf5;
+    -fx-background-color: linear-gradient(to bottom, #5b72d3, #455cc1);
 }
 
 .top-btn-my-profile:pressed {
-    -fx-background-color: #d4cfe8;
+    -fx-background-color: #4257b8;
 }
 
 .top-btn-edit-profile {
-    -fx-background-color: #4f63d4;
-    -fx-text-fill: #ffffff;
-    -fx-border-color: transparent;
-    -fx-effect: dropshadow(gaussian, rgba(45, 58, 130, 0.38), 14, 0.12, 0, 4);
+    -fx-background-color: linear-gradient(to bottom, #5f77d9, #4e63c9);
 }
 
 .top-btn-edit-profile:hover {
-    -fx-background-color: #3f52c4;
+    -fx-background-color: linear-gradient(to bottom, #586fce, #465cc0);
 }
 
 .top-btn-edit-profile:pressed {
-    -fx-background-color: #3648b0;
+    -fx-background-color: #4257b8;
 }
 
 .top-btn-add-user {
-    -fx-background-color: #1e9e4a;
-    -fx-text-fill: #ffffff;
-    -fx-border-color: transparent;
-    -fx-effect: dropshadow(gaussian, rgba(18, 95, 42, 0.4), 14, 0.12, 0, 4);
+    -fx-background-color: linear-gradient(to bottom, #1fb253, #179b45);
+    -fx-effect: dropshadow(gaussian, rgba(14, 102, 48, 0.28), 10, 0.14, 0, 3);
 }
 
 .top-btn-add-user:hover {
-    -fx-background-color: #178a3d;
+    -fx-background-color: linear-gradient(to bottom, #1aa64c, #14863d);
 }
 
 .top-btn-add-user:pressed {
-    -fx-background-color: #147536;
+    -fx-background-color: #137a38;
 }
 
 .metric-card {

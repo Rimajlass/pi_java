@@ -48,9 +48,9 @@ public final class AdminNavigation {
             TransactionsManagementController controller = loader.getController();
             Scene scene = new Scene(root, 1460, 780);
             FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/admin-backend.css");
-            FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/transactions-management.css");
             FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/user-show.css");
             FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/edit-user.css");
+            FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/transactions-management.css");
             stage.setTitle("Transactions Management | Decide$");
             stage.setScene(scene);
             stage.show();

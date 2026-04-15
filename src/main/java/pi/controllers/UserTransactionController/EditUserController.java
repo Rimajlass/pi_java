@@ -23,6 +23,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class EditUserController {
 
@@ -49,6 +50,8 @@ public class EditUserController {
 
     private final UserController userController = new UserController();
     private final DecimalFormat moneyFormat = new DecimalFormat("#0.##", DecimalFormatSymbols.getInstance(Locale.FRANCE));
+    private static final Pattern NAME_PATTERN = Pattern.compile("^[A-Za-zÀ-ÿ ]{2,60}$");
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
     private User adminUser;
     private int editingUserId;
@@ -56,7 +59,7 @@ public class EditUserController {
 
     @FXML
     public void initialize() {
-        roleCombo.setItems(FXCollections.observableArrayList("Admin", "Salary", "Étudiant", "Utilisateur"));
+        roleCombo.setItems(FXCollections.observableArrayList("Admin", "Salary", "Etudiant", "Utilisateur"));
     }
 
     public void setContext(User adminUser, User userToEdit) {
@@ -125,7 +128,7 @@ public class EditUserController {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Supprimer l'utilisateur");
         confirm.setHeaderText(null);
-        confirm.setContentText("Supprimer définitivement l'utilisateur #" + editingUserId + " ?");
+        confirm.setContentText("Supprimer definitivement l'utilisateur #" + editingUserId + " ?");
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isEmpty() || result.get() != ButtonType.OK) {
             return;
@@ -152,7 +155,15 @@ public class EditUserController {
             String email = emailField.getText() != null ? emailField.getText().trim() : "";
             String roleLabel = roleCombo.getValue();
             if (roleLabel == null || roleLabel.isBlank()) {
-                showError("Enregistrement", "Choisissez un rôle.");
+                showError("Enregistrement", "Choisissez un role.");
+                return;
+            }
+            if (!NAME_PATTERN.matcher(nom).matches()) {
+                showError("Enregistrement", "Nom invalide (2-60 lettres/espace).");
+                return;
+            }
+            if (!EMAIL_PATTERN.matcher(email).matches() || email.length() > 180) {
+                showError("Enregistrement", "Email invalide.");
                 return;
             }
 
@@ -164,6 +175,17 @@ public class EditUserController {
                 showError("Enregistrement", "Solde total invalide.");
                 return;
             }
+            if (solde < 0 || solde > 10_000_000) {
+                showError("Enregistrement", "Solde invalide.");
+                return;
+            }
+
+            String pwd = passwordField.getText();
+            String plain = (pwd != null && !pwd.isBlank()) ? pwd : null;
+            if (plain != null && (plain.length() < 8 || !plain.matches(".*[A-Z].*") || !plain.matches(".*[a-z].*") || !plain.matches(".*\\d.*"))) {
+                showError("Enregistrement", "Mot de passe faible (min 8, majuscule, minuscule, chiffre).");
+                return;
+            }
 
             existing.setNom(nom);
             existing.setEmail(email);
@@ -172,9 +194,6 @@ public class EditUserController {
             if (pendingImagePath != null && !pendingImagePath.isBlank()) {
                 existing.setImage(pendingImagePath);
             }
-
-            String pwd = passwordField.getText();
-            String plain = pwd != null && !pwd.isBlank() ? pwd : null;
 
             userController.edit(existing, plain);
             navigateToAdminList();
@@ -223,7 +242,7 @@ public class EditUserController {
         return switch (label) {
             case "Admin" -> "[\"ROLE_ADMIN\"]";
             case "Salary" -> "[\"ROLE_SALARY\"]";
-            case "Étudiant" -> "[\"ROLE_ETUDIANT\"]";
+            case "Etudiant" -> "[\"ROLE_ETUDIANT\"]";
             default -> "[\"ROLE_USER\"]";
         };
     }
@@ -236,16 +255,13 @@ public class EditUserController {
             return "Salary";
         }
         if (user.hasRole("ROLE_ETUDIANT")) {
-            return "Étudiant";
+            return "Etudiant";
         }
         return "Utilisateur";
     }
 
     private static String valueOrDash(String v) {
-        if (v == null || v.isBlank()) {
-            return "";
-        }
-        return v;
+        return (v == null || v.isBlank()) ? "" : v;
     }
 
     private void showError(String title, String message) {
@@ -256,3 +272,4 @@ public class EditUserController {
         a.showAndWait();
     }
 }
+

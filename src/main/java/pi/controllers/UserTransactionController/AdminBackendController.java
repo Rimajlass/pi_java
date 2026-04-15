@@ -10,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -63,6 +64,9 @@ public class AdminBackendController {
     @FXML
     private VBox usersRowsBox;
 
+    @FXML
+    private VBox menuList;
+
     private final UserController userController = new UserController();
     private final DecimalFormat moneyFormat = new DecimalFormat("#,##0.00");
     private User currentUser;
@@ -70,7 +74,7 @@ public class AdminBackendController {
     @FXML
     public void initialize() {
         roleFilterCombo.getItems().setAll("All roles", "Admin", "Salary", "Student", "Standard user");
-        sortFilterCombo.getItems().setAll("Sort by name", "Sort by email", "Sort by balance", "Sort by registration date", "Sort by ID");
+        sortFilterCombo.getItems().setAll("Sort by name", "Sort by email", "Sort by role", "Sort by balance", "Sort by registration date", "Sort by ID");
         orderFilterCombo.getItems().setAll("ASC", "DESC");
 
         roleFilterCombo.setValue("All roles");
@@ -100,6 +104,29 @@ public class AdminBackendController {
             AdminNavigation.showTransactionsManagement((Stage) headerLabel.getScene().getWindow(), currentUser);
         } catch (Exception e) {
             showError("Navigation", e.getMessage() != null ? e.getMessage() : String.valueOf(e));
+        }
+    }
+
+    @FXML
+    private void handleSidebarSelection(MouseEvent event) {
+        if (!(event.getSource() instanceof HBox selectedRow) || menuList == null) {
+            return;
+        }
+
+        menuList.getChildren().stream()
+                .filter(HBox.class::isInstance)
+                .map(HBox.class::cast)
+                .forEach(row -> row.getStyleClass().remove("menu-row-active"));
+
+        if (!selectedRow.getStyleClass().contains("menu-row-active")) {
+            selectedRow.getStyleClass().add("menu-row-active");
+        }
+
+        if (selectedRow.getChildren().size() >= 2 && selectedRow.getChildren().get(1) instanceof Label menuLabel) {
+            String key = menuLabel.getText();
+            if ("Transactions".equalsIgnoreCase(key)) {
+                handleNavTransactions();
+            }
         }
     }
 
@@ -168,6 +195,10 @@ public class AdminBackendController {
     private void loadUsers() {
         try {
             String search = clean(searchField.getText());
+            if (search.length() > 80) {
+                showError("Filtre", "Le texte de recherche est trop long (max 80).");
+                return;
+            }
             String role = mapRole(roleFilterCombo.getValue());
             String sortBy = mapSort(sortFilterCombo.getValue());
             String order = "DESC".equalsIgnoreCase(orderFilterCombo.getValue()) ? "DESC" : "ASC";
@@ -352,6 +383,7 @@ public class AdminBackendController {
         }
         return switch (displaySort) {
             case "Sort by email" -> "email";
+            case "Sort by role" -> "role";
             case "Sort by balance" -> "solde";
             case "Sort by registration date" -> "date";
             case "Sort by ID" -> "id";

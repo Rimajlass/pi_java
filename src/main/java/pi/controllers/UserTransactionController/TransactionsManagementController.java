@@ -4,7 +4,10 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -17,20 +20,26 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import pi.entities.Transaction;
 import pi.entities.User;
+import pi.mains.Main;
 import pi.services.UserTransactionService.TransactionService;
 import pi.services.UserTransactionService.UserService;
 import pi.tools.AdminNavigation;
+import pi.tools.FxmlResources;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class TransactionsManagementController {
 
@@ -62,6 +71,12 @@ public class TransactionsManagementController {
     private DatePicker filterDateTo;
 
     @FXML
+    private ComboBox<String> filterSortCombo;
+
+    @FXML
+    private ComboBox<String> filterOrderCombo;
+
+    @FXML
     private ComboBox<User> formUserCombo;
 
     @FXML
@@ -82,15 +97,23 @@ public class TransactionsManagementController {
     @FXML
     private TableView<Transaction> transactionTable;
 
+    @FXML
+    private VBox menuList;
+
     private final TransactionService transactionService = new TransactionService();
     private final UserService userService = new UserService();
     private final DecimalFormat moneyFormat = new DecimalFormat("#,##0.00");
+    private static final Pattern SOURCE_PATTERN = Pattern.compile("^[A-Za-z0-9 _-]{0,80}$");
     private User currentUser;
 
     @FXML
     public void initialize() {
         filterTypeCombo.getItems().setAll("All types", "EXPENSE", "SAVING", "INVESTMENT");
         filterTypeCombo.setValue("All types");
+        filterSortCombo.getItems().setAll("Sort by date", "Sort by user", "Sort by type", "Sort by amount", "Sort by description", "Sort by source", "Sort by ID");
+        filterSortCombo.setValue("Sort by date");
+        filterOrderCombo.getItems().setAll("DESC", "ASC");
+        filterOrderCombo.setValue("DESC");
 
         formTypeCombo.getItems().setAll("EXPENSE", "SAVING", "INVESTMENT");
         formTypeCombo.setValue("EXPENSE");
@@ -263,6 +286,27 @@ public class TransactionsManagementController {
     }
 
     @FXML
+    private void handleSidebarSelection(MouseEvent event) {
+        if (!(event.getSource() instanceof HBox selectedRow) || menuList == null) {
+            return;
+        }
+        menuList.getChildren().stream()
+                .filter(HBox.class::isInstance)
+                .map(HBox.class::cast)
+                .forEach(row -> row.getStyleClass().remove("menu-row-active"));
+        if (!selectedRow.getStyleClass().contains("menu-row-active")) {
+            selectedRow.getStyleClass().add("menu-row-active");
+        }
+
+        if (selectedRow.getChildren().size() >= 2 && selectedRow.getChildren().get(1) instanceof Label menuLabel) {
+            String key = menuLabel.getText();
+            if ("Users".equalsIgnoreCase(key)) {
+                handleNavUsers();
+            }
+        }
+    }
+
+    @FXML
     private void handleApplyFilters() {
         applyFiltersAndRefresh();
     }
@@ -273,6 +317,8 @@ public class TransactionsManagementController {
         filterTypeCombo.setValue("All types");
         filterDateFrom.setValue(null);
         filterDateTo.setValue(null);
+        filterSortCombo.setValue("Sort by date");
+        filterOrderCombo.setValue("DESC");
         applyFiltersAndRefresh();
     }
 
@@ -296,6 +342,10 @@ public class TransactionsManagementController {
             showError("Transaction", "Montant invalide.");
             return;
         }
+        if (amount <= 0 || amount > 10_000_000) {
+            showError("Transaction", "Le montant doit etre > 0 et raisonnable.");
+            return;
+        }
         LocalDate d = formDatePicker.getValue();
         if (d == null) {
             showError("Transaction", "Choisissez une date.");
@@ -305,8 +355,16 @@ public class TransactionsManagementController {
             showError("Transaction", "La date ne peut pas être dans le futur.");
             return;
         }
-        String desc = formDescriptionArea.getText();
-        String src = formSourceField.getText();
+        String desc = formDescriptionArea.getText() == null ? "" : formDescriptionArea.getText().trim();
+        String src = formSourceField.getText() == null ? "" : formSourceField.getText().trim();
+        if (desc.length() > 255) {
+            showError("Transaction", "Description trop longue (max 255 caracteres).");
+            return;
+        }
+        if (!SOURCE_PATTERN.matcher(src).matches()) {
+            showError("Transaction", "Source invalide (lettres/chiffres/espace/-/_, max 80).");
+            return;
+        }
 
         try {
             transactionService.insertTransactionForUser(
@@ -338,19 +396,44 @@ public class TransactionsManagementController {
         }
         LocalDate from = filterDateFrom.getValue();
         LocalDate to = filterDateTo.getValue();
+        if (from != null && to != null && from.isAfter(to)) {
+            showError("Filtres", "Date from doit etre inferieure ou egale a Date to.");
+            return;
+        }
         String userNom = filterUserField.getText() == null ? "" : filterUserField.getText().trim();
+        if (userNom.length() > 80) {
+            showError("Filtres", "Nom utilisateur trop long (max 80).");
+            return;
+        }
         if (userNom.isEmpty()) {
             userNom = null;
         }
+        String sortBy = mapTxSort(filterSortCombo.getValue());
+        String order = "ASC".equalsIgnoreCase(filterOrderCombo.getValue()) ? "ASC" : "DESC";
 
         Map<String, Integer> kpi = transactionService.countGroupedByType(typeFilter, from, to, userNom);
         kpiExpenseLabel.setText(String.valueOf(kpi.getOrDefault("EXPENSE", 0)));
         kpiSavingLabel.setText(String.valueOf(kpi.getOrDefault("SAVING", 0)));
         kpiInvestmentLabel.setText(String.valueOf(kpi.getOrDefault("INVESTMENT", 0)));
 
-        List<Transaction> rows = transactionService.findAllForAdmin(typeFilter, from, to, userNom);
+        List<Transaction> rows = transactionService.findAllForAdmin(typeFilter, from, to, userNom, sortBy, order);
         transactionTable.setItems(FXCollections.observableArrayList(rows));
         transactionTable.refresh();
+    }
+
+    private String mapTxSort(String displaySort) {
+        if (displaySort == null) {
+            return "date";
+        }
+        return switch (displaySort) {
+            case "Sort by user" -> "user";
+            case "Sort by type" -> "type";
+            case "Sort by amount" -> "amount";
+            case "Sort by description" -> "description";
+            case "Sort by source" -> "source";
+            case "Sort by ID" -> "id";
+            default -> "date";
+        };
     }
 
     private void showTransactionDetails(Transaction t) {
@@ -379,5 +462,24 @@ public class TransactionsManagementController {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    @FXML
+    private void handleLogout() {
+        try {
+            FXMLLoader loader = FxmlResources.load(Main.class, "/pi/mains/login-view.fxml");
+            Parent root = (Parent) loader.getRoot();
+
+            Stage stage = (Stage) userLabel.getScene().getWindow();
+            Scene scene = new Scene(root, 1460, 780);
+            FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/login.css");
+
+            stage.setUserData(null);
+            stage.setTitle("User Secure Login");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            throw new RuntimeException("Impossible de revenir vers la page login.", e);
+        }
     }
 }

@@ -396,6 +396,7 @@ public class UserService {
             case "email" -> "email";
             case "solde" -> "solde_total";
             case "date" -> "date_inscription";
+            case "role" -> "roles";
             default -> "nom";
         };
     }
