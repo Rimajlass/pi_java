@@ -10,7 +10,17 @@ import java.util.List;
 
 public class SavingAndGoalsMain {
     public static void main(String[] args) {
+        try {
+            runCrudDemo();
+        } catch (IllegalStateException e) {
+            System.out.println("Erreur de connexion a la base : " + e.getMessage());
+            if (e.getCause() != null) {
+                System.out.println("Cause JDBC : " + e.getCause().getMessage());
+            }
+        }
+    }
 
+    private static void runCrudDemo() {
         SavingAccountService sas = new SavingAccountService();
         FinancialGoalService fgs = new FinancialGoalService();
 
