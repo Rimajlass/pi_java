@@ -16,5 +16,6 @@ module Pidev3A47 {
     opens pi.controllers.ExpenseRevenueController.FRONT to javafx.fxml;
     opens pi.controllers.ExpenseRevenueController.UPDATE to javafx.fxml;
     opens pi.controllers.ImprevusCasreelController to javafx.fxml;
+    opens pi.controllers.CoursQuizController to javafx.fxml;
     opens pi.savings.ui to javafx.fxml;
 }

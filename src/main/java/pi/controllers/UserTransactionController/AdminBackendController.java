@@ -16,6 +16,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import pi.controllers.CoursQuizController.AdminCoursesQuizBackOfficeFactory;
 import pi.controllers.ExpenseRevenueController.BACK.AdminRevenueExpenseBackOfficeFactory;
 import pi.controllers.ImprevusCasreelController.AdminUnexpectedCasesBackOfficeFactory;
 import pi.entities.User;
@@ -88,6 +89,7 @@ public class AdminBackendController {
     private User currentUser;
     private Parent savingsWorkspace;
     private Parent goalsWorkspace;
+    private Parent courseQuizWorkspace;
     private Parent revenueWorkspace;
     private Parent expenseWorkspace;
     private Parent unexpectedWorkspace;
@@ -149,6 +151,7 @@ public class AdminBackendController {
             switch (key.toLowerCase()) {
                 case "users" -> showUsersWorkspace();
                 case "transactions" -> handleNavTransactions();
+                case "course & quiz" -> showCourseQuizWorkspace();
                 case "unexpected events" -> showUnexpectedWorkspace();
                 case "real cases" -> showRealCasesWorkspace();
                 case "revenues" -> showRevenueWorkspace();
@@ -278,6 +281,19 @@ public class AdminBackendController {
             savingsWorkspace = AdminSavingsBackOfficeFactory.buildSavingsWorkspace();
         }
         replaceWorkspace(savingsWorkspace);
+    }
+
+    private void showCourseQuizWorkspace() {
+        headerLabel.setText("Course & Quiz");
+        headerSubtitle.setText("Manage courses and quizzes in the shared admin workspace while keeping the same sidebar visible.");
+        if (addUserButton != null) {
+            addUserButton.setManaged(false);
+            addUserButton.setVisible(false);
+        }
+        if (courseQuizWorkspace == null) {
+            courseQuizWorkspace = AdminCoursesQuizBackOfficeFactory.buildWorkspace();
+        }
+        replaceWorkspace(courseQuizWorkspace);
     }
 
     private void showRevenueWorkspace() {

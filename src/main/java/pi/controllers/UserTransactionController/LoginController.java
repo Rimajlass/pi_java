@@ -10,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import pi.controllers.CoursQuizController.CoursQuizFrontController;
 import pi.entities.User;
 import pi.mains.Main;
 
@@ -82,6 +83,8 @@ public class LoginController {
 
             if (user.hasRole("ROLE_ADMIN")) {
                 openAdminBackend(user);
+            } else if (user.hasRole("ROLE_ETUDIANT")) {
+                openStudentLearningFront(user);
             } else {
                 openSalaryHome(user);
             }
@@ -162,6 +165,21 @@ public class LoginController {
         scene.getStylesheets().add(Main.class.getResource("/pi/styles/admin-backend.css").toExternalForm());
 
         stage.setTitle("Admin Backend");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    private void openStudentLearningFront(User user) throws IOException {
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/pi/views/cours-quiz-front.fxml"));
+        Parent root = loader.load();
+        CoursQuizFrontController controller = loader.getController();
+        controller.setBackOfficeAccessVisible(false);
+
+        Stage stage = (Stage) feedbackLabel.getScene().getWindow();
+        stage.setUserData(user);
+        Scene scene = new Scene(root, 1460, 900);
+
+        stage.setTitle("Cours & Quiz");
         stage.setScene(scene);
         stage.show();
     }

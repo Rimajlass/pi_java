@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+
+<BorderPane prefHeight="800.0" prefWidth="1280.0"
+            style="-fx-background-color: linear-gradient(to bottom, #f4f7fb, #edf3f8);"
+            stylesheets="@../styles/learning-dashboard.css"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pi.controllers.CoursQuizController.CoursQuizDashboardController">
+
+    <center>
+        <StackPane fx:id="contentStack" style="-fx-padding: 12;">
+            <fx:include fx:id="frontView" source="cours-quiz-front.fxml"/>
+            <fx:include fx:id="backOfficeView" source="cours-quiz-backoffice.fxml" visible="false" managed="false"/>
+        </StackPane>
+    </center>
+
+</BorderPane>
+
