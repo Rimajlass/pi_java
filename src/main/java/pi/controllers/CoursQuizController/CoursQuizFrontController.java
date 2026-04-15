@@ -1,4 +1,4 @@
-package pi.controllers;
+package pi.controllers.CoursQuizController;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;

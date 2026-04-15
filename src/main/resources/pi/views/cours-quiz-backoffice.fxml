@@ -15,7 +15,7 @@
       stylesheets="@../styles/learning-dashboard.css"
       xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="pi.controllers.CoursQuizBackOfficeController">
+      fx:controller="pi.controllers.CoursQuizController.CoursQuizBackOfficeController">
 
     <padding>
         <Insets top="18.0" right="18.0" bottom="18.0" left="18.0"/>

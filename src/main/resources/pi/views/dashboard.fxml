@@ -8,7 +8,7 @@
             stylesheets="@../styles/learning-dashboard.css"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="pi.controllers.CoursQuizDashboardController">
+            fx:controller="pi.controllers.CoursQuizController.CoursQuizDashboardController">
 
     <center>
         <StackPane fx:id="contentStack" style="-fx-padding: 12;">
