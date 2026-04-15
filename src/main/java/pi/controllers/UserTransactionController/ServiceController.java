@@ -63,6 +63,15 @@ public class ServiceController {
     }
 
     @FXML
+    private void handleOpenRevenueExpenseAction(ActionEvent event) {
+        try {
+            openRevenueExpense((Node) event.getSource());
+        } catch (IOException e) {
+            throw new RuntimeException("Impossible d'ouvrir la page Revenus & Expenses.", e);
+        }
+    }
+
+    @FXML
     private void handleLogout(ActionEvent event) {
         try {
             Node source = (Node) event.getSource();
@@ -132,6 +141,20 @@ public class ServiceController {
         Scene scene = new Scene(root, 1460, 780);
         scene.getStylesheets().add(Main.class.getResource("/pi/styles/contact.css").toExternalForm());
         stage.setTitle("Contact");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    private void openRevenueExpense(Node source) throws IOException {
+        Stage stage = (Stage) source.getScene().getWindow();
+        Object userData = stage.getUserData();
+
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/Expense/Revenue/FRONT/salary-expense-view.fxml"));
+        Parent root = loader.load();
+
+        Scene scene = new Scene(root, 1460, 780);
+        stage.setUserData(userData);
+        stage.setTitle("Income & Expense Management");
         stage.setScene(scene);
         stage.show();
     }

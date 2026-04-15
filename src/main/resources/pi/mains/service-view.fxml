@@ -126,14 +126,26 @@
                             <children>
                                 <VBox spacing="26.0" prefWidth="460.0">
                                     <children>
-                                        <VBox spacing="10.0" prefWidth="430.0" styleClass="service-card">
-                                            <children>
-                                                <Label text="Revenus &amp; Expenses" styleClass="service-title" />
-                                                <Label text="Track income and control expenses daily with precision."
-                                                       wrapText="true"
-                                                       styleClass="service-copy" />
-                                            </children>
-                                        </VBox>
+                                        <Button mnemonicParsing="false"
+                                                onAction="#handleOpenRevenueExpenseAction"
+                                                maxWidth="430.0"
+                                                minWidth="430.0"
+                                                prefWidth="430.0"
+                                                maxHeight="116.0"
+                                                minHeight="116.0"
+                                                prefHeight="116.0"
+                                                styleClass="service-card-button">
+                                            <graphic>
+                                                <VBox spacing="10.0">
+                                                    <children>
+                                                        <Label text="Revenus &amp; Expenses" styleClass="service-title" />
+                                                        <Label text="Track income and control expenses daily with precision."
+                                                               wrapText="true"
+                                                               styleClass="service-copy" />
+                                                    </children>
+                                                </VBox>
+                                            </graphic>
+                                        </Button>
 
                                         <VBox spacing="10.0" prefWidth="430.0" styleClass="service-card">
                                             <children>

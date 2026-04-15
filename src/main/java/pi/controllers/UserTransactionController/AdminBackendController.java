@@ -126,6 +126,10 @@ public class AdminBackendController {
             String key = menuLabel.getText();
             if ("Transactions".equalsIgnoreCase(key)) {
                 handleNavTransactions();
+            } else if ("Revenues".equalsIgnoreCase(key)) {
+                openRevenueBackOffice();
+            } else if ("Expenses".equalsIgnoreCase(key)) {
+                openExpenseBackOffice();
             }
         }
     }
@@ -340,6 +344,30 @@ public class AdminBackendController {
             controller.setContext(currentUser, user);
         } catch (Exception e) {
             showError("Navigation error", "Unable to open user details:\n" + chainMessages(e));
+        }
+    }
+
+    private void openRevenueBackOffice() {
+        try {
+            Stage stage = (Stage) headerLabel.getScene().getWindow();
+            Parent root = FXMLLoader.load(Main.class.getResource("/Expense/Revenue/BACK/revenue-back-view.fxml"));
+            stage.setTitle("Revenue Back Office");
+            stage.setScene(new Scene(root, 1400, 900));
+            stage.show();
+        } catch (IOException e) {
+            showError("Navigation error", "Unable to open revenue back office:\n" + chainMessages(e));
+        }
+    }
+
+    private void openExpenseBackOffice() {
+        try {
+            Stage stage = (Stage) headerLabel.getScene().getWindow();
+            Parent root = FXMLLoader.load(Main.class.getResource("/Expense/Revenue/BACK/expense-back-view.fxml"));
+            stage.setTitle("Expense Back Office");
+            stage.setScene(new Scene(root, 1400, 900));
+            stage.show();
+        } catch (IOException e) {
+            showError("Navigation error", "Unable to open expense back office:\n" + chainMessages(e));
         }
     }
 

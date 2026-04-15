@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox prefHeight="900.0" prefWidth="1400.0" stylesheets="@../../../styles/RevenueExpenseBACK/salary-expense-back.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.ExpenseRevenueController.BACK.RevenueBackController">
+    <children>
+        <VBox prefWidth="260.0" minWidth="260.0" maxWidth="260.0" styleClass="side-nav">
+            <children>
+                <VBox spacing="4.0" styleClass="brand-wrap">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                            <children>
+                                <Label styleClass="brand-label" text="Decide$" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <VBox fx:id="menuList" spacing="5.0" styleClass="menu-list">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F465;" /></children></StackPane>
+                                <Label styleClass="menu-text" text="Users" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x21C4;" /></children></StackPane>
+                                <Label styleClass="menu-text" text="Transactions" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F393;" /></children></StackPane>
+                                <Label styleClass="menu-text" text="Course &amp; Quiz" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x26A0;" /></children></StackPane>
+                                <Label styleClass="menu-text" text="Unexpected Events" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4CB;" /></children></StackPane>
+                                <Label styleClass="menu-text" text="Real Cases" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-active menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4B0;" /></children></StackPane>
+                                <Label styleClass="menu-text" text="Revenues" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4B3;" /></children></StackPane>
+                                <Label styleClass="menu-text" text="Expenses" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleOpenFrontInterfaceFromSidebar" spacing="10.0" styleClass="menu-row menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F3E0;" /></children></StackPane>
+                                <Label styleClass="menu-text" text="Front Interface" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4CA;" /></children></StackPane>
+                                <Label styleClass="menu-text" text="Reports" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4C8;" /></children></StackPane>
+                                <Label styleClass="menu-text" text="Investments" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F3AF;" /></children></StackPane>
+                                <Label styleClass="menu-text" text="Objectives" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4AC;" /></children></StackPane>
+                                <Label styleClass="menu-text" text="Reclamations" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F3C1;" /></children></StackPane>
+                                <Label styleClass="menu-text" text="Goals" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x25D4;" /></children></StackPane>
+                                <Label styleClass="menu-text" text="Statistics" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F916;" /></children></StackPane>
+                                <Label styleClass="menu-text" text="AI Quiz Generator" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+                <Region VBox.vgrow="ALWAYS" />
+                <Button mnemonicParsing="false" onAction="#handleLogout" styleClass="logout-button" text="Deconnexion" />
+                <Separator styleClass="side-separator" />
+                <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="profile-box">
+                    <children>
+                        <StackPane styleClass="profile-avatar">
+                            <children>
+                                <Label styleClass="profile-avatar-text" text="&#x1F6E1;" />
+                            </children>
+                        </StackPane>
+                        <VBox spacing="1.0">
+                            <children>
+                                <Label styleClass="profile-name" text="Admin" />
+                                <Label fx:id="feedbackLabel" styleClass="profile-role" text="Revenue Panel" />
+                            </children>
+                        </VBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+                    </padding>
+                </HBox>
+            </children>
+            <padding>
+                <Insets bottom="16.0" left="12.0" right="12.0" top="20.0" />
+            </padding>
+        </VBox>
+
+        <ScrollPane fitToWidth="true" styleClass="content-scroll" HBox.hgrow="ALWAYS">
+            <content>
+                <VBox spacing="24.0" styleClass="content-root">
+                    <children>
+                        <HBox alignment="CENTER_LEFT">
+                            <children>
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <Label styleClass="page-title" text="Revenue Management" />
+                                        <Label styleClass="page-subtitle" text="Dedicated interface for adding and managing revenues." />
+                                    </children>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Button mnemonicParsing="false" onAction="#handleRefresh" styleClass="toolbar-button" text="Refresh" />
+                            </children>
+                        </HBox>
+
+                        <HBox spacing="18.0">
+                            <children>
+                                <VBox prefWidth="380.0" spacing="16.0" styleClass="panel-card">
+                                    <children>
+                                        <Label styleClass="panel-title" text="Add Revenue" />
+                                        <GridPane hgap="10.0" vgap="12.0">
+                                            <children>
+                                                <Label styleClass="field-label" text="Amount (TND)" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                                <TextField fx:id="revenueAmountField" promptText="0.00" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                                <Label styleClass="field-label" text="Type" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                                <ComboBox fx:id="revenueTypeComboBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                                <Label styleClass="field-label" text="Date" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                                <DatePicker fx:id="revenueDatePicker" maxWidth="1.7976931348623157E308" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                                <Label styleClass="field-label" text="Description" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                                                <TextArea fx:id="revenueDescriptionArea" prefHeight="110.0" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                                            </children>
+                                        </GridPane>
+                                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleAddRevenue" styleClass="primary-button" text="Add Revenue" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="16.0" styleClass="panel-card" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label styleClass="panel-title" text="Revenue Table" />
+                                        <TableView fx:id="revenueTable" prefHeight="620.0" VBox.vgrow="ALWAYS">
+                                            <columns>
+                                                <TableColumn fx:id="revenueIdColumn" prefWidth="70.0" text="#" />
+                                                <TableColumn fx:id="revenueDateColumn" prefWidth="130.0" text="Date" />
+                                                <TableColumn fx:id="revenueAmountColumn" prefWidth="130.0" text="Amount" />
+                                                <TableColumn fx:id="revenueTypeColumn" prefWidth="150.0" text="Type" />
+                                                <TableColumn fx:id="revenueDescriptionColumn" prefWidth="250.0" text="Description" />
+                                                <TableColumn fx:id="revenueActionColumn" prefWidth="180.0" text="Actions" />
+                                            </columns>
+                                        </TableView>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="28.0" left="28.0" right="28.0" top="28.0" />
+                    </padding>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</HBox>
