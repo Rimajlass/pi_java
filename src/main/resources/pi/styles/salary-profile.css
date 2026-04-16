@@ -1,0 +1,353 @@
+.salary-profile-root {
+    -fx-background-color: linear-gradient(to bottom right, #041126, #0a2550);
+    -fx-font-family: "Segoe UI";
+}
+
+.salary-profile-scroll,
+.salary-profile-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.salary-shell {
+    -fx-background-color: transparent;
+}
+
+.salary-title {
+    -fx-text-fill: #f4f9ff;
+    -fx-font-size: 46px;
+    -fx-font-weight: 900;
+}
+
+.salary-top-btn {
+    -fx-background-color: rgba(10, 31, 70, 0.45);
+    -fx-border-color: rgba(145, 198, 255, 0.5);
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-text-fill: #deeeff;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 8px 12px;
+    -fx-cursor: hand;
+}
+
+.salary-top-btn-danger {
+    -fx-background-color: linear-gradient(to bottom, #ff6a88, #ff4d6d);
+    -fx-border-color: transparent;
+    -fx-text-fill: #ffffff;
+}
+
+.profile-card {
+    -fx-background-color: linear-gradient(to bottom right, rgba(250, 252, 255, 0.96), rgba(228, 238, 255, 0.94));
+    -fx-border-color: rgba(255, 255, 255, 0.4);
+    -fx-border-radius: 18px;
+    -fx-background-radius: 18px;
+    -fx-padding: 14px;
+}
+
+.avatar-circle {
+    -fx-min-width: 62px;
+    -fx-pref-width: 62px;
+    -fx-min-height: 62px;
+    -fx-pref-height: 62px;
+    -fx-alignment: CENTER;
+    -fx-background-color: linear-gradient(to bottom right, #5da2ff, #3f72ff);
+    -fx-background-radius: 999px;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 24px;
+    -fx-font-weight: 900;
+}
+
+.profile-name {
+    -fx-text-fill: #0b2347;
+    -fx-font-size: 34px;
+    -fx-font-weight: 900;
+}
+
+.profile-email {
+    -fx-text-fill: #415978;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+}
+
+.balance-main {
+    -fx-text-fill: #10274b;
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+}
+
+.balance-sub {
+    -fx-text-fill: #546f95;
+    -fx-font-size: 12px;
+}
+
+.field-label {
+    -fx-text-fill: #2e4d79;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.field-input {
+    -fx-background-color: #f9fbff;
+    -fx-border-color: #c4d6f0;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-padding: 8px 10px;
+    -fx-font-size: 13px;
+}
+
+.field-upload-btn {
+    -fx-background-color: #f4f8ff;
+    -fx-border-color: #c4d6f0;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-text-fill: #20497f;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 8px 12px;
+}
+
+.side-balance-card {
+    -fx-min-width: 280px;
+    -fx-pref-width: 280px;
+    -fx-background-color: linear-gradient(to bottom right, rgba(22, 70, 152, 0.97), rgba(8, 38, 88, 0.95));
+    -fx-border-color: rgba(109, 170, 255, 0.32);
+    -fx-border-radius: 18px;
+    -fx-background-radius: 18px;
+    -fx-padding: 14px;
+}
+
+.side-title {
+    -fx-text-fill: #e9f5ff;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+}
+
+.side-amount {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 40px;
+    -fx-font-weight: 900;
+}
+
+.side-currency {
+    -fx-background-color: #4fc3ff;
+    -fx-text-fill: #08325e;
+    -fx-background-radius: 999px;
+    -fx-padding: 3px 8px;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.side-rate {
+    -fx-text-fill: #cde5ff;
+    -fx-font-size: 12px;
+}
+
+.side-chip {
+    -fx-background-color: linear-gradient(to right, #0e59f3, #0a8bff);
+    -fx-background-radius: 10px;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 8px 10px;
+}
+
+.side-foot {
+    -fx-text-fill: #b2d4ff;
+    -fx-font-size: 11px;
+}
+
+.mini-combo {
+    -fx-background-color: #f7fbff;
+    -fx-border-color: #c4d6f0;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-font-size: 12px;
+}
+
+.dark-card {
+    -fx-background-color: linear-gradient(to bottom right, rgba(10, 51, 124, 0.96), rgba(8, 28, 72, 0.93));
+    -fx-background-radius: 16px;
+    -fx-border-color: rgba(139, 184, 245, 0.35);
+    -fx-border-radius: 16px;
+    -fx-padding: 12px;
+}
+
+.light-card {
+    -fx-background-color: linear-gradient(to bottom right, rgba(250, 252, 255, 0.95), rgba(225, 236, 255, 0.93));
+    -fx-background-radius: 16px;
+    -fx-border-color: rgba(167, 198, 242, 0.6);
+    -fx-border-radius: 16px;
+    -fx-padding: 12px;
+}
+
+.converter-card {
+    -fx-min-width: 250px;
+    -fx-pref-width: 250px;
+}
+
+.card-title-light {
+    -fx-text-fill: #e8f4ff;
+    -fx-font-size: 28px;
+    -fx-font-weight: 900;
+}
+
+.card-text-light {
+    -fx-text-fill: #c8dff8;
+    -fx-font-size: 13px;
+}
+
+.card-title-dark {
+    -fx-text-fill: #132847;
+    -fx-font-size: 30px;
+    -fx-font-weight: 900;
+}
+
+.card-text-dark {
+    -fx-text-fill: #4a6286;
+    -fx-font-size: 13px;
+}
+
+.metric-value-dark {
+    -fx-text-fill: #0f4fa3;
+    -fx-font-size: 17px;
+    -fx-font-weight: 900;
+}
+
+.field-input-dark {
+    -fx-background-color: #f6f9ff;
+    -fx-border-color: #b8cff2;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.convert-btn {
+    -fx-background-color: linear-gradient(to right, #12b7ec, #0e8ddb);
+    -fx-background-radius: 10px;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-padding: 8px 12px;
+}
+
+.behavior-card {
+    -fx-background-color: linear-gradient(to bottom right, rgba(252, 254, 255, 0.97), rgba(227, 239, 255, 0.95));
+    -fx-border-color: rgba(167, 198, 242, 0.6);
+    -fx-border-radius: 18px;
+    -fx-background-radius: 18px;
+    -fx-padding: 12px;
+}
+
+.trend-chip {
+    -fx-background-color: #d8f9eb;
+    -fx-text-fill: #0e6b4f;
+    -fx-background-radius: 999px;
+    -fx-padding: 4px 9px;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.trend-chip.secondary {
+    -fx-background-color: #e3eeff;
+    -fx-text-fill: #1d4f9a;
+}
+
+.score-circle {
+    -fx-min-width: 95px;
+    -fx-pref-width: 95px;
+    -fx-min-height: 95px;
+    -fx-pref-height: 95px;
+    -fx-alignment: CENTER;
+    -fx-background-color: linear-gradient(to bottom right, #0d6efd, #94c8ff);
+    -fx-background-radius: 999px;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 33px;
+    -fx-font-weight: 900;
+}
+
+.small-note {
+    -fx-text-fill: #57749b;
+    -fx-font-size: 11px;
+}
+
+.metric-bar {
+    -fx-accent: #14aaff;
+}
+
+.transactions-card {
+    -fx-background-color: linear-gradient(to bottom right, rgba(246, 250, 255, 0.96), rgba(224, 235, 255, 0.93));
+    -fx-border-color: rgba(167, 198, 242, 0.6);
+    -fx-border-radius: 18px;
+    -fx-background-radius: 18px;
+    -fx-padding: 12px;
+}
+
+.transactions-title {
+    -fx-text-fill: #122849;
+    -fx-font-size: 36px;
+    -fx-font-weight: 900;
+}
+
+.records-chip {
+    -fx-background-color: #eaf2ff;
+    -fx-border-color: #c8dcff;
+    -fx-border-radius: 999px;
+    -fx-background-radius: 999px;
+    -fx-text-fill: #1d4e92;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-padding: 3px 9px;
+}
+
+.records-chip.count {
+    -fx-padding: 3px 8px;
+}
+
+.salary-tx-table {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d0ddf2;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+}
+
+.salary-tx-table .column-header-background {
+    -fx-background-color: #f1f7ff;
+}
+
+.salary-tx-table .column-header .label {
+    -fx-text-fill: #1d3559;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+}
+
+.salary-tx-table .table-row-cell {
+    -fx-cell-size: 36px;
+    -fx-border-color: #edf3fc;
+}
+
+.profile-footer {
+    -fx-background-color: linear-gradient(to bottom right, #0b1e45, #0a1a3b);
+    -fx-background-radius: 18px;
+    -fx-padding: 20px;
+}
+
+.footer-brand {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 22px;
+    -fx-font-weight: 900;
+}
+
+.footer-text {
+    -fx-text-fill: #c4d4f0;
+    -fx-font-size: 12px;
+}
+
+.footer-heading {
+    -fx-text-fill: #e9f4ff;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+}
+
+.footer-link {
+    -fx-text-fill: #aac2e8;
+    -fx-font-size: 12px;
+}

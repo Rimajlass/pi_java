@@ -1,0 +1,254 @@
+.contact-root {
+    -fx-background-color: #eceff4;
+    -fx-font-family: "Segoe UI", "Inter", sans-serif;
+}
+
+.contact-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.contact-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.contact-page {
+    -fx-background-color: #eceff4;
+}
+
+.contact-hero-overlay {
+    -fx-background-color:
+        linear-gradient(to bottom, rgba(18, 24, 35, 0.34), rgba(18, 24, 35, 0.50)),
+        linear-gradient(to right, rgba(18, 24, 35, 0.22), rgba(18, 24, 35, 0.28));
+}
+
+.top-bar {
+    -fx-background-color: rgba(14, 18, 27, 0.38);
+    -fx-background-radius: 20px;
+    -fx-border-color: rgba(255, 255, 255, 0.20);
+    -fx-border-radius: 20px;
+}
+
+.logo-mark {
+    -fx-background-color: rgba(26, 210, 255, 0.22);
+    -fx-border-color: rgba(255, 255, 255, 0.20);
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-text-fill: #7fe9ff;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-padding: 7 9 7 9;
+}
+
+.brand-label {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 26px;
+    -fx-font-weight: 800;
+}
+
+.nav-button,
+.nav-button-active {
+    -fx-background-color: transparent;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+}
+
+.nav-button {
+    -fx-text-fill: rgba(240, 246, 255, 0.86);
+}
+
+.nav-button:hover {
+    -fx-text-fill: #ffffff;
+}
+
+.nav-button-active {
+    -fx-text-fill: #34ddff;
+    -fx-opacity: 1.0;
+}
+
+.profile-pill {
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-background-radius: 999px;
+    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-border-radius: 999px;
+    -fx-padding: 7 12 7 8;
+}
+
+.profile-icon {
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-font-weight: 900;
+    -fx-background-color: linear-gradient(to bottom right, #54c8ff, #4b73ff);
+    -fx-background-radius: 999px;
+    -fx-min-width: 22px;
+    -fx-pref-width: 22px;
+    -fx-min-height: 22px;
+    -fx-pref-height: 22px;
+    -fx-alignment: center;
+}
+
+.profile-name {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.header-button {
+    -fx-background-radius: 999px;
+    -fx-border-radius: 999px;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-padding: 9 16 9 16;
+    -fx-cursor: hand;
+}
+
+.start-button {
+    -fx-background-color: #1cd5ff;
+    -fx-text-fill: #04213b;
+}
+
+.logout-button {
+    -fx-background-color: rgba(0, 0, 0, 0.18);
+    -fx-border-color: rgba(255, 77, 109, 0.8);
+    -fx-text-fill: #ff5f7b;
+}
+
+.contact-hero-content {
+    -fx-padding: 44 0 0 0;
+}
+
+.contact-hero-title {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 56px;
+    -fx-font-weight: 300;
+}
+
+.contact-hero-subtitle {
+    -fx-text-fill: rgba(246, 251, 255, 0.92);
+    -fx-font-size: 18px;
+}
+
+.contact-section {
+    -fx-background-color: #e9edf3;
+}
+
+.contact-mini-title {
+    -fx-text-fill: #19c8ee;
+    -fx-font-size: 14px;
+    -fx-font-weight: 900;
+}
+
+.contact-main-title {
+    -fx-text-fill: #102546;
+    -fx-font-size: 42px;
+    -fx-font-weight: 800;
+}
+
+.contact-subtitle {
+    -fx-text-fill: #627791;
+    -fx-font-size: 14px;
+}
+
+.contact-field,
+.contact-area {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cfd8e6;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-font-size: 14px;
+    -fx-prompt-text-fill: #91a0b4;
+}
+
+.contact-field {
+    -fx-padding: 10 12 10 12;
+}
+
+.contact-area {
+    -fx-padding: 10 12 10 12;
+}
+
+.send-button {
+    -fx-background-color: #24c6e5;
+    -fx-background-radius: 999px;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #04213b;
+    -fx-padding: 12 18 12 18;
+}
+
+.status-label {
+    -fx-text-fill: #1f8757;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.info-title {
+    -fx-text-fill: #112d56;
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+}
+
+.info-title.spaced {
+    -fx-padding: 8 0 0 0;
+}
+
+.info-text {
+    -fx-text-fill: #4f6482;
+    -fx-font-size: 13px;
+}
+
+.map-box {
+    -fx-background-radius: 8px;
+}
+
+.page-footer {
+    -fx-background-color: #0a2354;
+}
+
+.footer-brand {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 36px;
+    -fx-font-weight: 800;
+}
+
+.footer-copy {
+    -fx-text-fill: rgba(217, 227, 248, 0.88);
+    -fx-font-size: 14px;
+    -fx-line-spacing: 3px;
+}
+
+.footer-heading {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+}
+
+.footer-link {
+    -fx-text-fill: rgba(231, 238, 250, 0.90);
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.social-badge {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    -fx-background-radius: 999px;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-padding: 8 10 8 10;
+    -fx-min-width: 30px;
+    -fx-alignment: center;
+}
+
+.footer-bottom-bar {
+    -fx-padding: 16 0 0 0;
+    -fx-border-color: rgba(255, 255, 255, 0.10) transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.footer-bottom-text {
+    -fx-text-fill: rgba(203, 217, 241, 0.84);
+    -fx-font-size: 12px;
+}

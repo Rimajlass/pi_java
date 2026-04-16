@@ -1,0 +1,37 @@
+/* Compléments pour la page Edit (layout = user-show.css) */
+.edit-user-name {
+    -fx-font-size: 28px;
+}
+
+.edit-form-grid {
+    -fx-padding: 4px 0 0 0;
+}
+
+.form-field-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #4a5872;
+}
+
+.edit-form-field {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 9px;
+    -fx-border-color: #cfd6e4;
+    -fx-border-radius: 9px;
+    -fx-padding: 10px 12px;
+    -fx-font-size: 13px;
+}
+
+.form-field-hint {
+    -fx-font-size: 11px;
+    -fx-text-fill: #8a96ad;
+    -fx-wrap-text: true;
+}
+
+.add-user-form-card {
+    -fx-min-width: 400px;
+}
+
+.add-user-back-link {
+    -fx-underline: false;
+}

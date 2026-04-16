@@ -1,19 +1,21 @@
 package pi.entities;
 
-import java.time.LocalDate;
+import java.sql.Date;
 
 public class FinancialGoal {
-
     private int id;
-    private SavingAccount savingAccount;
+    private int savingAccountId;
     private String nom;
     private double montantCible;
     private double montantActuel;
-    private LocalDate dateLimite;
-    private Integer priorite;
+    private Date dateLimite;
+    private int priorite;
 
-    public FinancialGoal(SavingAccount savingAccount, String nom, double montantCible, double montantActuel, LocalDate dateLimite, Integer priorite) {
-        this.savingAccount = savingAccount;
+    public FinancialGoal() {
+    }
+
+    public FinancialGoal(int savingAccountId, String nom, double montantCible, double montantActuel, Date dateLimite, int priorite) {
+        this.savingAccountId = savingAccountId;
         this.nom = nom;
         this.montantCible = montantCible;
         this.montantActuel = montantActuel;
@@ -21,9 +23,9 @@ public class FinancialGoal {
         this.priorite = priorite;
     }
 
-    public FinancialGoal(int id, SavingAccount savingAccount, String nom, double montantCible, double montantActuel, LocalDate dateLimite, Integer priorite) {
+    public FinancialGoal(int id, int savingAccountId, String nom, double montantCible, double montantActuel, Date dateLimite, int priorite) {
         this.id = id;
-        this.savingAccount = savingAccount;
+        this.savingAccountId = savingAccountId;
         this.nom = nom;
         this.montantCible = montantCible;
         this.montantActuel = montantActuel;
@@ -31,36 +33,72 @@ public class FinancialGoal {
         this.priorite = priorite;
     }
 
-    public int getId() { return this.id; }
+    public int getId() {
+        return id;
+    }
 
-    public void setId(int id) { this.id = id; }
+    public int getSavingAccountId() {
+        return savingAccountId;
+    }
 
-    public SavingAccount getSavingAccount() { return this.savingAccount; }
+    public String getNom() {
+        return nom;
+    }
 
-    public void setSavingAccount(SavingAccount savingAccount) { this.savingAccount = savingAccount; }
+    public double getMontantCible() {
+        return montantCible;
+    }
 
-    public String getNom() { return this.nom; }
+    public double getMontantActuel() {
+        return montantActuel;
+    }
 
-    public void setNom(String nom) { this.nom = nom; }
+    public Date getDateLimite() {
+        return dateLimite;
+    }
 
-    public double getMontantCible() { return this.montantCible; }
+    public int getPriorite() {
+        return priorite;
+    }
 
-    public void setMontantCible(double montantCible) { this.montantCible = montantCible; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public double getMontantActuel() { return this.montantActuel; }
+    public void setSavingAccountId(int savingAccountId) {
+        this.savingAccountId = savingAccountId;
+    }
 
-    public void setMontantActuel(double montantActuel) { this.montantActuel = montantActuel; }
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
 
-    public LocalDate getDateLimite() { return this.dateLimite; }
+    public void setMontantCible(double montantCible) {
+        this.montantCible = montantCible;
+    }
 
-    public void setDateLimite(LocalDate dateLimite) { this.dateLimite = dateLimite; }
+    public void setMontantActuel(double montantActuel) {
+        this.montantActuel = montantActuel;
+    }
 
-    public Integer getPriorite() { return this.priorite; }
+    public void setDateLimite(Date dateLimite) {
+        this.dateLimite = dateLimite;
+    }
 
-    public void setPriorite(Integer priorite) { this.priorite = priorite; }
+    public void setPriorite(int priorite) {
+        this.priorite = priorite;
+    }
 
     @Override
     public String toString() {
-        return "FinancialGoal{" + "id=" + this.id + ", nom='" + this.nom + '\'' + ", montantCible=" + this.montantCible + '}';
+        return "FinancialGoal{" +
+                "id=" + id +
+                ", savingAccountId=" + savingAccountId +
+                ", nom='" + nom + '\'' +
+                ", montantCible=" + montantCible +
+                ", montantActuel=" + montantActuel +
+                ", dateLimite=" + dateLimite +
+                ", priorite=" + priorite +
+                '}';
     }
 }

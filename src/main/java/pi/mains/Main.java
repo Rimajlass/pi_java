@@ -1,38 +1,26 @@
 package pi.mains;
 
-import pi.entities.Imprevus;
-import pi.services.ImprevusCasreelService.ImprevusService;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 
-public class Main {
-    public static void main(String[] args) {
+public class Main extends Application {
 
-        ImprevusService service = new ImprevusService();
-
-        // ajout
-        Imprevus i1 = new Imprevus("Panne voiture", "Transport",500.50, "Prévoir une épargne d'urgence");        service.ajouter(i1);
-
-        // affichage
-        System.out.println("=== Liste des imprévus ===");
-        for (Imprevus i : service.afficher()) {
-            System.out.println(i);
-        }
-
-        // modification
-        Imprevus imp = service.getById(1);
-
-        if (imp != null) {
-            System.out.println("ID récupéré = " + imp.getId());
-            System.out.println("Titre avant modif = " + imp.getTitre());
-
-            imp.setTitre("ok");
-            imp.setBudget(650);
-            service.modifier(imp);
-        } else {
-            System.out.println("Aucun imprévu avec id = 1");
-        }
-
-        // suppression
-        service.supprimer(7);
+    @Override
+    public void start(Stage stage) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/pi/mains/login-view.fxml"));
+        Parent root = fxmlLoader.load();
+        Scene scene = new Scene(root, 1460, 780);
+        scene.getStylesheets().add(Main.class.getResource("/pi/styles/login.css").toExternalForm());
+        stage.setMinWidth(1200);
+        stage.setMinHeight(720);
+        stage.setTitle("User Secure Login");
+        stage.setScene(scene);
+        stage.show();
     }
 }
+

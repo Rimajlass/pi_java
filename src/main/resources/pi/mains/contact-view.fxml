@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="900.0" prefWidth="1460.0"
+            styleClass="contact-root"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pi.controllers.UserTransactionController.ContactController">
+    <children>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    pannable="true"
+                    styleClass="contact-scroll"
+                    AnchorPane.topAnchor="0.0"
+                    AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0">
+            <content>
+                <VBox styleClass="contact-page">
+                    <children>
+                        <StackPane prefHeight="440.0" minHeight="440.0" maxHeight="440.0">
+                            <children>
+                                <ImageView fitWidth="1460.0" fitHeight="440.0" preserveRatio="false">
+                                    <image>
+                                        <Image url="@../images/a15.jpg" />
+                                    </image>
+                                </ImageView>
+                                <Pane styleClass="contact-hero-overlay" />
+
+                                <VBox spacing="72.0">
+                                    <padding>
+                                        <Insets top="14.0" right="34.0" bottom="18.0" left="34.0" />
+                                    </padding>
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT"
+                                              minHeight="76.0"
+                                              prefHeight="76.0"
+                                              maxHeight="76.0"
+                                              styleClass="top-bar">
+                                            <padding>
+                                                <Insets top="10.0" right="24.0" bottom="10.0" left="24.0" />
+                                            </padding>
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                                    <children>
+                                                        <Label text="DS" styleClass="logo-mark" />
+                                                        <Label text="Decide$" styleClass="brand-label" />
+                                                    </children>
+                                                </HBox>
+
+                                                <Region HBox.hgrow="ALWAYS" />
+
+                                                <HBox alignment="CENTER" spacing="28.0" styleClass="nav-center-box">
+                                                    <children>
+                                                        <Button text="Home" mnemonicParsing="false" styleClass="nav-button" onAction="#handleBackToHomeAction" />
+                                                        <Button text="About" mnemonicParsing="false" styleClass="nav-button" onAction="#handleOpenAboutAction" />
+                                                        <Button text="Service" mnemonicParsing="false" styleClass="nav-button" onAction="#handleOpenServiceAction" />
+                                                        <Button text="Contact" mnemonicParsing="false" styleClass="nav-button-active" disable="true" />
+                                                    </children>
+                                                </HBox>
+
+                                                <Region HBox.hgrow="ALWAYS" />
+
+                                                <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                                                    <children>
+                                                        <HBox alignment="CENTER" spacing="8.0" styleClass="profile-pill" onMouseClicked="#handleBackToHome">
+                                                            <children>
+                                                                <Label text="U" styleClass="profile-icon" />
+                                                                <Label fx:id="profileNameLabel" text="aziz" styleClass="profile-name" />
+                                                            </children>
+                                                        </HBox>
+                                                        <Button text="To Start" mnemonicParsing="false" styleClass="header-button start-button" onAction="#handleBackToHomeAction" />
+                                                        <Button text="Logout" mnemonicParsing="false" styleClass="header-button logout-button" onAction="#handleLogout" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </HBox>
+
+                                        <VBox alignment="CENTER" spacing="14.0" styleClass="contact-hero-content">
+                                            <children>
+                                                <Label text="Contactez-Nous" styleClass="contact-hero-title" />
+                                                <Label text="We are here to answer all your questions" styleClass="contact-hero-subtitle" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </StackPane>
+
+                        <HBox alignment="TOP_CENTER" spacing="40.0" styleClass="contact-section">
+                            <padding>
+                                <Insets top="40.0" right="56.0" bottom="46.0" left="56.0" />
+                            </padding>
+                            <children>
+                                <VBox spacing="14.0" prefWidth="760.0">
+                                    <children>
+                                        <Label text="SEND MESSAGE" styleClass="contact-mini-title" />
+                                        <Label text="Send Your Message" styleClass="contact-main-title" />
+                                        <Label text="Receive messages instantly with our contact form." styleClass="contact-subtitle" />
+
+                                        <HBox spacing="14.0">
+                                            <children>
+                                                <TextField promptText="Your Name" styleClass="contact-field" HBox.hgrow="ALWAYS" />
+                                                <TextField promptText="Your Email" styleClass="contact-field" HBox.hgrow="ALWAYS" />
+                                            </children>
+                                        </HBox>
+
+                                        <HBox spacing="14.0">
+                                            <children>
+                                                <TextField promptText="Your Phone" styleClass="contact-field" HBox.hgrow="ALWAYS" />
+                                                <TextField promptText="Subject" styleClass="contact-field" HBox.hgrow="ALWAYS" />
+                                            </children>
+                                        </HBox>
+
+                                        <TextArea promptText="Message"
+                                                  wrapText="true"
+                                                  prefHeight="180.0"
+                                                  styleClass="contact-area" />
+
+                                        <Button text="Send Message"
+                                                mnemonicParsing="false"
+                                                styleClass="send-button"
+                                                maxWidth="1.7976931348623157E308"
+                                                onAction="#handleSendMessage" />
+
+                                        <Label fx:id="contactStatusLabel" text="" styleClass="status-label" />
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="14.0" prefWidth="320.0">
+                                    <children>
+                                        <Label text="Address" styleClass="info-title" />
+                                        <Label text="Tunis, TUNISIA" styleClass="info-text" />
+
+                                        <Label text="Mail Us" styleClass="info-title spaced" />
+                                        <Label text="decide@gmail.com" styleClass="info-text" />
+
+                                        <Label text="Telephone" styleClass="info-title spaced" />
+                                        <Label text="(+216) 12 345 678" styleClass="info-text" />
+
+                                        <ImageView fitWidth="300.0" fitHeight="170.0" preserveRatio="false" styleClass="map-box">
+                                            <image>
+                                                <Image url="@../images/breadcrumb.jpg" />
+                                            </image>
+                                        </ImageView>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <VBox spacing="22.0" styleClass="page-footer">
+                            <padding>
+                                <Insets top="30.0" right="34.0" bottom="22.0" left="34.0" />
+                            </padding>
+                            <children>
+                                <HBox alignment="TOP_LEFT" spacing="40.0">
+                                    <children>
+                                        <VBox spacing="10.0" prefWidth="420.0">
+                                            <children>
+                                                <Label text="Decide$" styleClass="footer-brand" />
+                                                <Label text="Decide$ helps you manage your salary, control expenses, and build a secure financial future with confidence."
+                                                       wrapText="true"
+                                                       styleClass="footer-copy" />
+                                            </children>
+                                        </VBox>
+
+                                        <Region HBox.hgrow="ALWAYS" />
+
+                                        <VBox spacing="10.0">
+                                            <children>
+                                                <Label text="Quick Links" styleClass="footer-heading" />
+                                                <Label text="Home" styleClass="footer-link" />
+                                                <Label text="About" styleClass="footer-link" />
+                                                <Label text="Services" styleClass="footer-link" />
+                                                <Label text="Contact" styleClass="footer-link" />
+                                            </children>
+                                        </VBox>
+
+                                        <Region HBox.hgrow="ALWAYS" />
+
+                                        <VBox spacing="12.0">
+                                            <children>
+                                                <Label text="Connect with us" styleClass="footer-heading" />
+                                                <HBox spacing="10.0">
+                                                    <children>
+                                                        <Label text="in" styleClass="social-badge" />
+                                                        <Label text="gh" styleClass="social-badge" />
+                                                        <Label text="tw" styleClass="social-badge" />
+                                                        <Label text="mail" styleClass="social-badge" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+
+                                <HBox alignment="CENTER" styleClass="footer-bottom-bar">
+                                    <children>
+                                        <Label text="(c) 2026 Decide$ - All rights reserved" styleClass="footer-bottom-text" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>

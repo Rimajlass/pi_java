@@ -22,6 +22,9 @@ public class Revenue {
         this.createdAt = createdAt;
     }
 
+    public Revenue() {
+    }
+
     public Revenue(int id, User user, double amount, String type, LocalDate receivedAt, String description, LocalDateTime createdAt) {
         this.id = id;
         this.user = user;

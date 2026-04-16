@@ -1,0 +1,416 @@
+package pi.savings.ui;
+
+import pi.savings.service.SavingsModuleService;
+import pi.savings.service.SavingsModuleService.DashboardSnapshot;
+import pi.savings.service.SavingsModuleService.GoalSnapshot;
+import pi.savings.service.SavingsModuleService.SavingsModuleException;
+import pi.savings.service.SavingsValidation.SavingsValidationException;
+
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+
+final class SavingsUiController {
+
+    private static final int DEFAULT_USER_ID = 1;
+    private SavingsModuleService moduleService;
+    private DashboardSnapshot snapshot;
+    private String initializationFailureMessage;
+
+    SavingsUiController() {
+    }
+
+    SavingsUiController(SavingsModuleService moduleService) {
+        this.moduleService = moduleService;
+    }
+
+    OperationResult initialize() {
+        try {
+            snapshot = getModuleService().loadDashboard(DEFAULT_USER_ID);
+            initializationFailureMessage = null;
+            return OperationResult.success("Module charge avec succes.");
+        } catch (RuntimeException ex) {
+            snapshot = emptySnapshot();
+            initializationFailureMessage = resolveMessage(ex, "Impossible de charger le module Savings & Goals.");
+            return OperationResult.error(initializationFailureMessage);
+        }
+    }
+
+    DashboardSnapshot getSnapshot() {
+        if (snapshot == null) {
+            initialize();
+        }
+        return snapshot;
+    }
+
+    List<SavingsModuleService.GoalSnapshot> filterAndSortGoals(String queryText, String sortAttributeText, String sortDirectionText) {
+        String query = normalizeQuery(queryText);
+        String attribute = normalizeSort(sortAttributeText);
+        String direction = normalizeSort(sortDirectionText);
+        boolean ascending = !"descending".equals(direction);
+
+        Comparator<SavingsModuleService.GoalSnapshot> comparator = switch (attribute) {
+            case "id" -> Comparator.comparingInt(SavingsModuleService.GoalSnapshot::id);
+            case "target" -> Comparator.comparing(SavingsModuleService.GoalSnapshot::target);
+            case "current" -> Comparator.comparing(SavingsModuleService.GoalSnapshot::current);
+            case "deadline" -> Comparator.comparing(
+                    (SavingsModuleService.GoalSnapshot goal) -> goal.deadline() == null ? LocalDate.MAX : goal.deadline()
+            );
+            case "priority" -> Comparator.comparingInt(SavingsModuleService.GoalSnapshot::priority);
+            case "progress" -> Comparator.comparingDouble(SavingsModuleService.GoalSnapshot::progressPercent);
+            case "all", "name", "" -> Comparator.comparing(
+                    SavingsModuleService.GoalSnapshot::name,
+                    String.CASE_INSENSITIVE_ORDER
+            );
+            default -> Comparator.comparing(
+                    SavingsModuleService.GoalSnapshot::name,
+                    String.CASE_INSENSITIVE_ORDER
+            );
+        };
+        comparator = applyDirection(comparator, ascending)
+                .thenComparing(applyDirection(Comparator.comparingInt(SavingsModuleService.GoalSnapshot::priority), ascending))
+                .thenComparing(applyDirection(Comparator.comparingInt(SavingsModuleService.GoalSnapshot::id), ascending));
+
+        return getSnapshot().goals().stream()
+                .filter(goal -> matchesGoal(goal, query))
+                .sorted(comparator)
+                .collect(Collectors.toList());
+    }
+
+    List<pi.savings.repository.SavingsTransactionRepository.TransactionRow> filterAndSortHistory(
+            String queryText,
+            String sortAttributeText,
+            String sortDirectionText
+    ) {
+        String query = normalizeQuery(queryText);
+        String attribute = normalizeSort(sortAttributeText);
+        String direction = normalizeSort(sortDirectionText);
+        boolean ascending = !"descending".equals(direction);
+
+        Comparator<pi.savings.repository.SavingsTransactionRepository.TransactionRow> comparator = switch (attribute) {
+            case "id" -> Comparator.comparingInt(pi.savings.repository.SavingsTransactionRepository.TransactionRow::id);
+            case "amount" -> Comparator.comparing(pi.savings.repository.SavingsTransactionRepository.TransactionRow::amount);
+            case "type" -> Comparator.comparing(
+                    (pi.savings.repository.SavingsTransactionRepository.TransactionRow row) -> safeLower(row.type()),
+                    String.CASE_INSENSITIVE_ORDER
+            );
+            case "description" -> Comparator.comparing(
+                    (pi.savings.repository.SavingsTransactionRepository.TransactionRow row) -> safeLower(row.description()),
+                    String.CASE_INSENSITIVE_ORDER
+            );
+            case "module_source" -> Comparator.comparing(
+                    (pi.savings.repository.SavingsTransactionRepository.TransactionRow row) -> safeLower(row.moduleSource()),
+                    String.CASE_INSENSITIVE_ORDER
+            );
+            case "user_id" -> Comparator.comparingInt(pi.savings.repository.SavingsTransactionRepository.TransactionRow::userId);
+            case "all", "date", "" -> Comparator.comparing(pi.savings.repository.SavingsTransactionRepository.TransactionRow::date);
+            default -> Comparator.comparing(pi.savings.repository.SavingsTransactionRepository.TransactionRow::date);
+        };
+        comparator = applyDirection(comparator, ascending)
+                .thenComparing(applyDirection(Comparator.comparing(
+                        pi.savings.repository.SavingsTransactionRepository.TransactionRow::date
+                ), ascending))
+                .thenComparing(applyDirection(Comparator.comparingInt(
+                        pi.savings.repository.SavingsTransactionRepository.TransactionRow::id
+                ), ascending));
+
+        return getSnapshot().transactions().stream()
+                .filter(row -> matchesHistory(row, query))
+                .sorted(comparator)
+                .collect(Collectors.toList());
+    }
+
+    OperationResult safeDeposit(String amountText, String descriptionText) {
+        try {
+            snapshot = getModuleService().saveDeposit(DEFAULT_USER_ID, amountText, descriptionText);
+            initializationFailureMessage = null;
+            return OperationResult.success("Depot enregistre avec succes.");
+        } catch (SavingsValidationException ex) {
+            return OperationResult.error(ex.getMessage());
+        } catch (RuntimeException ex) {
+            return OperationResult.error(resolveMessage(ex, "Impossible d'enregistrer le depot."));
+        }
+    }
+
+    OperationResult safeUpdateInterestRate(String rateText) {
+        try {
+            snapshot = getModuleService().updateInterestRate(DEFAULT_USER_ID, rateText);
+            initializationFailureMessage = null;
+            return OperationResult.success("Taux d'interet mis a jour.");
+        } catch (SavingsValidationException ex) {
+            return OperationResult.error(ex.getMessage());
+        } catch (RuntimeException ex) {
+            return OperationResult.error(resolveMessage(ex, "Impossible de mettre a jour le taux d'interet."));
+        }
+    }
+
+    OperationResult safeCreateGoal(
+            String nameText,
+            String targetText,
+            String currentText,
+            String deadlineText,
+            String priorityText
+    ) {
+        try {
+            snapshot = getModuleService().createGoal(DEFAULT_USER_ID, nameText, targetText, currentText, deadlineText, priorityText);
+            initializationFailureMessage = null;
+            return OperationResult.success("Goal cree avec succes.");
+        } catch (SavingsValidationException ex) {
+            return OperationResult.error(ex.getMessage());
+        } catch (RuntimeException ex) {
+            return OperationResult.error(resolveMessage(ex, "Impossible de creer le goal."));
+        }
+    }
+
+    OperationResult safeUpdateGoal(
+            int goalId,
+            String nameText,
+            String targetText,
+            String currentText,
+            String deadlineText,
+            String priorityText
+    ) {
+        try {
+            snapshot = getModuleService().updateGoal(DEFAULT_USER_ID, goalId, nameText, targetText, currentText, deadlineText, priorityText);
+            initializationFailureMessage = null;
+            return OperationResult.success("Goal modifie avec succes.");
+        } catch (SavingsValidationException ex) {
+            return OperationResult.error(ex.getMessage());
+        } catch (RuntimeException ex) {
+            return OperationResult.error(resolveMessage(ex, "Impossible de modifier le goal."));
+        }
+    }
+
+    OperationResult safeDeleteGoal(int goalId) {
+        try {
+            snapshot = getModuleService().deleteGoal(DEFAULT_USER_ID, goalId);
+            initializationFailureMessage = null;
+            return OperationResult.success("Goal supprime avec succes.");
+        } catch (RuntimeException ex) {
+            return OperationResult.error(resolveMessage(ex, "Impossible de supprimer le goal."));
+        }
+    }
+
+    OperationResult safeContributeToGoal(int goalId, String amountText) {
+        try {
+            snapshot = getModuleService().contributeToGoal(DEFAULT_USER_ID, goalId, amountText);
+            initializationFailureMessage = null;
+            return OperationResult.success("Contribution enregistree avec succes.");
+        } catch (SavingsValidationException ex) {
+            return OperationResult.error(ex.getMessage());
+        } catch (RuntimeException ex) {
+            return OperationResult.error(resolveMessage(ex, "Impossible d'enregistrer la contribution."));
+        }
+    }
+
+    SavingsModuleService.HistoryStats getHistoryStats(String queryText, String sortAttributeText, String sortDirectionText) {
+        return getModuleService().calculateHistoryStats(
+                filterAndSortHistory(queryText, sortAttributeText, sortDirectionText)
+        );
+    }
+
+    SavingsModuleService.HistoryStats calculateHistoryStats(
+            List<pi.savings.repository.SavingsTransactionRepository.TransactionRow> rows
+    ) {
+        return getModuleService().calculateHistoryStats(rows);
+    }
+
+    SavingsModuleService.GoalStats getGoalStats(String queryText, String sortAttributeText, String sortDirectionText) {
+        return getModuleService().calculateGoalStats(
+                filterAndSortGoals(queryText, sortAttributeText, sortDirectionText)
+        );
+    }
+
+    SavingsModuleService.GoalStats calculateGoalStats(List<SavingsModuleService.GoalSnapshot> goals) {
+        return getModuleService().calculateGoalStats(goals);
+    }
+
+    OperationResult safeExportHistoryCsv() {
+        return safeExportHistoryCsv("", "Date", "Descending", defaultExportDirectory());
+    }
+
+    OperationResult safeExportHistoryPdf() {
+        return safeExportHistoryPdf("", "Date", "Descending", defaultExportDirectory());
+    }
+
+    OperationResult safeExportHistoryCsv(Path exportDirectory) {
+        return safeExportHistoryCsv("", "Date", "Descending", exportDirectory);
+    }
+
+    OperationResult safeExportHistoryPdf(Path exportDirectory) {
+        return safeExportHistoryPdf("", "Date", "Descending", exportDirectory);
+    }
+
+    OperationResult safeExportHistoryCsv(
+            String queryText,
+            String sortAttributeText,
+            String sortDirectionText,
+            Path exportDirectory
+    ) {
+        try {
+            Path exportPath = getModuleService().exportHistoryCsv(
+                    filterAndSortHistory(queryText, sortAttributeText, sortDirectionText),
+                    exportDirectory
+            );
+            return OperationResult.success("CSV exporte: " + exportPath.toAbsolutePath());
+        } catch (RuntimeException ex) {
+            return OperationResult.error(resolveMessage(ex, "Impossible d'exporter l'historique en CSV."));
+        }
+    }
+
+    OperationResult safeExportHistoryPdf(
+            String queryText,
+            String sortAttributeText,
+            String sortDirectionText,
+            Path exportDirectory
+    ) {
+        try {
+            Path exportPath = getModuleService().exportHistoryPdf(
+                    filterAndSortHistory(queryText, sortAttributeText, sortDirectionText),
+                    exportDirectory
+            );
+            return OperationResult.success("PDF exporte: " + exportPath.toAbsolutePath());
+        } catch (RuntimeException ex) {
+            return OperationResult.error(resolveMessage(ex, "Impossible d'exporter l'historique en PDF."));
+        }
+    }
+
+    OperationResult safeExportGoalsCsv(
+            String queryText,
+            String sortAttributeText,
+            String sortDirectionText,
+            Path exportDirectory
+    ) {
+        try {
+            Path exportPath = getModuleService().exportGoalsCsv(
+                    filterAndSortGoals(queryText, sortAttributeText, sortDirectionText),
+                    exportDirectory
+            );
+            return OperationResult.success("CSV goals exporte: " + exportPath.toAbsolutePath());
+        } catch (RuntimeException ex) {
+            return OperationResult.error(resolveMessage(ex, "Impossible d'exporter les goals en CSV."));
+        }
+    }
+
+    OperationResult safeExportGoalsPdf(
+            String queryText,
+            String sortAttributeText,
+            String sortDirectionText,
+            Path exportDirectory
+    ) {
+        try {
+            Path exportPath = getModuleService().exportGoalsPdf(
+                    filterAndSortGoals(queryText, sortAttributeText, sortDirectionText),
+                    exportDirectory
+            );
+            if (!Files.exists(exportPath) || Files.size(exportPath) == 0) {
+                return OperationResult.error("Le PDF goals n'a pas ete genere.");
+            }
+            return OperationResult.success("PDF goals exporte: " + exportPath.toAbsolutePath());
+        } catch (RuntimeException ex) {
+            return OperationResult.error(resolveMessage(ex, "Impossible d'exporter les goals en PDF."));
+        } catch (Exception ex) {
+            return OperationResult.error("Impossible d'exporter les goals en PDF.");
+        }
+    }
+
+    record OperationResult(boolean success, String message) {
+        static OperationResult success(String message) {
+            return new OperationResult(true, message);
+        }
+
+        static OperationResult error(String message) {
+            return new OperationResult(false, message);
+        }
+    }
+
+    private DashboardSnapshot emptySnapshot() {
+        return new DashboardSnapshot(
+                0,
+                DEFAULT_USER_ID,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                LocalDate.now(),
+                0,
+                0,
+                "--/--/----",
+                List.<GoalSnapshot>of(),
+                List.of()
+        );
+    }
+
+    private SavingsModuleService getModuleService() {
+        if (moduleService == null) {
+            moduleService = new SavingsModuleService();
+        }
+        return moduleService;
+    }
+
+    private String resolveMessage(RuntimeException exception, String fallbackMessage) {
+        if (exception instanceof SavingsModuleException savingsModuleException
+                && savingsModuleException.getMessage() != null
+                && !savingsModuleException.getMessage().isBlank()) {
+            return savingsModuleException.getMessage();
+        }
+
+        if (exception.getMessage() != null && !exception.getMessage().isBlank()) {
+            return exception.getMessage();
+        }
+
+        return initializationFailureMessage != null ? initializationFailureMessage : fallbackMessage;
+    }
+
+    private boolean matchesGoal(SavingsModuleService.GoalSnapshot goal, String query) {
+        if (query.isEmpty()) {
+            return true;
+        }
+
+        return String.valueOf(goal.id()).contains(query)
+                || safeLower(goal.name()).contains(query)
+                || String.valueOf(goal.priority()).contains(query)
+                || goal.target().toPlainString().contains(query)
+                || goal.current().toPlainString().contains(query)
+                || (goal.deadline() != null && goal.deadline().toString().contains(query))
+                || String.valueOf((int) Math.round(goal.progressPercent())).contains(query);
+    }
+
+    private boolean matchesHistory(pi.savings.repository.SavingsTransactionRepository.TransactionRow row, String query) {
+        if (query.isEmpty()) {
+            return true;
+        }
+
+        return String.valueOf(row.id()).contains(query)
+                || safeLower(row.type()).contains(query)
+                || row.date().toLocalDate().toString().contains(query)
+                || row.amount().toPlainString().contains(query)
+                || safeLower(row.description()).contains(query)
+                || safeLower(row.moduleSource()).contains(query)
+                || String.valueOf(row.userId()).contains(query);
+    }
+
+    private String normalizeQuery(String rawValue) {
+        return safeLower(rawValue).trim();
+    }
+
+    private String normalizeSort(String rawValue) {
+        return safeLower(rawValue).trim().replace(' ', '_');
+    }
+
+    private String safeLower(String value) {
+        return value == null ? "" : value.toLowerCase(Locale.ROOT);
+    }
+
+    private <T> Comparator<T> applyDirection(Comparator<T> comparator, boolean ascending) {
+        return ascending ? comparator : comparator.reversed();
+    }
+
+    private Path defaultExportDirectory() {
+        return Paths.get("target", "exports");
+    }
+}
