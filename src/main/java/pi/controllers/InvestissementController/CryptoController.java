@@ -90,6 +90,7 @@ public class CryptoController {
         colDelete.setCellFactory(col -> new TableCell<>() {
             private final Button btn = new Button("Supprimer");
             {
+                btn.getStyleClass().add("table-delete-button");
                 btn.setOnAction(e -> {
                     Investissement inv = getTableView().getItems().get(getIndex());
                     try {
@@ -110,6 +111,7 @@ public class CryptoController {
         colModify.setCellFactory(col -> new TableCell<>() {
             private final Button btn = new Button("Modifier");
             {
+                btn.getStyleClass().add("table-edit-button");
                 btn.setOnAction(e -> {
                     Investissement inv = getTableView().getItems().get(getIndex());
                     TextInputDialog dialog = new TextInputDialog(String.valueOf(inv.getAmountInvested()));
@@ -153,8 +155,11 @@ public class CryptoController {
         try {
             List<Crypto> cryptos = apiService.getCryptos();
 
-            // sauvegarde / update DB
-            cryptoService.saveAllOrUpdate(cryptos);
+            try {
+                cryptoService.saveAllOrUpdate(cryptos);
+            } catch (Exception e) {
+                System.out.println("DB save failed: " + e.getMessage());
+            }
 
             table.setItems(FXCollections.observableArrayList(cryptos));
 

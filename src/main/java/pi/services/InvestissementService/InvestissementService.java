@@ -10,14 +10,12 @@ import java.util.List;
 
 public class InvestissementService {
 
-    private Connection cnx;
-
-    public InvestissementService() {
-        cnx = MyDatabase.getInstance().getCnx();
+    private Connection cnx() {
+        return MyDatabase.getInstance().getCnx();
     }
     public void update(int id, double newAmount, double newQuantity) throws Exception {
         String sql = "UPDATE investissement SET amount_invested=?, quantity=? WHERE id=?";
-        PreparedStatement pst = cnx.prepareStatement(sql);
+        PreparedStatement pst = cnx().prepareStatement(sql);
         pst.setDouble(1, newAmount);
         pst.setDouble(2, newQuantity);
         pst.setInt(3, id);
@@ -26,7 +24,7 @@ public class InvestissementService {
 
     public void delete(int id) throws Exception {
      String sql = "DELETE FROM investissement WHERE id = ?";
-     PreparedStatement pst = cnx.prepareStatement(sql);
+     PreparedStatement pst = cnx().prepareStatement(sql);
      pst.setInt(1,id);
      pst.executeUpdate();
 
@@ -36,7 +34,7 @@ public class InvestissementService {
         String sql = "INSERT INTO investissement (crypto_id, objectif_id, user_id, amount_invested, buy_price, quantity, created_at) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        PreparedStatement pst = cnx.prepareStatement(sql);
+        PreparedStatement pst = cnx().prepareStatement(sql);
 
         pst.setInt(1, inv.getCrypto().getId());
 
@@ -68,7 +66,7 @@ public class InvestissementService {
                 + "FROM investissement i "
                 + "JOIN crypto c ON i.crypto_id = c.id";
 
-        Statement st = cnx.createStatement();
+        Statement st = cnx().createStatement();
         ResultSet rs = st.executeQuery(sql);
 
         while (rs.next()) {
@@ -105,7 +103,7 @@ public class InvestissementService {
                 + "JOIN crypto c ON i.crypto_id = c.id "
                 + "WHERE i.objectif_id IS NULL";
 
-        Statement st = cnx.createStatement();
+        Statement st = cnx().createStatement();
         ResultSet rs = st.executeQuery(sql);
 
         while (rs.next()) {

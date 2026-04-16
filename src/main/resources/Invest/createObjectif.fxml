@@ -1,28 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
 
-<VBox spacing="15" alignment="CENTER"
+<VBox spacing="16" styleClass="dialog-root"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="pi.controllers.InvestissementController.CreateObjectifController"
-      prefWidth="400" prefHeight="500">
+      prefWidth="420" prefHeight="540"
+      style="-fx-padding: 30;">
+    <stylesheets>
+        <URL value="@admin-style.css"/>
+    </stylesheets>
 
-    <Label text="Créer un objectif" style="-fx-font-size: 18px;"/>
+    <Label text="Créer un Objectif" styleClass="dialog-title"/>
+    <Label text="Sélectionnez vos investissements et définissez un multiplicateur." styleClass="dialog-subtitle"/>
 
-    <TextField fx:id="nameField" promptText="Nom de l'objectif" prefWidth="250"/>
+    <Separator/>
 
-    <TextField fx:id="multiplierField" promptText="Multiplicateur (ex: 2)" prefWidth="250"/>
+    <Label text="Nom de l'objectif" styleClass="field-label"/>
+    <TextField fx:id="nameField" promptText="Ex: Doubler mon Bitcoin" styleClass="text-field"/>
 
-    <Label text="Investissements disponibles:"/>
+    <Label text="Multiplicateur" styleClass="field-label"/>
+    <TextField fx:id="multiplierField" promptText="Ex: 2" styleClass="text-field"/>
 
-    <ListView fx:id="investList" prefWidth="350" prefHeight="200"/>
+    <Label text="Investissements disponibles" styleClass="field-label"/>
+    <ListView fx:id="investList" prefHeight="180" styleClass="history-table"/>
 
-    <Label fx:id="totalLabel" text="Total investi: 0.0 USD"/>
+    <HBox spacing="16">
+        <Label fx:id="totalLabel" text="Total: 0.00 USD" styleClass="card-caption" HBox.hgrow="ALWAYS"/>
+        <Label fx:id="targetLabel" text="Objectif: 0.00 USD" styleClass="amount-label"/>
+    </HBox>
 
-    <Label fx:id="targetLabel" text="Objectif: 0.0 USD"/>
-
-    <Button text="Confirmer" onAction="#confirm" prefWidth="150"/>
+    <Button text="Confirmer" onAction="#confirm" styleClass="action-button-primary" maxWidth="1.7976931348623157E308"/>
 
 </VBox>

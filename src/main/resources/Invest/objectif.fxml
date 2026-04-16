@@ -1,30 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
 
-<VBox spacing="15" alignment="CENTER"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="pi.controllers.InvestissementController.ObjectifController"
-      prefWidth="700" prefHeight="500">
+<ScrollPane fitToWidth="true" styleClass="page-scroll" prefWidth="900" prefHeight="650"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="pi.controllers.InvestissementController.ObjectifController">
+    <stylesheets>
+        <URL value="@admin-style.css"/>
+    </stylesheets>
 
-    <Label text="Mes Objectifs" style="-fx-font-size: 18px;"/>
+    <VBox styleClass="page-root" spacing="0">
 
-    <Button text="Créer un objectif" onAction="#goToCreate" prefWidth="180"/>
+        <HBox styleClass="top-nav" alignment="CENTER_LEFT" spacing="16">
+            <Label text="Mes Objectifs" styleClass="brand-mark"/>
+            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                <Button text="Créer un objectif" onAction="#goToCreate" styleClass="cyan-pill-button"/>
+            </HBox>
+        </HBox>
 
-    <TextField fx:id="objectifSearch" promptText="Rechercher par nom..." prefWidth="250"/>
+        <VBox styleClass="content-shell">
 
-    <TableView fx:id="objectifTable" prefWidth="650" prefHeight="400">
-        <columns>
-            <TableColumn fx:id="colName" text="Nom" prefWidth="150"/>
-            <TableColumn fx:id="colInitial" text="Montant initial" prefWidth="130"/>
-            <TableColumn fx:id="colTarget" text="Objectif" prefWidth="130"/>
-            <TableColumn fx:id="colCurrent" text="Valeur actuelle" prefWidth="130"/>
-            <TableColumn fx:id="colCompleted" text="Statut" prefWidth="100"/>
-            <TableColumn fx:id="colModify" text="Modifier" prefWidth="100"/>
-            <TableColumn fx:id="colDelete" text="Supprimer" prefWidth="100"/>
+            <Label text="OBJECTIFS" styleClass="section-tag"/>
+            <Label text="Suivi des Objectifs" styleClass="section-title"/>
 
-        </columns>
-    </TableView>
+            <TextField fx:id="objectifSearch" promptText="Rechercher par nom..." styleClass="text-field" maxWidth="300"/>
 
-</VBox>
+            <TableView fx:id="objectifTable" styleClass="history-table" prefHeight="400" maxWidth="1.7976931348623157E308">
+                <columns>
+                    <TableColumn fx:id="colName" text="Nom" prefWidth="150"/>
+                    <TableColumn fx:id="colInitial" text="Montant initial" prefWidth="130"/>
+                    <TableColumn fx:id="colTarget" text="Objectif" prefWidth="130"/>
+                    <TableColumn fx:id="colCurrent" text="Valeur actuelle" prefWidth="130"/>
+                    <TableColumn fx:id="colCompleted" text="Statut" prefWidth="100"/>
+                    <TableColumn fx:id="colModify" text="Modifier" prefWidth="100"/>
+                    <TableColumn fx:id="colDelete" text="Supprimer" prefWidth="100"/>
+                </columns>
+            </TableView>
+
+        </VBox>
+    </VBox>
+</ScrollPane>

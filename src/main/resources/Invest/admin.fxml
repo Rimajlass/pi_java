@@ -1,43 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+<?import java.net.URL?>
 
-<VBox spacing="15" alignment="CENTER"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="pi.controllers.InvestissementController.AdminController"
-      prefWidth="900" prefHeight="700">
+<ScrollPane fitToWidth="true" styleClass="page-scroll" prefWidth="1000" prefHeight="750"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="pi.controllers.InvestissementController.AdminController">
+    <stylesheets>
+        <URL value="@admin-style.css"/>
+    </stylesheets>
 
-    <Label text="Panel Admin" style="-fx-font-size: 20px;"/>
+    <VBox styleClass="page-root" spacing="0">
 
-    <Label text="Investissements" style="-fx-font-size: 16px;"/>
+        <HBox styleClass="top-nav" alignment="CENTER_LEFT" spacing="16">
+            <Label text="Admin Dashboard" styleClass="brand-mark"/>
+        </HBox>
 
-    <TextField fx:id="investSearch" promptText="Rechercher par crypto..." prefWidth="250"/>
+        <VBox styleClass="content-shell">
 
-    <TableView fx:id="investTable" prefWidth="850" prefHeight="250">
-        <columns>
-            <TableColumn fx:id="colCrypto" text="Crypto" prefWidth="150"/>
-            <TableColumn fx:id="colAmount" text="Montant" prefWidth="130"/>
-            <TableColumn fx:id="colQuantity" text="Quantité" prefWidth="130"/>
-            <TableColumn fx:id="colProfitLoss" text="Gain/Perte (USD)" prefWidth="150"/>
-            <TableColumn fx:id="colDeleteInvest" text="Supprimer" prefWidth="100"/>
-        </columns>
-    </TableView>
+            <Label text="APERÇU GÉNÉRAL" styleClass="section-tag"/>
+            <Label text="Tableau de Bord" styleClass="section-title"/>
 
-    <Label text="Objectifs" style="-fx-font-size: 16px;"/>
+            <HBox spacing="16">
+                <VBox styleClass="summary-card" HBox.hgrow="ALWAYS">
+                    <Label text="Investissements" styleClass="card-caption"/>
+                    <Label fx:id="totalInvestLabel" text="0" styleClass="amount-label"/>
+                    <Label text="Total" styleClass="card-title"/>
+                </VBox>
+                <VBox styleClass="summary-card" HBox.hgrow="ALWAYS">
+                    <Label text="Montant Total" styleClass="card-caption"/>
+                    <Label fx:id="totalAmountLabel" text="0 USD" styleClass="amount-label"/>
+                    <Label text="Investi" styleClass="card-title"/>
+                </VBox>
+                <VBox styleClass="summary-card" HBox.hgrow="ALWAYS">
+                    <Label text="Objectifs" styleClass="card-caption"/>
+                    <Label fx:id="totalObjLabel" text="0" styleClass="amount-label"/>
+                    <Label text="Total" styleClass="card-title"/>
+                </VBox>
+                <VBox styleClass="summary-card" HBox.hgrow="ALWAYS">
+                    <Label text="Complétés" styleClass="card-caption"/>
+                    <Label fx:id="completedObjLabel" text="0" styleClass="amount-label"/>
+                    <Label text="Objectifs atteints" styleClass="card-title"/>
+                </VBox>
+            </HBox>
 
-    <TextField fx:id="objectifSearch" promptText="Rechercher par nom..." prefWidth="250"/>
+            <Label text="STATISTIQUES" styleClass="section-tag"/>
+            <Label text="Répartition des Objectifs" styleClass="panel-title"/>
 
-    <TableView fx:id="objectifTable" prefWidth="850" prefHeight="250">
-        <columns>
-            <TableColumn fx:id="colName" text="Nom" prefWidth="150"/>
-            <TableColumn fx:id="colInitial" text="Montant initial" prefWidth="130"/>
-            <TableColumn fx:id="colTarget" text="Objectif" prefWidth="130"/>
-            <TableColumn fx:id="colCurrent" text="Valeur actuelle" prefWidth="130"/>
-            <TableColumn fx:id="colCompleted" text="Statut" prefWidth="100"/>
-            <TableColumn fx:id="colModifyObj" text="Modifier" prefWidth="100"/>
-            <TableColumn fx:id="colDeleteObj" text="Supprimer" prefWidth="100"/>
-        </columns>
-    </TableView>
+            <HBox alignment="CENTER">
+                <PieChart fx:id="objectifChart" prefHeight="300" prefWidth="400" legendVisible="true"/>
+            </HBox>
 
-</VBox>
+            <Label text="INVESTISSEMENTS" styleClass="section-tag"/>
+            <Label text="Tous les Investissements" styleClass="panel-title"/>
+            <TextField fx:id="investSearch" promptText="Rechercher par crypto..." styleClass="text-field" maxWidth="300"/>
+
+            <TableView fx:id="investTable" styleClass="history-table" prefHeight="250" maxWidth="1.7976931348623157E308">
+                <columns>
+                    <TableColumn fx:id="colCrypto" text="Crypto" prefWidth="150"/>
+                    <TableColumn fx:id="colAmount" text="Montant" prefWidth="130"/>
+                    <TableColumn fx:id="colQuantity" text="Quantité" prefWidth="130"/>
+                    <TableColumn fx:id="colProfitLoss" text="Gain/Perte (USD)" prefWidth="150"/>
+                    <TableColumn fx:id="colDeleteInvest" text="Supprimer" prefWidth="120"/>
+                </columns>
+            </TableView>
+
+            <Label text="OBJECTIFS" styleClass="section-tag"/>
+            <Label text="Tous les Objectifs" styleClass="panel-title"/>
+            <TextField fx:id="objectifSearch" promptText="Rechercher par nom..." styleClass="text-field" maxWidth="300"/>
+
+            <TableView fx:id="objectifTable" styleClass="history-table" prefHeight="250" maxWidth="1.7976931348623157E308">
+                <columns>
+                    <TableColumn fx:id="colName" text="Nom" prefWidth="140"/>
+                    <TableColumn fx:id="colInitial" text="Montant initial" prefWidth="120"/>
+                    <TableColumn fx:id="colTarget" text="Objectif" prefWidth="120"/>
+                    <TableColumn fx:id="colCurrent" text="Valeur actuelle" prefWidth="120"/>
+                    <TableColumn fx:id="colCompleted" text="Statut" prefWidth="100"/>
+                    <TableColumn fx:id="colModifyObj" text="Modifier" prefWidth="100"/>
+                    <TableColumn fx:id="colDeleteObj" text="Supprimer" prefWidth="100"/>
+                </columns>
+            </TableView>
+
+        </VBox>
+    </VBox>
+</ScrollPane>

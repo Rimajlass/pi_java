@@ -78,6 +78,7 @@ public class ObjectifController {
         colModify.setCellFactory(col -> new TableCell<>() {
             private final Button btn = new Button("Modifier");
             {
+                btn.getStyleClass().add("table-edit-button");
                 btn.setOnAction(e -> {
                     Objectif obj = getTableView().getItems().get(getIndex());
                     try {
@@ -111,6 +112,7 @@ public class ObjectifController {
         colDelete.setCellFactory(col -> new TableCell<>() {
             private final Button btn = new Button("Supprimer");
             {
+                btn.getStyleClass().add("table-delete-button");
                 btn.setOnAction(e -> {
                     Objectif obj = getTableView().getItems().get(getIndex());
                     try {

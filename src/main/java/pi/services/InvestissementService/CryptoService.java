@@ -12,22 +12,20 @@ import java.util.List;
 
 public class CryptoService {
 
-    private Connection cnx;
-
-    public CryptoService() {
-        cnx = MyDatabase.getInstance().getCnx();
+    private Connection cnx() {
+        return MyDatabase.getInstance().getCnx();
     }
 
     public void saveOrUpdate(Crypto crypto) throws Exception {
         String checkSql = "SELECT id FROM crypto WHERE apiid = ?";
-        PreparedStatement checkStmt = cnx.prepareStatement(checkSql);
+        PreparedStatement checkStmt = cnx().prepareStatement(checkSql);
         checkStmt.setString(1, crypto.getApiid());
 
         ResultSet rs = checkStmt.executeQuery();
 
         if (rs.next()) {
             String updateSql = "UPDATE crypto SET name = ?, symbol = ?, currentprice = ? WHERE apiid = ?";
-            PreparedStatement updateStmt = cnx.prepareStatement(updateSql);
+            PreparedStatement updateStmt = cnx().prepareStatement(updateSql);
             updateStmt.setString(1, crypto.getName());
             updateStmt.setString(2, crypto.getSymbol());
             updateStmt.setDouble(3, crypto.getCurrentprice());
@@ -35,7 +33,7 @@ public class CryptoService {
             updateStmt.executeUpdate();
         } else {
             String insertSql = "INSERT INTO crypto(name, symbol, apiid, currentprice) VALUES (?, ?, ?, ?)";
-            PreparedStatement insertStmt = cnx.prepareStatement(insertSql);
+            PreparedStatement insertStmt = cnx().prepareStatement(insertSql);
             insertStmt.setString(1, crypto.getName());
             insertStmt.setString(2, crypto.getSymbol());
             insertStmt.setString(3, crypto.getApiid());
@@ -55,7 +53,7 @@ public class CryptoService {
 
         String sql = "SELECT * FROM crypto";
 
-        Statement st = cnx.createStatement();
+        Statement st = cnx().createStatement();
         ResultSet rs = st.executeQuery(sql);
 
         while (rs.next()) {

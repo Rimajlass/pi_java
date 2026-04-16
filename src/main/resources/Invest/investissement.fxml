@@ -1,22 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
 
-<VBox spacing="15" alignment="CENTER"
+<VBox spacing="16" styleClass="dialog-root"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="pi.controllers.InvestissementController.InvestissementController"
-      prefWidth="400" prefHeight="300">
+      prefWidth="420" prefHeight="320"
+      style="-fx-padding: 30;">
+    <stylesheets>
+        <URL value="@admin-style.css"/>
+    </stylesheets>
 
-    <Label text="Faire un investissement" style="-fx-font-size: 18px;"/>
+    <Label text="Nouvel Investissement" styleClass="dialog-title"/>
+    <Label text="Choisissez une crypto et entrez le montant à investir." styleClass="dialog-subtitle"/>
 
-    <!-- Choix crypto -->
-    <ComboBox fx:id="cryptoBox" prefWidth="200"/>
+    <Separator/>
 
-    <!-- Montant -->
-    <TextField fx:id="amountField" promptText="Montant en USD" prefWidth="200"/>
+    <Label text="Crypto" styleClass="field-label"/>
+    <ComboBox fx:id="cryptoBox" styleClass="combo-box" maxWidth="1.7976931348623157E308"/>
 
-    <!-- Bouton -->
-    <Button text="Investir" onAction="#invest"/>
+    <Label text="Montant (USD)" styleClass="field-label"/>
+    <TextField fx:id="amountField" promptText="Ex: 500" styleClass="text-field"/>
+
+    <Button text="Investir" onAction="#invest" styleClass="action-button-primary" maxWidth="1.7976931348623157E308"/>
 
 </VBox>

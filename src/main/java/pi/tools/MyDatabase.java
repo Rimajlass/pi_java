@@ -25,6 +25,14 @@ public class MyDatabase {
     }
 
     public Connection getCnx() {
+        try {
+            if (cnx == null || !cnx.isValid(2)) {
+                cnx = DriverManager.getConnection(url, user, mdp);
+                System.out.println("cnx (re)etablie !!");
+            }
+        } catch (SQLException e) {
+            System.out.println("Connection failed: " + e.getMessage());
+        }
         return cnx;
     }
 }

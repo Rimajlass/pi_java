@@ -8,7 +8,9 @@ import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -42,12 +44,18 @@ public class AdminController {
     @FXML private TableColumn<Objectif, Void> colDeleteObj;
     @FXML private TextField objectifSearch;
 
+    @FXML private Label totalInvestLabel;
+    @FXML private Label totalAmountLabel;
+    @FXML private Label totalObjLabel;
+    @FXML private Label completedObjLabel;
+    @FXML private PieChart objectifChart;
+
     private final InvestissementService investissementService = new InvestissementService();
     private final ObjectifService objectifService = new ObjectifService();
 
     @FXML
     public void initialize() {
-        // investments table
+        // investments columns
         colCrypto.setCellValueFactory(data ->
                 new SimpleStringProperty(data.getValue().getCrypto().getName()));
         colAmount.setCellValueFactory(data ->
@@ -60,6 +68,7 @@ public class AdminController {
         colDeleteInvest.setCellFactory(col -> new TableCell<>() {
             private final Button btn = new Button("Supprimer");
             {
+                btn.getStyleClass().add("table-delete-button");
                 btn.setOnAction(e -> {
                     Investissement inv = getTableView().getItems().get(getIndex());
                     try {
@@ -78,7 +87,7 @@ public class AdminController {
             }
         });
 
-        // objectifs table
+        // objectifs columns
         colName.setCellValueFactory(data ->
                 new SimpleStringProperty(data.getValue().getName()));
         colInitial.setCellValueFactory(data ->
@@ -93,11 +102,12 @@ public class AdminController {
             }
         });
         colCompleted.setCellValueFactory(data ->
-                new SimpleStringProperty(data.getValue().isCompleted() ? "Complété" : "En cours"));
+                new SimpleStringProperty(data.getValue().isCompleted() ? "✅ Complété" : "⏳ En cours"));
 
         colModifyObj.setCellFactory(col -> new TableCell<>() {
             private final Button btn = new Button("Modifier");
             {
+                btn.getStyleClass().add("table-edit-button");
                 btn.setOnAction(e -> {
                     Objectif obj = getTableView().getItems().get(getIndex());
                     try {
@@ -129,6 +139,7 @@ public class AdminController {
         colDeleteObj.setCellFactory(col -> new TableCell<>() {
             private final Button btn = new Button("Supprimer");
             {
+                btn.getStyleClass().add("table-delete-button");
                 btn.setOnAction(e -> {
                     Objectif obj = getTableView().getItems().get(getIndex());
                     try {
@@ -154,6 +165,11 @@ public class AdminController {
     private void loadInvestissements() {
         try {
             List<Investissement> list = investissementService.getAll();
+
+            totalInvestLabel.setText(String.valueOf(list.size()));
+            double totalAmount = list.stream().mapToDouble(Investissement::getAmountInvested).sum();
+            totalAmountLabel.setText(String.format("%.2f USD", totalAmount));
+
             ObservableList<Investissement> data = FXCollections.observableArrayList(list);
             FilteredList<Investissement> filtered = new FilteredList<>(data, p -> true);
 
@@ -177,6 +193,20 @@ public class AdminController {
                 objectifService.checkAndMarkCompleted(obj.getId());
             }
             list = objectifService.getAll();
+
+            totalObjLabel.setText(String.valueOf(list.size()));
+            long completed = list.stream().filter(Objectif::isCompleted).count();
+            long incomplete = list.size() - completed;
+            completedObjLabel.setText(String.valueOf(completed));
+
+            PieChart.Data completedSlice = new PieChart.Data("Complétés (" + completed + ")", completed);
+            PieChart.Data incompleteSlice = new PieChart.Data("En cours (" + incomplete + ")", incomplete);
+            objectifChart.getData().setAll(completedSlice, incompleteSlice);
+            objectifChart.setTitle("Objectifs");
+
+            objectifChart.getData().get(0).getNode().setStyle("-fx-pie-color: #08bbe7;");
+            objectifChart.getData().get(1).getNode().setStyle("-fx-pie-color: #cbd5e1;");
+
             ObservableList<Objectif> data = FXCollections.observableArrayList(list);
             FilteredList<Objectif> filtered = new FilteredList<>(data, p -> true);
 

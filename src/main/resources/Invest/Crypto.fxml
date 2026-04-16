@@ -1,46 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
 
-<VBox spacing="10" alignment="CENTER"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="pi.controllers.InvestissementController.CryptoController"
-      prefWidth="500" prefHeight="600">
+<ScrollPane fitToWidth="true" styleClass="page-scroll" prefWidth="900" prefHeight="700"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="pi.controllers.InvestissementController.CryptoController">
+    <stylesheets>
+        <URL value="@admin-style.css"/>
+    </stylesheets>
 
-    <Button text="Refresh Prices"
-            onAction="#refresh"
-            prefWidth="200"/>
+    <VBox styleClass="page-root" spacing="0">
 
-    <TableView fx:id="table" prefWidth="400" prefHeight="200">
-        <columns>
-            <TableColumn fx:id="colName"
-                         text="Nom"
-                         prefWidth="200"/>
+        <HBox styleClass="top-nav" alignment="CENTER_LEFT" spacing="16">
+            <Label text="InvestTracker" styleClass="brand-mark"/>
+            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS" spacing="10">
+                <Button text="Rafraîchir" onAction="#refresh" styleClass="ghost-round-button"/>
+                <Button text="Investir" onAction="#goToInvest" styleClass="cyan-pill-button"/>
+                <Button text="Objectifs" onAction="#goToObjectifs" styleClass="action-button-secondary"/>
+                <Button text="Admin" onAction="#goToAdmin" styleClass="outline-pill-button"/>
+            </HBox>
+        </HBox>
 
-            <TableColumn fx:id="colPrice"
-                         text="Prix (USD)"
-                         prefWidth="200"/>
-        </columns>
-    </TableView>
-    <Button text="Objectifs" onAction="#goToObjectifs"/>
-    <Button text="Admin" onAction="#goToAdmin"/>
+        <VBox styleClass="content-shell">
 
-    <Button text="Investir" onAction="#goToInvest"/>
+            <Label text="MARCHÉ" styleClass="section-tag"/>
+            <Label text="Prix des Cryptos" styleClass="section-title"/>
 
-    <TextField fx:id="investSearch" promptText="Rechercher par crypto..." prefWidth="250"/>
+            <TableView fx:id="table" styleClass="history-table" prefHeight="220" maxWidth="1.7976931348623157E308">
+                <columns>
+                    <TableColumn fx:id="colName" text="Nom" prefWidth="250"/>
+                    <TableColumn fx:id="colPrice" text="Prix (USD)" prefWidth="250"/>
+                </columns>
+            </TableView>
 
-    <TableView fx:id="investTable" prefWidth="400" prefHeight="200">
-        <columns>
-            <TableColumn fx:id="colCrypto" text="Crypto" prefWidth="130"/>
-            <TableColumn fx:id="colAmount" text="Montant" prefWidth="130"/>
-            <TableColumn fx:id="colQuantity" text="Quantité" prefWidth="130"/>
-            <TableColumn fx:id="colDelete" text="Supprimer" prefWidth="100"/>
-            <TableColumn fx:id="colProfitLoss" text="Gain/Perte (USD)" prefWidth="130"/>
-            <TableColumn fx:id="colModify" text="Modifier" prefWidth="100"/>
+            <Label text="MES INVESTISSEMENTS" styleClass="section-tag"/>
+            <Label text="Portefeuille" styleClass="section-title"/>
 
+            <TextField fx:id="investSearch" promptText="Rechercher par crypto..." styleClass="text-field" maxWidth="300"/>
 
-        </columns>
-    </TableView>
+            <TableView fx:id="investTable" styleClass="history-table" prefHeight="250" maxWidth="1.7976931348623157E308">
+                <columns>
+                    <TableColumn fx:id="colCrypto" text="Crypto" prefWidth="130"/>
+                    <TableColumn fx:id="colAmount" text="Montant" prefWidth="120"/>
+                    <TableColumn fx:id="colQuantity" text="Quantité" prefWidth="120"/>
+                    <TableColumn fx:id="colProfitLoss" text="Gain/Perte (USD)" prefWidth="130"/>
+                    <TableColumn fx:id="colModify" text="Modifier" prefWidth="100"/>
+                    <TableColumn fx:id="colDelete" text="Supprimer" prefWidth="100"/>
+                </columns>
+            </TableView>
 
-</VBox>
+        </VBox>
+    </VBox>
+</ScrollPane>
