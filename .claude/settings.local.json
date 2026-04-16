@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn compile:*)",
+      "Bash(cmd /c \"mvn compile 2>&1\")",
+      "Bash(cmd /c \"cd \\\\\"C:\\\\Users\\\\youss\\\\Downloads\\\\Desktop\\\\Java Project\\\\pi_java\\\\\" && mvn compile 2>&1\")",
+      "Bash(cmd /c \"cd \\\\\"C:\\\\Users\\\\youss\\\\Downloads\\\\Desktop\\\\Java Project\\\\pi_java\\\\\" && git diff HEAD~1 --name-only 2>&1\")",
+      "Bash(cmd /c \"cd \\\\\"C:\\\\Users\\\\youss\\\\Downloads\\\\Desktop\\\\Java Project\\\\pi_java\\\\\" && git show --stat HEAD 2>&1\")",
+      "Bash(cmd /c \"cd \\\\\"C:\\\\Users\\\\youss\\\\Downloads\\\\Desktop\\\\Java Project\\\\pi_java\\\\\" && git log --oneline -5\")",
+      "Bash(powershell -Command \"Set-Location 'C:\\\\Users\\\\youss\\\\Downloads\\\\Desktop\\\\Java Project\\\\pi_java'; git log --oneline -5\")",
+      "Bash(powershell -Command \"Set-Location 'C:\\\\Users\\\\youss\\\\Downloads\\\\Desktop\\\\Java Project\\\\pi_java'; git diff HEAD~1 --name-only\")",
+      "Bash(powershell -Command \"Get-ChildItem -Path 'C:\\\\Users\\\\youss\\\\Downloads\\\\Desktop\\\\Java Project\\\\pi_java\\\\src\\\\main\\\\java' -Recurse -Filter '*.java' | Select-String 'MyDatabase.getInstance\\\\\\(\\\\\\).getCnx\\\\\\(\\\\\\)' | Select-Object Path, LineNumber, Line\")",
+      "Bash(powershell -Command \"Get-ChildItem -Path 'C:\\\\Users\\\\youss\\\\Downloads\\\\Desktop\\\\Java Project\\\\pi_java\\\\src\\\\main\\\\java\\\\pi\\\\controllers' -Directory | Select-Object Name\")",
+      "Bash(powershell -Command \"Get-ChildItem -Path 'C:\\\\Users\\\\youss\\\\Downloads\\\\Desktop\\\\Java Project\\\\pi_java\\\\src\\\\main\\\\java\\\\pi\\\\controllers\\\\EpargneObjectifController' | Select-Object Name\")",
+      "Bash(powershell -Command \"Set-Location 'C:\\\\Users\\\\youss\\\\Downloads\\\\Desktop\\\\Java Project\\\\pi_java'; git add src/main/java/module-info.java; git commit -m 'Fix module-info.java to include investment module packages'; git push origin branche-invest\")",
+      "Bash(powershell -Command \"Get-ChildItem -Path 'C:\\\\Users\\\\youss\\\\Downloads\\\\Desktop\\\\Java Project\\\\pi_java\\\\src\\\\main\\\\java\\\\pi\\\\mains' | Select-Object Name\")",
+      "Bash(powershell -Command \"Get-ChildItem -Path 'C:\\\\Users\\\\youss\\\\Downloads\\\\Desktop\\\\Java Project\\\\pi_java\\\\src\\\\main\\\\java\\\\pi\\\\entities' | Select-Object Name\")",
+      "Bash(powershell -Command \"Get-ChildItem -Path 'C:\\\\Users\\\\youss\\\\Downloads\\\\Desktop\\\\Java Project\\\\pi_java\\\\src\\\\main\\\\java\\\\pi\\\\tools' | Select-Object Name\")",
+      "Bash(powershell -Command \"Set-Location 'C:\\\\Users\\\\youss\\\\Downloads\\\\Desktop\\\\Java Project\\\\pi_java'; git add src/main/java/module-info.java src/main/java/pi/mains/Main.java; git commit -m 'Fix missing requires java.net.http in module-info and add main\\(\\) to Main.java'; git push origin branche-invest\")",
+      "Bash(powershell -Command \"Remove-Item 'C:\\\\Users\\\\youss\\\\Downloads\\\\Desktop\\\\Java Project\\\\pi_java\\\\src\\\\main\\\\java\\\\module-info.java'\")",
+      "Bash(powershell -Command \"Set-Location 'C:\\\\Users\\\\youss\\\\Downloads\\\\Desktop\\\\Java Project\\\\pi_java'; git add -A; git commit -m 'Remove module-info.java to fix symbol resolution errors'; git push origin branche-invest\")"
+    ]
+  }
+}
