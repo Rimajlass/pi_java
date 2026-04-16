@@ -2,6 +2,7 @@ module Pidev3A47 {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.sql;
+    requires java.net.http;
     requires mysql.connector.j;
     requires com.fasterxml.jackson.databind;
 
