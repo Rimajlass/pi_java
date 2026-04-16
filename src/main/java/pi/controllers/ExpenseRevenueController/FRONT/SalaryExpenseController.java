@@ -33,6 +33,7 @@ import pi.entities.User;
 import pi.mains.Main;
 import pi.services.RevenueExpenseService.ExpenseService;
 import pi.services.RevenueExpenseService.RevenueService;
+import pi.services.UserTransactionService.UserService;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -151,6 +152,7 @@ public class SalaryExpenseController {
 
     private final RevenueService revenueService = new RevenueService();
     private final ExpenseService expenseService = new ExpenseService();
+    private final UserService userService = new UserService();
     private final ObservableList<Revenue> revenues = FXCollections.observableArrayList();
     private final ObservableList<ExpenseRow> expenses = FXCollections.observableArrayList();
     private final User currentUser = createCurrentUser();
@@ -171,9 +173,18 @@ public class SalaryExpenseController {
         if (user == null) {
             return;
         }
-        currentUser.setId(user.getId());
-        if (profileNameLabel != null && user.getNom() != null && !user.getNom().isBlank()) {
-            profileNameLabel.setText(user.getNom());
+        User persistedUser = user.getId() > 0 ? userService.findById(user.getId()) : null;
+        User sourceUser = persistedUser != null ? persistedUser : user;
+
+        currentUser.setId(sourceUser.getId());
+        currentUser.setNom(sourceUser.getNom());
+        currentUser.setEmail(sourceUser.getEmail());
+        currentUser.setRoles(sourceUser.getRoles());
+        currentUser.setDateInscription(sourceUser.getDateInscription());
+        currentUser.setSoldeTotal(sourceUser.getSoldeTotal());
+
+        if (profileNameLabel != null && sourceUser.getNom() != null && !sourceUser.getNom().isBlank()) {
+            profileNameLabel.setText(sourceUser.getNom());
         }
         loadData();
     }
@@ -498,6 +509,8 @@ public class SalaryExpenseController {
             refreshDashboard();
         } catch (SQLException exception) {
             showError("Database error: " + exception.getMessage());
+        } catch (RuntimeException exception) {
+            showError(exception.getMessage());
         }
     }
 
@@ -576,6 +589,8 @@ public class SalaryExpenseController {
         if (lastTransactionLabel != null) {
             lastTransactionLabel.setText(lastTransactionDate == null ? "--/--/----" : formatDate(lastTransactionDate));
         }
+
+        syncUserBalance(netBalance);
     }
 
     private Comparator<Revenue> buildRevenueComparator() {
@@ -847,6 +862,18 @@ public class SalaryExpenseController {
 
     private String nullSafe(String value) {
         return value == null ? "" : value;
+    }
+
+    private void syncUserBalance(double netBalance) {
+        if (currentUser.getId() <= 0) {
+            return;
+        }
+        if (Double.compare(currentUser.getSoldeTotal(), netBalance) == 0) {
+            return;
+        }
+
+        userService.updateSoldeTotal(currentUser.getId(), netBalance);
+        currentUser.setSoldeTotal(netBalance);
     }
 
     private User createCurrentUser() {
