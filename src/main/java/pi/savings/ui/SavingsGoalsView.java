@@ -1,10 +1,18 @@
 package pi.savings.ui;
 
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.concurrent.Task;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -18,7 +26,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
-import javafx.scene.Scene;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -27,6 +35,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Window;
 import javafx.stage.Stage;
 import pi.controllers.ExpenseRevenueController.FRONT.SalaryExpenseController;
@@ -42,7 +51,10 @@ import pi.savings.service.SavingsModuleService;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
 
@@ -88,6 +100,16 @@ final class SavingsGoalsView {
     private Label goalsCompletedValueLabel;
     private Label goalsTargetValueLabel;
     private Label goalsRemainingValueLabel;
+    private Label historyPaginationLabel;
+    private Button historyPreviousButton;
+    private Button historyNextButton;
+    private int historyPageIndex;
+    private static final int HISTORY_PAGE_SIZE = 5;
+    private Label goalsPaginationLabel;
+    private Button goalsPreviousButton;
+    private Button goalsNextButton;
+    private int goalsPageIndex;
+    private static final int GOALS_PAGE_SIZE = 4;
 
     Parent build(SavingsUiController controller) {
         this.controller = controller;
@@ -475,7 +497,7 @@ final class SavingsGoalsView {
         rateField = new TextField();
         rateField.getStyleClass().add("field");
         rateField.setPrefWidth(90);
-        rateField.setTextFormatter(createMoneyTextFormatter(3));
+        attachMoneyValidation(rateField, "Interest rate", 3);
         rateField.setOnAction(event -> handleUpdateRate());
 
         Button saveRateButton = actionButton("Save", "primary-btn");
@@ -485,7 +507,7 @@ final class SavingsGoalsView {
         depositAmountField = new TextField();
         depositAmountField.setPromptText("Ex: 200");
         depositAmountField.getStyleClass().add("field");
-        depositAmountField.setTextFormatter(createMoneyTextFormatter(7));
+        attachMoneyValidation(depositAmountField, "Amount", 7);
         depositAmountField.setOnAction(event -> handleDeposit());
 
         depositDescriptionField = new TextField();
@@ -580,6 +602,7 @@ final class SavingsGoalsView {
         Button exportPdfButton = actionButton("Export PDF", "ghost-btn");
         exportPdfButton.setOnAction(event -> handleExportPdf());
 
+        HBox paginationBar = buildHistoryPaginationBar();
         HBox footerActions = new HBox(10, statsButton, exportCsvButton, exportPdfButton);
         footerActions.setAlignment(Pos.CENTER_LEFT);
 
@@ -590,6 +613,7 @@ final class SavingsGoalsView {
         card.getChildren().add(toolbar);
         card.getChildren().add(buildHistoryStatsPanel());
         card.getChildren().add(buildHistoryTableWrapper());
+        card.getChildren().add(paginationBar);
         card.getChildren().add(footerActions);
         return card;
     }
@@ -645,12 +669,12 @@ final class SavingsGoalsView {
         goalTargetField = new TextField();
         goalTargetField.getStyleClass().add("field");
         goalTargetField.setPromptText("Ex: 10000");
-        goalTargetField.setTextFormatter(createMoneyTextFormatter(7));
+        attachMoneyValidation(goalTargetField, "Target", 7);
         goalTargetField.setOnAction(event -> handleSaveGoal());
 
         goalCurrentField = new TextField("0");
         goalCurrentField.getStyleClass().add("field");
-        goalCurrentField.setTextFormatter(createMoneyTextFormatter(7));
+        attachMoneyValidation(goalCurrentField, "Current", 7);
         goalCurrentField.setOnAction(event -> handleSaveGoal());
 
         goalDeadlinePicker = new DatePicker();
@@ -667,7 +691,7 @@ final class SavingsGoalsView {
 
         goalPriorityField = new TextField("3");
         goalPriorityField.getStyleClass().add("field");
-        goalPriorityField.setTextFormatter(createPriorityFormatter());
+        attachPriorityValidation(goalPriorityField, "Priority");
         goalPriorityField.setOnAction(event -> handleSaveGoal());
 
         addGoalButton = actionButton("Add Goal", "primary-btn");
@@ -731,6 +755,7 @@ final class SavingsGoalsView {
         Button goalsExportPdfButton = actionButton("Export PDF", "ghost-btn");
         goalsExportPdfButton.setOnAction(event -> handleGoalsExportPdf());
 
+        HBox paginationBar = buildGoalsPaginationBar();
         HBox footerActions = new HBox(10, goalsStatsButton, goalsExportCsvButton, goalsExportPdfButton);
         footerActions.setAlignment(Pos.CENTER_LEFT);
 
@@ -745,8 +770,55 @@ final class SavingsGoalsView {
         card.getChildren().add(toolbar);
         card.getChildren().add(buildGoalsStatsPanel());
         card.getChildren().add(goalsScroll);
+        card.getChildren().add(paginationBar);
         card.getChildren().add(footerActions);
         return card;
+    }
+
+    private HBox buildHistoryPaginationBar() {
+        historyPreviousButton = actionButton("Previous", "chip");
+        historyPreviousButton.setOnAction(event -> {
+            if (historyPageIndex > 0) {
+                historyPageIndex--;
+                refreshHistory(controller.filterAndSortHistory(historySearchValue(), historySortAttributeValue(), historySortDirectionValue()));
+            }
+        });
+
+        historyNextButton = actionButton("Next", "chip");
+        historyNextButton.setOnAction(event -> {
+            historyPageIndex++;
+            refreshHistory(controller.filterAndSortHistory(historySearchValue(), historySortAttributeValue(), historySortDirectionValue()));
+        });
+
+        historyPaginationLabel = new Label("Page 1 / 1");
+        historyPaginationLabel.getStyleClass().add("mini-row-value");
+
+        HBox box = new HBox(10, historyPreviousButton, historyPaginationLabel, historyNextButton);
+        box.setAlignment(Pos.CENTER_LEFT);
+        return box;
+    }
+
+    private HBox buildGoalsPaginationBar() {
+        goalsPreviousButton = actionButton("Previous", "chip");
+        goalsPreviousButton.setOnAction(event -> {
+            if (goalsPageIndex > 0) {
+                goalsPageIndex--;
+                refreshGoals(controller.filterAndSortGoals(goalsSearchValue(), goalsSortAttributeValue(), goalsSortDirectionValue()));
+            }
+        });
+
+        goalsNextButton = actionButton("Next", "chip");
+        goalsNextButton.setOnAction(event -> {
+            goalsPageIndex++;
+            refreshGoals(controller.filterAndSortGoals(goalsSearchValue(), goalsSortAttributeValue(), goalsSortDirectionValue()));
+        });
+
+        goalsPaginationLabel = new Label("Page 1 / 1");
+        goalsPaginationLabel.getStyleClass().add("mini-row-value");
+
+        HBox box = new HBox(10, goalsPreviousButton, goalsPaginationLabel, goalsNextButton);
+        box.setAlignment(Pos.CENTER_LEFT);
+        return box;
     }
 
     private HBox buildGoalsStatsPanel() {
@@ -805,7 +877,7 @@ final class SavingsGoalsView {
         contributeField.setPromptText("Add TND");
         contributeField.getStyleClass().add("field");
         contributeField.setPrefWidth(120);
-        contributeField.setTextFormatter(createMoneyTextFormatter(7));
+        attachMoneyValidation(contributeField, "Contribution", 7);
         contributeField.setOnAction(event -> handleContribute(goal, contributeField));
 
         Button contributeButton = actionButton("Contribute", "primary-btn");
@@ -832,6 +904,10 @@ final class SavingsGoalsView {
     }
 
     private void handleDeposit() {
+        if (!validateMoneyField(depositAmountField, "Amount", 7)) {
+            return;
+        }
+
         SavingsUiController.OperationResult result = controller.safeDeposit(
                 depositAmountField.getText(),
                 depositDescriptionField.getText()
@@ -848,6 +924,10 @@ final class SavingsGoalsView {
     }
 
     private void handleUpdateRate() {
+        if (!validateMoneyField(rateField, "Interest rate", 3)) {
+            return;
+        }
+
         SavingsUiController.OperationResult result = controller.safeUpdateInterestRate(rateField.getText());
         if (result.success()) {
             refreshAll();
@@ -858,6 +938,12 @@ final class SavingsGoalsView {
     }
 
     private void handleSaveGoal() {
+        if (!validateMoneyField(goalTargetField, "Target", 7)
+                || !validateMoneyField(goalCurrentField, "Current", 7)
+                || !validatePriorityField(goalPriorityField, "Priority")) {
+            return;
+        }
+
         SavingsUiController.OperationResult result = editingGoalId == null
                 ? controller.safeCreateGoal(goalNameField.getText(), goalTargetField.getText(), goalCurrentField.getText(), goalDeadlineValue(), goalPriorityField.getText())
                 : controller.safeUpdateGoal(editingGoalId, goalNameField.getText(), goalTargetField.getText(), goalCurrentField.getText(), goalDeadlineValue(), goalPriorityField.getText());
@@ -881,6 +967,10 @@ final class SavingsGoalsView {
     }
 
     private void handleContribute(SavingsModuleService.GoalSnapshot goal, TextField contributeField) {
+        if (!validateMoneyField(contributeField, "Contribution", 7)) {
+            return;
+        }
+
         SavingsUiController.OperationResult result = controller.safeContributeToGoal(goal.id(), contributeField.getText());
         if (result.success()) {
             contributeField.clear();
@@ -972,7 +1062,14 @@ final class SavingsGoalsView {
     private void refreshHistory(List<SavingsTransactionRepository.TransactionRow> historyEntries) {
         historyRowsBox.getChildren().clear();
         updateHistoryStats(historyEntries);
-        if (historyEntries.isEmpty()) {
+        SavingsUiController.PageSlice<SavingsTransactionRepository.TransactionRow> page = controller.paginate(
+                historyEntries,
+                historyPageIndex,
+                HISTORY_PAGE_SIZE
+        );
+        historyPageIndex = page.pageIndex();
+        updateHistoryPagination(page);
+        if (page.items().isEmpty()) {
             GridPane line = new GridPane();
             line.setPadding(new Insets(12, 14, 12, 14));
             configureHistoryColumns(line);
@@ -985,7 +1082,7 @@ final class SavingsGoalsView {
             return;
         }
 
-        for (SavingsTransactionRepository.TransactionRow entry : historyEntries) {
+        for (SavingsTransactionRepository.TransactionRow entry : page.items()) {
             GridPane line = new GridPane();
             line.setPadding(new Insets(12, 14, 12, 14));
             configureHistoryColumns(line);
@@ -1001,7 +1098,14 @@ final class SavingsGoalsView {
     private void refreshGoals(List<SavingsModuleService.GoalSnapshot> goals) {
         goalsListBox.getChildren().clear();
         updateGoalsStats(goals);
-        if (goals.isEmpty()) {
+        SavingsUiController.PageSlice<SavingsModuleService.GoalSnapshot> page = controller.paginate(
+                goals,
+                goalsPageIndex,
+                GOALS_PAGE_SIZE
+        );
+        goalsPageIndex = page.pageIndex();
+        updateGoalsPagination(page);
+        if (page.items().isEmpty()) {
             VBox emptyCard = new VBox(8);
             emptyCard.getStyleClass().add("goal-card");
             Label title = new Label("No goals found");
@@ -1012,12 +1116,13 @@ final class SavingsGoalsView {
             goalsListBox.getChildren().add(emptyCard);
             return;
         }
-        for (SavingsModuleService.GoalSnapshot goal : goals) {
+        for (SavingsModuleService.GoalSnapshot goal : page.items()) {
             goalsListBox.getChildren().add(buildGoalCard(goal));
         }
     }
 
     private void applyHistorySearchAndSort() {
+        historyPageIndex = 0;
         refreshHistory(controller.filterAndSortHistory(historySearchValue(), historySortAttributeValue(), historySortDirectionValue()));
         showInfo("Savings history search/sort applied.");
     }
@@ -1026,6 +1131,7 @@ final class SavingsGoalsView {
         historySearchField.clear();
         historySortComboBox.setValue("Date");
         historyDirectionComboBox.setValue("Descending");
+        historyPageIndex = 0;
         refreshHistory(controller.filterAndSortHistory("", historySortAttributeValue(), historySortDirectionValue()));
         showInfo("Savings history default view restored.");
     }
@@ -1034,11 +1140,13 @@ final class SavingsGoalsView {
         historySearchField.clear();
         historySortComboBox.setValue("All");
         historyDirectionComboBox.setValue("Descending");
+        historyPageIndex = 0;
         refreshHistory(controller.filterAndSortHistory("", historySortAttributeValue(), historySortDirectionValue()));
         showInfo("Savings history filters reset.");
     }
 
     private void applyGoalsSearchAndSort() {
+        goalsPageIndex = 0;
         refreshGoals(controller.filterAndSortGoals(goalsSearchValue(), goalsSortAttributeValue(), goalsSortDirectionValue()));
         showInfo("Goals search/sort applied.");
     }
@@ -1047,6 +1155,7 @@ final class SavingsGoalsView {
         goalsSearchField.clear();
         goalsSortComboBox.setValue("Priority");
         goalsDirectionComboBox.setValue("Descending");
+        goalsPageIndex = 0;
         refreshGoals(controller.filterAndSortGoals("", goalsSortAttributeValue(), goalsSortDirectionValue()));
         showInfo("Goals default view restored.");
     }
@@ -1055,8 +1164,37 @@ final class SavingsGoalsView {
         goalsSearchField.clear();
         goalsSortComboBox.setValue("All");
         goalsDirectionComboBox.setValue("Descending");
+        goalsPageIndex = 0;
         refreshGoals(controller.filterAndSortGoals("", goalsSortAttributeValue(), goalsSortDirectionValue()));
         showInfo("Goals filters reset.");
+    }
+
+    private void updateHistoryPagination(SavingsUiController.PageSlice<SavingsTransactionRepository.TransactionRow> page) {
+        if (historyPaginationLabel != null) {
+            historyPaginationLabel.setText(
+                    "Page " + (page.pageIndex() + 1) + " / " + page.pageCount() + " (" + page.totalItems() + " rows)"
+            );
+        }
+        if (historyPreviousButton != null) {
+            historyPreviousButton.setDisable(page.pageIndex() <= 0);
+        }
+        if (historyNextButton != null) {
+            historyNextButton.setDisable(page.pageIndex() >= page.pageCount() - 1);
+        }
+    }
+
+    private void updateGoalsPagination(SavingsUiController.PageSlice<SavingsModuleService.GoalSnapshot> page) {
+        if (goalsPaginationLabel != null) {
+            goalsPaginationLabel.setText(
+                    "Page " + (page.pageIndex() + 1) + " / " + page.pageCount() + " (" + page.totalItems() + " goals)"
+            );
+        }
+        if (goalsPreviousButton != null) {
+            goalsPreviousButton.setDisable(page.pageIndex() <= 0);
+        }
+        if (goalsNextButton != null) {
+            goalsNextButton.setDisable(page.pageIndex() >= page.pageCount() - 1);
+        }
     }
 
     private void configureHistoryColumns(GridPane grid) {
@@ -1190,18 +1328,19 @@ final class SavingsGoalsView {
     }
 
     private void showHistoryStatsSummary() {
-        SavingsModuleService.HistoryStats stats = controller.getHistoryStats(
+        List<SavingsTransactionRepository.TransactionRow> filteredHistory = controller.filterAndSortHistory(
                 historySearchValue(),
                 historySortAttributeValue(),
                 historySortDirectionValue()
         );
-        String message = "Rows: " + stats.transactionCount()
-                + "\nDeposits: " + formatMoney(stats.totalDeposited())
-                + "\nContributions: " + formatMoney(stats.totalContributedToGoals())
-                + "\nAverage: " + formatMoney(stats.averageAmount())
-                + "\nLatest: " + stats.latestTransactionDate();
-        showInfo(message.replace('\n', ' '));
-        showModal("Savings Stats", "Savings history statistics", message, Alert.AlertType.INFORMATION);
+        SavingsModuleService.HistoryStats stats = controller.calculateHistoryStats(filteredHistory);
+        showInfo("Savings charts generated from the current filtered history.");
+        showStatsWindow(
+                "Savings Stats",
+                "Savings statistics",
+                "Visual analytics for the current savings filters.",
+                buildSavingsStatsContent(filteredHistory, stats)
+        );
     }
 
     private void handleExportCsv() {
@@ -1245,20 +1384,19 @@ final class SavingsGoalsView {
     }
 
     private void showGoalsStatsSummary() {
-        SavingsModuleService.GoalStats stats = controller.getGoalStats(
+        List<SavingsModuleService.GoalSnapshot> filteredGoals = controller.filterAndSortGoals(
                 goalsSearchValue(),
                 goalsSortAttributeValue(),
                 goalsSortDirectionValue()
         );
-        String message = "Goals: " + stats.goalCount()
-                + "\nCompleted: " + stats.completedGoalCount()
-                + "\nCompletion rate: " + stats.completionRate() + "%"
-                + "\nTarget: " + formatMoney(stats.totalTarget())
-                + "\nCurrent: " + formatMoney(stats.totalCurrent())
-                + "\nRemaining: " + formatMoney(stats.remainingAmount())
-                + "\nNearest: " + stats.nearestDeadline();
-        showInfo(message.replace('\n', ' '));
-        showModal("Goals Stats", "Goals statistics", message, Alert.AlertType.INFORMATION);
+        SavingsModuleService.GoalStats stats = controller.calculateGoalStats(filteredGoals);
+        showInfo("Goals charts generated from the current filtered goals.");
+        showStatsWindow(
+                "Goals Stats",
+                "Goals statistics",
+                "Visual analytics for the current goals filters.",
+                buildGoalsStatsContent(filteredGoals, stats)
+        );
     }
 
     private void handleGoalsExportCsv() {
@@ -1291,6 +1429,284 @@ final class SavingsGoalsView {
             showError(result.message());
             showModal("PDF Export", "Goals export failed", result.message(), Alert.AlertType.ERROR);
         }
+    }
+
+    private void showStatsWindow(String title, String header, String subtitle, Parent content) {
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        Window owner = currentWindow();
+        if (owner != null) {
+            stage.initOwner(owner);
+        }
+
+        VBox root = new VBox(18);
+        root.setPadding(new Insets(22));
+        root.getStyleClass().add("glass-card");
+
+        Label headerLabel = new Label(header);
+        headerLabel.getStyleClass().add("section-title");
+
+        Label subtitleLabel = new Label(subtitle);
+        subtitleLabel.getStyleClass().add("section-subtitle");
+        subtitleLabel.setWrapText(true);
+
+        root.getChildren().addAll(headerLabel, subtitleLabel, content);
+
+        Scene scene = new Scene(root, 980, 760);
+        scene.getStylesheets().add(
+                SavingsGoalsView.class.getResource("/pi/savings/ui/savings-goals.css").toExternalForm()
+        );
+
+        stage.setTitle(title);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    private Parent buildSavingsStatsContent(
+            List<SavingsTransactionRepository.TransactionRow> transactions,
+            SavingsModuleService.HistoryStats stats
+    ) {
+        VBox content = new VBox(18);
+
+        HBox statRow = new HBox(10,
+                compactStatCard("Rows", statLabel(String.valueOf(stats.transactionCount()))),
+                compactStatCard("Deposits", statLabel(formatMoney(stats.totalDeposited()))),
+                compactStatCard("Goals", statLabel(formatMoney(stats.totalContributedToGoals()))),
+                compactStatCard("Latest", statLabel(stats.latestTransactionDate()))
+        );
+
+        HBox chartsRow = new HBox(18,
+                buildChartCard("Amounts By Type", createSavingsTypePieChart(stats)),
+                buildChartCard("Amounts By Date", createSavingsTimelineChart(transactions))
+        );
+        HBox.setHgrow(chartsRow.getChildren().get(0), Priority.ALWAYS);
+        HBox.setHgrow(chartsRow.getChildren().get(1), Priority.ALWAYS);
+
+        VBox attributeCard = buildAttributeSummaryCard(
+                "Savings attributes",
+                List.of(
+                        "Types present: " + summarizeTransactionTypes(transactions),
+                        "Module sources: " + summarizeModuleSources(transactions),
+                        "Users covered: " + summarizeUserIds(transactions),
+                        "Average amount: " + formatMoney(stats.averageAmount())
+                )
+        );
+
+        content.getChildren().addAll(statRow, chartsRow, attributeCard);
+        return content;
+    }
+
+    private Parent buildGoalsStatsContent(
+            List<SavingsModuleService.GoalSnapshot> goals,
+            SavingsModuleService.GoalStats stats
+    ) {
+        VBox content = new VBox(18);
+
+        HBox statRow = new HBox(10,
+                compactStatCard("Goals", statLabel(String.valueOf(stats.goalCount()))),
+                compactStatCard("Completed", statLabel(String.valueOf(stats.completedGoalCount()))),
+                compactStatCard("Current", statLabel(formatMoney(stats.totalCurrent()))),
+                compactStatCard("Nearest", statLabel(stats.nearestDeadline()))
+        );
+
+        HBox chartsRow = new HBox(18,
+                buildChartCard("Current vs Remaining", createGoalsProgressPieChart(stats)),
+                buildChartCard("Target / Current / Remaining", createGoalsAmountsChart(goals))
+        );
+        HBox.setHgrow(chartsRow.getChildren().get(0), Priority.ALWAYS);
+        HBox.setHgrow(chartsRow.getChildren().get(1), Priority.ALWAYS);
+
+        VBox attributeCard = buildAttributeSummaryCard(
+                "Goals attributes",
+                List.of(
+                        "Goal names: " + summarizeGoalNames(goals),
+                        "Priorities: " + summarizeGoalPriorities(goals),
+                        "Completion rate: " + stats.completionRate() + "%",
+                        "Remaining amount: " + formatMoney(stats.remainingAmount())
+                )
+        );
+
+        content.getChildren().addAll(statRow, chartsRow, attributeCard);
+        return content;
+    }
+
+    private VBox buildChartCard(String titleText, javafx.scene.Node chart) {
+        VBox card = new VBox(12);
+        card.getStyleClass().add("glass-card");
+        HBox.setHgrow(card, Priority.ALWAYS);
+        VBox.setVgrow(card, Priority.ALWAYS);
+
+        Label title = new Label(titleText);
+        title.getStyleClass().add("card-title");
+
+        card.getChildren().addAll(title, chart);
+        return card;
+    }
+
+    private VBox buildAttributeSummaryCard(String titleText, List<String> lines) {
+        VBox card = new VBox(10);
+        card.getStyleClass().add("glass-card");
+        Label title = new Label(titleText);
+        title.getStyleClass().add("card-title");
+        card.getChildren().add(title);
+        for (String line : lines) {
+            Label label = new Label(line);
+            label.getStyleClass().add("mini-row-label");
+            label.setWrapText(true);
+            card.getChildren().add(label);
+        }
+        return card;
+    }
+
+    private Label statLabel(String text) {
+        Label label = new Label(text);
+        label.getStyleClass().add("card-value");
+        return label;
+    }
+
+    private PieChart createSavingsTypePieChart(SavingsModuleService.HistoryStats stats) {
+        PieChart chart = new PieChart(FXCollections.observableArrayList(
+                new PieChart.Data("Deposits", stats.totalDeposited().doubleValue()),
+                new PieChart.Data("Goal contributions", stats.totalContributedToGoals().doubleValue())
+        ));
+        chart.setPrefHeight(280);
+        chart.setLegendVisible(true);
+        chart.setLabelsVisible(true);
+        installPieTooltips(chart);
+        return chart;
+    }
+
+    private BarChart<String, Number> createSavingsTimelineChart(List<SavingsTransactionRepository.TransactionRow> transactions) {
+        CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis yAxis = new NumberAxis();
+        BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
+        chart.setLegendVisible(false);
+        chart.setAnimated(false);
+        chart.setPrefHeight(300);
+
+        Map<String, BigDecimal> totalsByDate = new LinkedHashMap<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd");
+        for (SavingsTransactionRepository.TransactionRow row : transactions) {
+            String key = row.date().toLocalDate().format(formatter);
+            totalsByDate.merge(key, row.amount(), BigDecimal::add);
+        }
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        if (totalsByDate.isEmpty()) {
+            series.getData().add(new XYChart.Data<>("No data", 0));
+        } else {
+            totalsByDate.forEach((label, amount) -> series.getData().add(new XYChart.Data<>(label, amount.doubleValue())));
+        }
+        chart.getData().setAll(series);
+        return chart;
+    }
+
+    private PieChart createGoalsProgressPieChart(SavingsModuleService.GoalStats stats) {
+        PieChart chart = new PieChart(FXCollections.observableArrayList(
+                new PieChart.Data("Current", stats.totalCurrent().doubleValue()),
+                new PieChart.Data("Remaining", stats.remainingAmount().doubleValue())
+        ));
+        chart.setPrefHeight(280);
+        chart.setLegendVisible(true);
+        chart.setLabelsVisible(true);
+        installPieTooltips(chart);
+        return chart;
+    }
+
+    private BarChart<String, Number> createGoalsAmountsChart(List<SavingsModuleService.GoalSnapshot> goals) {
+        CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis yAxis = new NumberAxis();
+        BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
+        chart.setAnimated(false);
+        chart.setPrefHeight(300);
+        chart.setCategoryGap(12);
+        chart.setBarGap(4);
+
+        XYChart.Series<String, Number> targetSeries = new XYChart.Series<>();
+        targetSeries.setName("Target");
+        XYChart.Series<String, Number> currentSeries = new XYChart.Series<>();
+        currentSeries.setName("Current");
+        XYChart.Series<String, Number> remainingSeries = new XYChart.Series<>();
+        remainingSeries.setName("Remaining");
+
+        if (goals.isEmpty()) {
+            targetSeries.getData().add(new XYChart.Data<>("No data", 0));
+        } else {
+            for (SavingsModuleService.GoalSnapshot goal : goals) {
+                String name = truncate(goal.name(), 12);
+                BigDecimal remaining = goal.target().subtract(goal.current()).max(BigDecimal.ZERO);
+                targetSeries.getData().add(new XYChart.Data<>(name, goal.target().doubleValue()));
+                currentSeries.getData().add(new XYChart.Data<>(name, goal.current().doubleValue()));
+                remainingSeries.getData().add(new XYChart.Data<>(name, remaining.doubleValue()));
+            }
+        }
+
+        chart.getData().setAll(targetSeries, currentSeries, remainingSeries);
+        return chart;
+    }
+
+    private void installPieTooltips(PieChart chart) {
+        for (PieChart.Data data : chart.getData()) {
+            String tooltipText = data.getName() + ": " + formatPlain(BigDecimal.valueOf(data.getPieValue())) + " TND";
+            if (data.getNode() != null) {
+                Tooltip.install(data.getNode(), new Tooltip(tooltipText));
+            } else {
+                data.nodeProperty().addListener((obs, oldNode, newNode) -> {
+                    if (newNode != null) {
+                        Tooltip.install(newNode, new Tooltip(tooltipText));
+                    }
+                });
+            }
+        }
+        Platform.runLater(chart::requestLayout);
+    }
+
+    private String summarizeTransactionTypes(List<SavingsTransactionRepository.TransactionRow> transactions) {
+        return transactions.stream()
+                .map(SavingsTransactionRepository.TransactionRow::type)
+                .distinct()
+                .reduce((left, right) -> left + ", " + right)
+                .orElse("None");
+    }
+
+    private String summarizeModuleSources(List<SavingsTransactionRepository.TransactionRow> transactions) {
+        return transactions.stream()
+                .map(SavingsTransactionRepository.TransactionRow::moduleSource)
+                .filter(source -> source != null && !source.isBlank())
+                .distinct()
+                .reduce((left, right) -> left + ", " + right)
+                .orElse("None");
+    }
+
+    private String summarizeUserIds(List<SavingsTransactionRepository.TransactionRow> transactions) {
+        return transactions.stream()
+                .map(row -> String.valueOf(row.userId()))
+                .distinct()
+                .reduce((left, right) -> left + ", " + right)
+                .orElse("None");
+    }
+
+    private String summarizeGoalNames(List<SavingsModuleService.GoalSnapshot> goals) {
+        return goals.stream()
+                .map(SavingsModuleService.GoalSnapshot::name)
+                .map(name -> truncate(name, 18))
+                .reduce((left, right) -> left + ", " + right)
+                .orElse("None");
+    }
+
+    private String summarizeGoalPriorities(List<SavingsModuleService.GoalSnapshot> goals) {
+        return goals.stream()
+                .map(goal -> "P" + goal.priority())
+                .distinct()
+                .reduce((left, right) -> left + ", " + right)
+                .orElse("None");
+    }
+
+    private String truncate(String value, int maxLength) {
+        if (value == null || value.length() <= maxLength) {
+            return value == null ? "" : value;
+        }
+        return value.substring(0, Math.max(0, maxLength - 1)) + "…";
     }
 
     private void showModal(String title, String header, String content, Alert.AlertType type) {
@@ -1526,6 +1942,71 @@ final class SavingsGoalsView {
             return change;
         };
         return new TextFormatter<>(filter);
+    }
+
+    private void attachMoneyValidation(TextField field, String fieldLabel, int maxIntegerDigits) {
+        field.textProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue == null || newValue.isBlank()) {
+                return;
+            }
+
+            if (!isValidMoneyInput(newValue, maxIntegerDigits)) {
+                showError(fieldLabel + " must contain digits only.");
+            }
+        });
+    }
+
+    private boolean validateMoneyField(TextField field, String fieldLabel, int maxIntegerDigits) {
+        String value = field == null ? "" : field.getText();
+        if (value == null || value.isBlank()) {
+            return true;
+        }
+
+        if (isValidMoneyInput(value, maxIntegerDigits)) {
+            return true;
+        }
+
+        showError(fieldLabel + " must contain a valid numeric value.");
+        field.requestFocus();
+        field.selectAll();
+        return false;
+    }
+
+    private boolean isValidMoneyInput(String value, int maxIntegerDigits) {
+        String normalized = value.trim().replace(',', '.');
+        return normalized.matches("\\d{0," + maxIntegerDigits + "}(\\.\\d{0,2})?");
+    }
+
+    private void attachPriorityValidation(TextField field, String fieldLabel) {
+        field.textProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue == null || newValue.isBlank()) {
+                return;
+            }
+
+            if (!isValidPriorityInput(newValue)) {
+                showError(fieldLabel + " must be a number between 1 and 5.");
+            }
+        });
+    }
+
+    private boolean validatePriorityField(TextField field, String fieldLabel) {
+        String value = field == null ? "" : field.getText();
+        if (value == null || value.isBlank()) {
+            return true;
+        }
+
+        if (isValidPriorityInput(value)) {
+            return true;
+        }
+
+        showError(fieldLabel + " must be a number between 1 and 5.");
+        field.requestFocus();
+        field.selectAll();
+        return false;
+    }
+
+    private boolean isValidPriorityInput(String value) {
+        return value.trim().matches("[1-5]");
     }
 
     private TextFormatter<String> createPriorityFormatter() {

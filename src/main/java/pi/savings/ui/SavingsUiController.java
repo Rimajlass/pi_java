@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 final class SavingsUiController {
 
     private static final int DEFAULT_USER_ID = 1;
+    private static final int DEFAULT_PAGE_SIZE = 5;
     private SavingsModuleService moduleService;
     private DashboardSnapshot snapshot;
     private String initializationFailureMessage;
@@ -231,6 +232,23 @@ final class SavingsUiController {
         return getModuleService().calculateGoalStats(goals);
     }
 
+    <T> PageSlice<T> paginate(List<T> items, int pageIndex, int pageSize) {
+        int resolvedPageSize = pageSize <= 0 ? DEFAULT_PAGE_SIZE : pageSize;
+        List<T> safeItems = items == null ? List.of() : items;
+        int totalItems = safeItems.size();
+        int pageCount = Math.max(1, (int) Math.ceil(totalItems / (double) resolvedPageSize));
+        int resolvedPageIndex = Math.min(Math.max(pageIndex, 0), pageCount - 1);
+        int fromIndex = Math.min(resolvedPageIndex * resolvedPageSize, totalItems);
+        int toIndex = Math.min(fromIndex + resolvedPageSize, totalItems);
+        return new PageSlice<>(
+                safeItems.subList(fromIndex, toIndex),
+                resolvedPageIndex,
+                pageCount,
+                totalItems,
+                resolvedPageSize
+        );
+    }
+
     OperationResult safeExportHistoryCsv() {
         return safeExportHistoryCsv("", "Date", "Descending", defaultExportDirectory());
     }
@@ -328,6 +346,9 @@ final class SavingsUiController {
         static OperationResult error(String message) {
             return new OperationResult(false, message);
         }
+    }
+
+    record PageSlice<T>(List<T> items, int pageIndex, int pageCount, int totalItems, int pageSize) {
     }
 
     private DashboardSnapshot emptySnapshot() {
