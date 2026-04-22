@@ -91,6 +91,17 @@
     -fx-font-size: 14px;
 }
 
+.system-banner {
+    -fx-background-color: linear-gradient(to right, #eef8ff, #f9fcff);
+    -fx-border-color: #d6e8f8;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-text-fill: #28425f;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-padding: 12 14 12 14;
+}
+
 .panel-step {
     -fx-background-color: rgba(0,191,229,0.12);
     -fx-text-fill: #118aa5;
@@ -193,6 +204,10 @@
     -fx-padding: 6 12 6 12;
     -fx-font-size: 11px;
     -fx-font-weight: 800;
+}
+
+.detail-title {
+    -fx-font-size: 24px;
 }
 
 .list-view {

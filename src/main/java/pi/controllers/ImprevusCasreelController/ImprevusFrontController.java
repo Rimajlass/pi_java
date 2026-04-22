@@ -1,6 +1,9 @@
 package pi.controllers.ImprevusCasreelController;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -17,6 +20,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import pi.controllers.ExpenseRevenueController.FRONT.SalaryExpenseController;
 import pi.controllers.UserTransactionController.AboutController;
 import pi.controllers.UserTransactionController.ContactController;
@@ -27,13 +31,23 @@ import pi.entities.Imprevus;
 import pi.entities.User;
 import pi.mains.Main;
 import pi.services.ImprevusCasreelService.CasReelService;
+import pi.services.ImprevusCasreelService.CaseFundingAdvice;
 import pi.services.ImprevusCasreelService.ImprevusService;
+import pi.services.ImprevusCasreelService.LocationSuggestionService;
+import pi.services.ImprevusCasreelService.UserNotificationService;
 import pi.savings.ui.SavingsGoalsApp;
+import pi.tools.AppEnv;
 
 import java.io.File;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class ImprevusFrontController {
     @FXML private ScrollPane pageScrollPane;
@@ -48,8 +62,10 @@ public class ImprevusFrontController {
     @FXML private TextField searchCasReelsField;
     @FXML private ComboBox<String> triImprevusComboBox;
     @FXML private ComboBox<String> triCasReelsComboBox;
+    @FXML private ComboBox<String> paymentMethodComboBox;
     @FXML private DatePicker dateEffetPicker;
     @FXML private Label statusLabel;
+    @FXML private Label fundingAdviceLabel;
     @FXML private Label selectedCaseTitleLabel;
     @FXML private Label selectedCaseSourceLabel;
     @FXML private Label selectedCaseDescriptionLabel;
@@ -59,12 +75,37 @@ public class ImprevusFrontController {
     @FXML private Label totalImprevusValueLabel;
     @FXML private Label pendingCasesValueLabel;
     @FXML private Label acceptedCasesValueLabel;
+    @FXML private Label emergencyFundValueLabel;
+    @FXML private Label latestNotificationLabel;
+    @FXML private Label futureRiskLabel;
+    @FXML private Label voitureRiskLabel;
+    @FXML private Label santeRiskLabel;
+    @FXML private Label maisonRiskLabel;
+    @FXML private Label electroniqueRiskLabel;
+    @FXML private Label educationRiskLabel;
+    @FXML private Label facturesRiskLabel;
+    @FXML private Label autresRiskLabel;
+    @FXML private Label weeklyAdviceLabel;
+    @FXML private Label appointmentSuggestionLabel;
     @FXML private ListView<Imprevus> imprevusListView;
-    @FXML private ListView<CasRelles> casReelsListView;
+    @FXML private TableView<CasRelles> casReelsTableView;
+    @FXML private TableColumn<CasRelles, String> historyDateColumn;
+    @FXML private TableColumn<CasRelles, String> historyTitleColumn;
+    @FXML private TableColumn<CasRelles, String> historyTypeColumn;
+    @FXML private TableColumn<CasRelles, String> historyCategoryColumn;
+    @FXML private TableColumn<CasRelles, String> historyAmountColumn;
+    @FXML private TableColumn<CasRelles, String> historySolutionColumn;
+    @FXML private TableColumn<CasRelles, String> historyStatusColumn;
+    @FXML private TableColumn<CasRelles, String> historyJustificatifColumn;
+    @FXML private TableColumn<CasRelles, String> historyTreatedByColumn;
+    @FXML private TableColumn<CasRelles, String> historyTreatedAtColumn;
+    @FXML private TableColumn<CasRelles, String> historyRefusalReasonColumn;
     @FXML private Button saveCasButton;
 
     private final ImprevusService imprevusService = new ImprevusService();
     private final CasReelService casReelService = new CasReelService();
+    private final UserNotificationService userNotificationService = new UserNotificationService();
+    private final LocationSuggestionService locationSuggestionService = new LocationSuggestionService();
     private final ObservableList<Imprevus> imprevusList = FXCollections.observableArrayList();
     private final ObservableList<CasRelles> casReelsList = FXCollections.observableArrayList();
     private final ObservableList<Imprevus> allImprevusList = FXCollections.observableArrayList();
@@ -72,14 +113,26 @@ public class ImprevusFrontController {
     private Imprevus imprevuSelectionne;
     private CasRelles casReelSelectionne;
     private User currentUser;
+    private Timeline notificationPoller;
+    private int lastPoppedNotificationId = -1;
 
     public void setUser(User user) {
         this.currentUser = user;
+        refreshFundingAdvicePreview();
+        updateStats();
+        updateRiskInsights();
+        updateLatestNotification();
+        startNotificationPolling();
     }
 
     @FXML
     public void initialize() {
         casTypeComboBox.setItems(FXCollections.observableArrayList("Depense", "Gain"));
+        paymentMethodComboBox.setItems(FXCollections.observableArrayList(
+                CasReelService.PAYMENT_EMERGENCY_FUND,
+                CasReelService.PAYMENT_SAVING_ACCOUNT
+        ));
+        paymentMethodComboBox.setValue(CasReelService.PAYMENT_EMERGENCY_FUND);
         triImprevusComboBox.setItems(FXCollections.observableArrayList("Titre A-Z", "Titre Z-A"));
         triCasReelsComboBox.setItems(FXCollections.observableArrayList("Plus recent", "Plus ancien", "Titre A-Z", "Titre Z-A"));
         triImprevusComboBox.setValue("Titre A-Z");
@@ -91,10 +144,55 @@ public class ImprevusFrontController {
         searchCasReelsField.textProperty().addListener((obs, oldValue, newValue) -> filtrerCasReels(newValue));
         triImprevusComboBox.valueProperty().addListener((obs, oldValue, newValue) -> filtrerImprevus(searchImprevusField.getText()));
         triCasReelsComboBox.valueProperty().addListener((obs, oldValue, newValue) -> filtrerCasReels(searchCasReelsField.getText()));
+        casTypeComboBox.valueProperty().addListener((obs, oldValue, newValue) -> updateFundingControlsForType());
+        paymentMethodComboBox.valueProperty().addListener((obs, oldValue, newValue) -> refreshFundingAdvicePreview());
+        casMontantField.textProperty().addListener((obs, oldValue, newValue) -> refreshFundingAdvicePreview());
         refreshImprevus();
         refreshCasReels();
         resetDetails();
         updateSelectedEventHint();
+        updateFundingControlsForType();
+        startNotificationPolling();
+    }
+
+    private void startNotificationPolling() {
+        if (notificationPoller != null) {
+            return;
+        }
+        notificationPoller = new Timeline(new KeyFrame(Duration.seconds(4), e -> checkAndPopupLatestNotification()));
+        notificationPoller.setCycleCount(Timeline.INDEFINITE);
+        notificationPoller.play();
+    }
+
+    private void checkAndPopupLatestNotification() {
+        if (currentUser == null || currentUser.getId() <= 0) {
+            return;
+        }
+        userNotificationService.findLatestByUserId(currentUser.getId()).ifPresent(notification -> {
+            updateLatestNotification();
+            if (notification.getId() <= 0) {
+                return;
+            }
+            if (notification.isRead()) {
+                lastPoppedNotificationId = Math.max(lastPoppedNotificationId, notification.getId());
+                return;
+            }
+            if (notification.getId() == lastPoppedNotificationId) {
+                return;
+            }
+            lastPoppedNotificationId = notification.getId();
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Notification");
+                alert.setHeaderText(notification.getTitle());
+                alert.setContentText(notification.getMessage());
+                alert.show();
+            });
+            try {
+                userNotificationService.markAsRead(notification.getId());
+            } catch (Exception ignored) {
+            }
+        });
     }
 
     private void configureLists() {
@@ -123,46 +221,40 @@ public class ImprevusFrontController {
             updateSelectedEventHint();
         });
 
-        casReelsListView.setItems(casReelsList);
-        casReelsListView.setCellFactory(list -> new ListCell<>() {
-            @Override
-            protected void updateItem(CasRelles item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setGraphic(null);
-                    return;
-                }
-                Label title = new Label(item.getTitre());
-                title.getStyleClass().add("list-card-title");
-                Label meta = new Label(getSourceLabel(item) + " - " + item.getType() + " - " + formatMontant(item.getMontant()));
-                meta.getStyleClass().add("list-card-subtitle");
-                Label state = new Label(item.getResultat() == null ? CasReelService.STATUT_EN_ATTENTE : item.getResultat());
-                state.getStyleClass().add("status-badge");
-                Button editButton = new Button("Modifier");
-                editButton.getStyleClass().add("mini-outline-button");
-                editButton.setOnAction(event -> {
+        casReelsTableView.setItems(casReelsList);
+        casReelsTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+        casReelsTableView.setFixedCellSize(38);
+        casReelsTableView.setPlaceholder(new Label("No case history yet."));
+        historyDateColumn.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getDateEffet() == null ? "-" : cell.getValue().getDateEffet().toString()));
+        historyTitleColumn.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTitre()));
+        historyTypeColumn.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getType()));
+        historyCategoryColumn.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getCategorie()));
+        historyAmountColumn.setCellValueFactory(cell -> new SimpleStringProperty(formatSignedMontant(cell.getValue())));
+        historySolutionColumn.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getPaymentMethod() == null ? "-" : cell.getValue().getPaymentMethod()));
+        historyStatusColumn.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getResultat() == null ? CasReelService.STATUT_EN_ATTENTE : cell.getValue().getResultat()));
+        historyJustificatifColumn.setCellValueFactory(cell -> new SimpleStringProperty(blankToDash(cell.getValue().getJustificatifFileName())));
+        historyTreatedByColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveTreatedBy(cell.getValue())));
+        historyTreatedAtColumn.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getConfirmedAt() == null ? "-" : cell.getValue().getConfirmedAt().toString().replace('T', ' ')));
+        historyRefusalReasonColumn.setCellValueFactory(cell -> new SimpleStringProperty(blankToDash(cell.getValue().getRaisonRefus())));
+        casReelsTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, selected) -> {
+            if (selected != null) {
+                afficherDetails(selected);
+            }
+        });
+        casReelsTableView.setRowFactory(table -> {
+            TableRow<CasRelles> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    CasRelles item = row.getItem();
                     casReelSelectionne = item;
                     remplirFormulaireDepuisCasReel(item);
                     afficherDetails(item);
                     saveCasButton.setText("Save changes");
-                    statusLabel.setText("Case loaded from My History. Update the form, then save.");
+                    statusLabel.setText("Case loaded from History. Update the form, then save.");
                     scrollToNode(caseFormCard);
-                });
-                Button deleteButton = new Button("Supprimer");
-                deleteButton.getStyleClass().addAll("light-button", "danger-light");
-                deleteButton.setOnAction(event -> supprimerDepuisListe(item));
-                Region spacer = new Region();
-                HBox.setHgrow(spacer, Priority.ALWAYS);
-                HBox actions = new HBox(10, spacer, editButton, deleteButton);
-                VBox box = new VBox(8, title, meta, state, actions);
-                box.getStyleClass().add("list-card-box");
-                setGraphic(box);
-            }
-        });
-        casReelsListView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, selected) -> {
-            if (selected != null) {
-                afficherDetails(selected);
-            }
+                }
+            });
+            return row;
         });
     }
 
@@ -260,6 +352,8 @@ public class ImprevusFrontController {
     private void refreshCasReels() {
         allCasReelsList.setAll(casReelService.afficher());
         updateStats();
+        updateRiskInsights();
+        updateLatestNotification();
         filtrerCasReels(searchCasReelsField == null ? "" : searchCasReelsField.getText());
     }
 
@@ -268,6 +362,11 @@ public class ImprevusFrontController {
         long accepted = allCasReelsList.stream().filter(cas -> CasReelService.STATUT_ACCEPTE.equals(cas.getResultat())).count();
         pendingCasesValueLabel.setText(String.valueOf(pending));
         acceptedCasesValueLabel.setText(String.valueOf(accepted));
+        if (currentUser != null && emergencyFundValueLabel != null) {
+            emergencyFundValueLabel.setText(formatMontant(casReelService.calculateEmergencyFundBalance(currentUser.getId())));
+        } else if (emergencyFundValueLabel != null) {
+            emergencyFundValueLabel.setText("0.00 DT");
+        }
     }
 
     private void remplirFormulaireDepuisCasReel(CasRelles cas) {
@@ -277,8 +376,10 @@ public class ImprevusFrontController {
         casMontantField.setText(String.valueOf(cas.getMontant()));
         justificatifField.setText(cas.getJustificatifFileName());
         dateEffetPicker.setValue(cas.getDateEffet());
+        paymentMethodComboBox.setValue(cas.getPaymentMethod() == null ? CasReelService.PAYMENT_EMERGENCY_FUND : cas.getPaymentMethod());
         imprevuSelectionne = cas.getImprevus();
         updateSelectedEventHint();
+        updateFundingControlsForType();
     }
 
     private CasRelles lireFormulaire() {
@@ -287,19 +388,27 @@ public class ImprevusFrontController {
         String montantText = safe(casMontantField);
         String description = safe(casDescriptionField);
         String justificatif = safe(justificatifField);
+        String paymentMethod = paymentMethodComboBox.getValue();
         LocalDate dateEffet = dateEffetPicker.getValue();
-        if (titre.length() < 3 || type == null || montantText.isBlank() || dateEffet == null) {
-            afficherErreur("Titre, type, montant et date sont obligatoires.");
+        if (titre.length() < 3 || type == null || montantText.isBlank() || dateEffet == null || paymentMethod == null) {
+            afficherErreur("Titre, type, montant, date et methode de paiement sont obligatoires.");
             return null;
         }
         double montant = parsePositiveDouble(montantText, "montant du cas reel");
         if (montant <= 0) {
             return null;
         }
-        return new CasRelles(imprevuSelectionne, titre, description, type,
+        CasRelles cas = new CasRelles(imprevuSelectionne, titre, description, type,
                 imprevuSelectionne == null ? "Manuel" : "Depuis imprevu",
                 montant, casReelSelectionne == null ? null : casReelSelectionne.getSolution(),
                 dateEffet, justificatif);
+        cas.setUser(currentUser);
+        cas.setPaymentMethod(paymentMethod);
+        if (currentUser != null) {
+            CaseFundingAdvice advice = casReelService.analyzeFundingChoice(currentUser.getId(), paymentMethod, montant);
+            cas.setAiRefusalSuggestion(advice.suggestion());
+        }
+        return cas;
     }
 
     private boolean isDuplicateCas(CasRelles cas) {
@@ -363,8 +472,46 @@ public class ImprevusFrontController {
         casDescriptionField.setTextFormatter(new TextFormatter<>(change -> change.getControlNewText().length() <= 250 ? change : null));
     }
 
+    private void updateFundingControlsForType() {
+        boolean isGain = "Gain".equalsIgnoreCase(casTypeComboBox.getValue());
+        if (isGain) {
+            paymentMethodComboBox.setValue(CasReelService.PAYMENT_EMERGENCY_FUND);
+        }
+        paymentMethodComboBox.setDisable(isGain);
+        refreshFundingAdvicePreview();
+    }
+
+    private void refreshFundingAdvicePreview() {
+        if (fundingAdviceLabel == null) {
+            return;
+        }
+        if (currentUser == null) {
+            fundingAdviceLabel.setText("Connecte un utilisateur pour analyser la source de financement.");
+            return;
+        }
+        String amountText = safe(casMontantField);
+        if (amountText.isBlank()) {
+            fundingAdviceLabel.setText("Choisis une methode de paiement pour voir le conseil intelligent.");
+            return;
+        }
+        double amount = parsePreviewDouble(amountText);
+        if (amount <= 0) {
+            fundingAdviceLabel.setText("Le conseil apparaitra quand le montant sera valide.");
+            return;
+        }
+        if ("Gain".equalsIgnoreCase(casTypeComboBox.getValue())) {
+            double emergencyAfter = casReelService.calculateEmergencyFundBalance(currentUser.getId()) + amount;
+            fundingAdviceLabel.setText(String.format(Locale.US,
+                    "Cas positif: ce montant peut alimenter l'Emergency Fund. Solde projete: %.2f DT.",
+                    emergencyAfter));
+            return;
+        }
+        CaseFundingAdvice advice = casReelService.analyzeFundingChoice(currentUser.getId(), paymentMethodComboBox.getValue(), amount);
+        fundingAdviceLabel.setText(advice.suggestion());
+    }
+
     private void appliquerSolution(String solution) {
-        CasRelles selected = casReelsListView.getSelectionModel().getSelectedItem();
+        CasRelles selected = casReelsTableView.getSelectionModel().getSelectedItem();
         if (selected == null) {
             statusLabel.setText("Select a case in My History first.");
             return;
@@ -410,10 +557,13 @@ public class ImprevusFrontController {
         casDescriptionField.clear();
         casMontantField.clear();
         justificatifField.clear();
+        paymentMethodComboBox.setValue(CasReelService.PAYMENT_EMERGENCY_FUND);
+        fundingAdviceLabel.setText("Choisis une methode de paiement pour voir le conseil intelligent.");
         dateEffetPicker.setValue(LocalDate.now());
         saveCasButton.setText("Add case");
         resetDetails();
         updateSelectedEventHint();
+        updateFundingControlsForType();
     }
 
     private void updateSelectedEventHint() {
@@ -432,6 +582,153 @@ public class ImprevusFrontController {
         return cas.getImprevus() == null ? "Manual case" : cas.getImprevus().getTitre();
     }
 
+    private String buildHistoryAuditLine(CasRelles cas) {
+        String decision = cas.getConfirmedAt() == null ? "Pas encore traite" : "Traite le " + cas.getConfirmedAt().toLocalDate();
+        String reason = cas.getRaisonRefus() == null || cas.getRaisonRefus().isBlank() ? "sans raison admin" : cas.getRaisonRefus();
+        String proof = cas.getJustificatifFileName() == null || cas.getJustificatifFileName().isBlank() ? "preuve: -" : "preuve: " + cas.getJustificatifFileName();
+        String advice = cas.getAiRefusalSuggestion() == null || cas.getAiRefusalSuggestion().isBlank() ? "" : " - conseil: " + cas.getAiRefusalSuggestion();
+        return decision + " - " + reason + " - " + proof + advice;
+    }
+
+    private void updateRiskInsights() {
+        if (futureRiskLabel == null) {
+            return;
+        }
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        Arrays.asList("Voiture", "Sante", "Maison", "Electronique", "Education", "Factures", "Autres")
+                .forEach(category -> counts.put(category, 0));
+
+        LocalDate now = LocalDate.now();
+        allCasReelsList.stream()
+                .filter(cas -> cas.getDateEffet() != null && ChronoUnit.DAYS.between(cas.getDateEffet(), now) <= 30)
+                .filter(cas -> "Depense".equalsIgnoreCase(cas.getType()))
+                .forEach(cas -> counts.compute(inferRiskCategory(cas), (key, value) -> value == null ? 1 : value + 1));
+
+        int total = counts.values().stream().mapToInt(Integer::intValue).sum();
+        int voiture = percent(counts.get("Voiture"), total);
+        int sante = percent(counts.get("Sante"), total);
+        int maison = percent(counts.get("Maison"), total);
+        int electronique = percent(counts.get("Electronique"), total);
+        int education = percent(counts.get("Education"), total);
+        int factures = percent(counts.get("Factures"), total);
+        int autres = percent(counts.get("Autres"), total);
+        int overallScore = Math.min(100, total * 18);
+
+        futureRiskLabel.setText((overallScore < 35 ? "Risque futur (30 jours): Faible" : overallScore < 70 ? "Risque futur (30 jours): Moyen" : "Risque futur (30 jours): Eleve")
+                + " (" + overallScore + "/100)");
+        voitureRiskLabel.setText("Voiture: " + voiture + "%");
+        santeRiskLabel.setText("Sante: " + sante + "%");
+        maisonRiskLabel.setText("Maison: " + maison + "%");
+        electroniqueRiskLabel.setText("Electronique: " + electronique + "%");
+        educationRiskLabel.setText("Education: " + education + "%");
+        facturesRiskLabel.setText("Factures: " + factures + "%");
+        autresRiskLabel.setText("Autres: " + autres + "%");
+
+        String dominant = counts.entrySet().stream().max(Map.Entry.comparingByValue()).filter(entry -> entry.getValue() > 0).map(Map.Entry::getKey).orElse(null);
+        if (dominant == null) {
+            weeklyAdviceLabel.setText("Pas de risque fort detecte: continue le suivi hebdomadaire pour garder cette stabilite.");
+            if (!hasMapsConfig()) {
+                appointmentSuggestionLabel.setText("Rendez-vous suggere: aucun rendez-vous prioritaire pour le moment. Ajoute LOCATIONIQ_API_KEY dans .env pour activer les suggestions maps.");
+            } else {
+                appointmentSuggestionLabel.setText("Rendez-vous suggere: aucun rendez-vous prioritaire pour le moment.");
+            }
+            return;
+        }
+
+        weeklyAdviceLabel.setText(buildWeeklyAdvice(dominant, overallScore));
+        appointmentSuggestionLabel.setText(buildAppointmentSuggestion(dominant));
+        loadNearbySuggestions(dominant);
+    }
+
+    private void updateLatestNotification() {
+        if (latestNotificationLabel == null) {
+            return;
+        }
+        if (currentUser == null || currentUser.getId() <= 0) {
+            latestNotificationLabel.setText("Notifications: connecte un utilisateur pour voir les alertes.");
+            return;
+        }
+        userNotificationService.findLatestByUserId(currentUser.getId())
+                .ifPresentOrElse(
+                        notification -> latestNotificationLabel.setText("Notification recente: " + notification.getTitle() + " - " + notification.getMessage()),
+                        () -> latestNotificationLabel.setText(hasMailConfig()
+                                ? "Notifications: aucune notification pour le moment."
+                                : "Notifications: actives dans l'app. Pour le mail, ajoute MAILER_DSN et MAILER_FROM_* dans .env.")
+                );
+    }
+
+    private int percent(int count, int total) {
+        return total <= 0 ? 0 : (int) Math.round((count * 100.0) / total);
+    }
+
+    private String inferRiskCategory(CasRelles cas) {
+        return casReelService.inferRiskCategory(
+                cas.getTitre(),
+                cas.getDescription(),
+                cas.getImprevus()
+        );
+    }
+
+    private String buildWeeklyAdvice(String dominant, int score) {
+        if ("Sante".equals(dominant)) {
+            return score >= 35
+                    ? "Conseils hebdomadaires: plusieurs signaux sante detectes. Garde un budget prevention et prevois un suivi medical regulier."
+                    : "Conseils hebdomadaires: risque sante leger detecte. Continue la prevention et garde une reserve medicale.";
+        }
+        if ("Voiture".equals(dominant)) {
+            return score >= 35
+                    ? "Conseils hebdomadaires: plusieurs depenses voiture detectees. Planifie un entretien preventif et surveille les frais recurrents."
+                    : "Conseils hebdomadaires: risque voiture leger detecte. Un controle mensuel peut eviter une panne plus lourde.";
+        }
+        return "Conseils hebdomadaires: le risque dominant est " + dominant + ". Continue le suivi hebdomadaire pour limiter les nouvelles occurrences.";
+    }
+
+    private String buildAppointmentSuggestion(String dominant) {
+        String city = currentUser == null || currentUser.getGeoCityName() == null || currentUser.getGeoCityName().isBlank()
+                ? "votre ville"
+                : currentUser.getGeoCityName();
+        if ("Sante".equals(dominant)) {
+            return "Rendez-vous suggere: si plusieurs maladies reviennent, prevois un bilan mensuel et cherche un medecin proche de " + city + ".";
+        }
+        if ("Voiture".equals(dominant)) {
+            return "Rendez-vous suggere: si plusieurs pannes voiture reviennent, planifie un entretien mensuel dans un garage proche de " + city + ".";
+        }
+        return "Rendez-vous suggere: pas de rendez-vous automatique fort, mais surveille les services proches de " + city + " si le risque augmente.";
+    }
+
+    private void loadNearbySuggestions(String dominant) {
+        if (!hasMapsConfig()) {
+            appointmentSuggestionLabel.setText(buildAppointmentSuggestion(dominant) + " Suggestions maps desactivees: ajoute LOCATIONIQ_API_KEY dans .env.");
+            return;
+        }
+        if (currentUser == null || currentUser.getGeoCityName() == null || currentUser.getGeoCityName().isBlank()) {
+            appointmentSuggestionLabel.setText(buildAppointmentSuggestion(dominant) + " Ajoute une ville utilisateur pour voir les lieux proches.");
+            return;
+        }
+        String city = currentUser.getGeoCityName();
+        appointmentSuggestionLabel.setText(buildAppointmentSuggestion(dominant) + " Chargement des lieux proches...");
+        CompletableFuture
+                .supplyAsync(() -> locationSuggestionService.suggestNearbyPlaces(dominant, city))
+                .thenAccept(suggestions -> Platform.runLater(() -> applyNearbySuggestions(dominant, suggestions)));
+    }
+
+    private void applyNearbySuggestions(String dominant, List<String> suggestions) {
+        String base = buildAppointmentSuggestion(dominant);
+        if (suggestions == null || suggestions.isEmpty()) {
+            appointmentSuggestionLabel.setText(base + " Aucun lieu suggere via maps pour le moment.");
+            return;
+        }
+        appointmentSuggestionLabel.setText(base + " Lieux proches: " + String.join(" | ", suggestions));
+    }
+
+    private boolean hasMailConfig() {
+        return AppEnv.has("MAILER_DSN") && AppEnv.has("MAILER_FROM_ADDRESS");
+    }
+
+    private boolean hasMapsConfig() {
+        return AppEnv.has("LOCATIONIQ_API_KEY");
+    }
+
     private boolean sameImprevu(Imprevus first, Imprevus second) {
         if (first == null || second == null) return first == null && second == null;
         return first.getId() == second.getId();
@@ -447,6 +744,14 @@ public class ImprevusFrontController {
             return value;
         } catch (NumberFormatException e) {
             afficherErreur("Le " + fieldLabel + " doit etre numerique.");
+            return -1;
+        }
+    }
+
+    private double parsePreviewDouble(String raw) {
+        try {
+            return Double.parseDouble(raw.replace(',', '.'));
+        } catch (NumberFormatException e) {
             return -1;
         }
     }
@@ -477,6 +782,25 @@ public class ImprevusFrontController {
 
     private String formatMontant(double montant) {
         return String.format(Locale.US, "%.2f DT", montant);
+    }
+
+    private String formatSignedMontant(CasRelles cas) {
+        double signed = "Depense".equalsIgnoreCase(cas.getType()) ? -Math.abs(cas.getMontant()) : Math.abs(cas.getMontant());
+        return String.format(Locale.US, "%+.2f DT", signed).replace('+', ' ').trim();
+    }
+
+    private String resolveTreatedBy(CasRelles cas) {
+        if (cas.getConfirmedBy() == null) {
+            return "-";
+        }
+        if (cas.getConfirmedBy().getNom() != null && !cas.getConfirmedBy().getNom().isBlank()) {
+            return cas.getConfirmedBy().getNom();
+        }
+        return blankToDash(cas.getConfirmedBy().getEmail());
+    }
+
+    private String blankToDash(String value) {
+        return value == null || value.isBlank() ? "-" : value;
     }
 
     private void scrollToNode(Node node) {
@@ -523,6 +847,7 @@ public class ImprevusFrontController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/back-office-view.fxml"));
             Scene scene = new Scene(loader.load(), 1500, 950);
             Stage stage = (Stage) imprevusListView.getScene().getWindow();
+            stage.setUserData(currentUser);
             stage.setScene(scene);
             stage.setTitle("Back Office - Imprevus et Cas reels");
             stage.show();

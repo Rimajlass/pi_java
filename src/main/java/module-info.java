@@ -2,7 +2,9 @@ module Pidev3A47 {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.sql;
+    requires java.net.http;
     requires mysql.connector.j;
+    requires jakarta.mail;
 
     exports pi.mains;
     exports pi.savings.ui;

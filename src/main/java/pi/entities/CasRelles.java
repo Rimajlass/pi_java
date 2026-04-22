@@ -22,6 +22,10 @@ public class CasRelles {
     private LocalDateTime confirmedAt;
     private String justificatifFileName;
     private LocalDateTime updatedAt;
+    private String paymentMethod;
+    private String adminNote;
+    private String aiRefusalSuggestion;
+    private LocalDateTime notificationSentAt;
 
     public CasRelles() {
     }
@@ -157,6 +161,22 @@ public class CasRelles {
     public LocalDateTime getUpdatedAt() { return this.updatedAt; }
 
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getPaymentMethod() { return this.paymentMethod; }
+
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+
+    public String getAdminNote() { return this.adminNote; }
+
+    public void setAdminNote(String adminNote) { this.adminNote = adminNote; }
+
+    public String getAiRefusalSuggestion() { return this.aiRefusalSuggestion; }
+
+    public void setAiRefusalSuggestion(String aiRefusalSuggestion) { this.aiRefusalSuggestion = aiRefusalSuggestion; }
+
+    public LocalDateTime getNotificationSentAt() { return this.notificationSentAt; }
+
+    public void setNotificationSentAt(LocalDateTime notificationSentAt) { this.notificationSentAt = notificationSentAt; }
 
     @Override
     public String toString() {

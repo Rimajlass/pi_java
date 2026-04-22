@@ -1,5 +1,6 @@
 package pi.controllers.ImprevusCasreelController;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -16,12 +17,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import pi.entities.CasRelles;
 import pi.entities.Imprevus;
+import pi.entities.User;
 import pi.mains.MainFx;
 import pi.services.ImprevusCasreelService.CasReelService;
 import pi.services.ImprevusCasreelService.ImprevusService;
+import pi.tools.AppEnv;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.Locale;
 
 public class ImprevusBackController {
@@ -32,8 +34,14 @@ public class ImprevusBackController {
     @FXML private Label casTitreLabel;
     @FXML private Label casMetaLabel;
     @FXML private Label casEtatLabel;
+    @FXML private Label casPaymentLabel;
+    @FXML private Label casAuditLabel;
+    @FXML private Label casAiSuggestionLabel;
+    @FXML private Label casNotificationLabel;
+    @FXML private Label systemStatusLabel;
     @FXML private TextArea casDescriptionArea;
     @FXML private TextField raisonRefusField;
+    @FXML private TextArea adminNoteArea;
 
     private final ImprevusService imprevusService = new ImprevusService();
     private final CasReelService casReelService = new CasReelService();
@@ -41,6 +49,7 @@ public class ImprevusBackController {
     private final ObservableList<CasRelles> casReels = FXCollections.observableArrayList();
     private Imprevus selectedImprevu;
     private CasRelles selectedCas;
+    private User currentAdmin;
 
     @FXML
     public void initialize() {
@@ -54,6 +63,7 @@ public class ImprevusBackController {
                 setText(empty || item == null ? null : item.getTitre());
             }
         });
+
         casListView.setCellFactory(list -> new ListCell<>() {
             @Override protected void updateItem(CasRelles item, boolean empty) {
                 super.updateItem(item, empty);
@@ -64,16 +74,24 @@ public class ImprevusBackController {
                 }
                 Label title = new Label(item.getTitre());
                 title.getStyleClass().add("list-card-title");
-                Label meta = new Label((item.getImprevus() == null ? "Manual case" : item.getImprevus().getTitre()) + " - " + item.getType() + " - " + String.format(Locale.US, "%.2f DT", item.getMontant()));
+                Label meta = new Label((item.getImprevus() == null ? "Manual case" : item.getImprevus().getTitre())
+                        + " - " + item.getType()
+                        + " - " + String.format(Locale.US, "%.2f DT", item.getMontant())
+                        + " - " + (item.getPaymentMethod() == null ? "-" : item.getPaymentMethod()));
                 meta.getStyleClass().add("list-card-meta");
+                Label audit = new Label(buildAuditLine(item));
+                audit.getStyleClass().add("list-card-meta");
                 Label status = new Label(item.getResultat() == null ? CasReelService.STATUT_EN_ATTENTE : item.getResultat());
                 status.getStyleClass().add(resolveStatusStyle(item.getResultat()));
-                VBox card = new VBox(6, title, meta, status);
+                VBox card = new VBox(6, title, meta, audit, status);
                 card.getStyleClass().add("list-card-box");
                 setText(null);
                 setGraphic(card);
             }
         });
+
+        Platform.runLater(this::resolveCurrentAdmin);
+        updateSystemStatus();
 
         imprevusListView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, selected) -> {
             selectedImprevu = selected;
@@ -133,9 +151,17 @@ public class ImprevusBackController {
             showError("Selectionne un cas reel a valider.");
             return;
         }
-        casReelService.changerStatut(selectedCas.getId(), CasReelService.STATUT_ACCEPTE, null);
+        int caseId = selectedCas.getId();
+        CasReelService.CaseWorkflowOutcome outcome = casReelService.changerStatutWithOutcome(
+                caseId,
+                CasReelService.STATUT_ACCEPTE,
+                null,
+                safe(adminNoteArea),
+                currentAdmin == null ? null : currentAdmin.getId()
+        );
         refreshCas();
-        reselectCase(selectedCas.getId());
+        reselectCase(caseId);
+        showWorkflowOutcome(outcome);
     }
 
     @FXML
@@ -149,9 +175,17 @@ public class ImprevusBackController {
             showError("Ajoute une raison de refus de 3 caracteres minimum.");
             return;
         }
-        casReelService.changerStatut(selectedCas.getId(), CasReelService.STATUT_REFUSE, raison);
+        int caseId = selectedCas.getId();
+        CasReelService.CaseWorkflowOutcome outcome = casReelService.changerStatutWithOutcome(
+                caseId,
+                CasReelService.STATUT_REFUSE,
+                raison,
+                safe(adminNoteArea),
+                currentAdmin == null ? null : currentAdmin.getId()
+        );
         refreshCas();
-        reselectCase(selectedCas.getId());
+        reselectCase(caseId);
+        showWorkflowOutcome(outcome);
     }
 
     @FXML
@@ -170,13 +204,6 @@ public class ImprevusBackController {
         showSelectedCase(selectedCas == null ? null : casReels.stream().filter(c -> c.getId() == selectedCas.getId()).findFirst().orElse(null));
     }
 
-    private double calculateLinkedBudget(Imprevus imprevu) {
-        return casReels.stream()
-                .filter(cas -> cas.getImprevus() != null && cas.getImprevus().getId() == imprevu.getId())
-                .mapToDouble(CasRelles::getMontant)
-                .sum();
-    }
-
     private void reselectCase(int id) {
         casReels.stream()
                 .filter(cas -> cas.getId() == id)
@@ -190,15 +217,27 @@ public class ImprevusBackController {
             casTitreLabel.setText("Select a case");
             casMetaLabel.setText("No case selected");
             casEtatLabel.setText("-");
+            casPaymentLabel.setText("Payment method: -");
+            casAuditLabel.setText("Processed by: -");
+            casAiSuggestionLabel.setText("AI suggestion: -");
+            casNotificationLabel.setText("Notification: -");
             casDescriptionArea.clear();
             raisonRefusField.clear();
+            adminNoteArea.clear();
             return;
         }
         casTitreLabel.setText(cas.getTitre());
         casMetaLabel.setText((cas.getImprevus() == null ? "Manual case" : cas.getImprevus().getTitre()) + " - " + cas.getType() + " - " + String.format(Locale.US, "%.2f DT", cas.getMontant()));
         casEtatLabel.setText(cas.getResultat() == null ? CasReelService.STATUT_EN_ATTENTE : cas.getResultat());
+        casPaymentLabel.setText("Payment method: " + (cas.getPaymentMethod() == null ? "-" : cas.getPaymentMethod()));
+        casAuditLabel.setText(buildAuditLine(cas));
+        casAiSuggestionLabel.setText("AI suggestion: " + (cas.getAiRefusalSuggestion() == null || cas.getAiRefusalSuggestion().isBlank() ? "-" : cas.getAiRefusalSuggestion()));
+        casNotificationLabel.setText("Notification: " + buildNotificationLine(cas));
         casDescriptionArea.setText(cas.getDescription());
-        raisonRefusField.setText(cas.getRaisonRefus() == null ? "" : cas.getRaisonRefus());
+        raisonRefusField.setText(cas.getRaisonRefus() == null || cas.getRaisonRefus().isBlank()
+                ? (cas.getAiRefusalSuggestion() == null ? "" : cas.getAiRefusalSuggestion())
+                : cas.getRaisonRefus());
+        adminNoteArea.setText(cas.getAdminNote() == null ? "" : cas.getAdminNote());
     }
 
     private String resolveStatusStyle(String statut) {
@@ -222,6 +261,50 @@ public class ImprevusBackController {
         return field.getText() == null ? "" : field.getText().trim();
     }
 
+    private String safe(TextArea area) {
+        return area.getText() == null ? "" : area.getText().trim();
+    }
+
+    private String buildAuditLine(CasRelles cas) {
+        String processedBy = cas.getConfirmedBy() == null
+                ? "-"
+                : (cas.getConfirmedBy().getNom() == null || cas.getConfirmedBy().getNom().isBlank()
+                ? cas.getConfirmedBy().getEmail()
+                : cas.getConfirmedBy().getNom());
+        String processedAt = cas.getConfirmedAt() == null ? "-" : cas.getConfirmedAt().toString().replace('T', ' ');
+        String reason = cas.getRaisonRefus() == null || cas.getRaisonRefus().isBlank() ? "No refusal reason" : cas.getRaisonRefus();
+        String proof = cas.getJustificatifFileName() == null || cas.getJustificatifFileName().isBlank() ? "-" : cas.getJustificatifFileName();
+        String advice = cas.getAiRefusalSuggestion() == null || cas.getAiRefusalSuggestion().isBlank() ? "-" : cas.getAiRefusalSuggestion();
+        return "Processed by: " + processedBy + " | at: " + processedAt + " | reason: " + reason + " | proof: " + proof + " | advice: " + advice;
+    }
+
+    private void resolveCurrentAdmin() {
+        Stage stage = (Stage) imprevusListView.getScene().getWindow();
+        Object userData = stage.getUserData();
+        if (userData instanceof User user) {
+            currentAdmin = user;
+        }
+    }
+
+    private void updateSystemStatus() {
+        if (systemStatusLabel == null) {
+            return;
+        }
+        String mailStatus = AppEnv.has("MAILER_DSN") && AppEnv.has("MAILER_FROM_ADDRESS") ? "mail actif" : "mail a configurer (.env)";
+        String mapsStatus = AppEnv.has("LOCATIONIQ_API_KEY") ? "maps actif" : "maps a configurer (.env)";
+        systemStatusLabel.setText("System status: " + mailStatus + " | " + mapsStatus + " | notif in-app active");
+    }
+
+    private String buildNotificationLine(CasRelles cas) {
+        if (cas.getNotificationSentAt() != null) {
+            return "mail sent at " + cas.getNotificationSentAt().toString().replace('T', ' ');
+        }
+        if (!AppEnv.has("MAILER_DSN") || !AppEnv.has("MAILER_FROM_ADDRESS")) {
+            return "mail not sent: MAILER_DSN / MAILER_FROM_* missing in .env";
+        }
+        return "in-app notification created, mail not confirmed yet";
+    }
+
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setHeaderText("Erreur");
@@ -229,10 +312,33 @@ public class ImprevusBackController {
         alert.showAndWait();
     }
 
+    private void showInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText(title);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showWorkflowOutcome(CasReelService.CaseWorkflowOutcome outcome) {
+        if (outcome == null) {
+            return;
+        }
+        if (outcome.notificationError() != null && !outcome.notificationError().isBlank()) {
+            showInfo("Notification", "Statut mis a jour, mais notification in-app: " + outcome.notificationError());
+        }
+        if (!outcome.emailSent()) {
+            String reason = outcome.emailError() == null || outcome.emailError().isBlank()
+                    ? "email non envoye (raison inconnue)"
+                    : outcome.emailError();
+            showInfo("Email", "Statut mis a jour, mais email non envoye: " + reason);
+        }
+    }
+
     private void switchScene(String resource, String title) {
         try {
             Stage stage = (Stage) imprevusListView.getScene().getWindow();
             FXMLLoader loader = new FXMLLoader(MainFx.class.getResource(resource));
+            stage.setUserData(currentAdmin);
             stage.setScene(new Scene(loader.load(), 1400, 900));
             stage.setTitle(title);
         } catch (IOException e) {

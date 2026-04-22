@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="980.0" prefWidth="1500.0" stylesheets="@styles/back-office.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.ImprevusCasreelController.ImprevusBackController">
+<BorderPane prefHeight="980.0" prefWidth="1500.0" stylesheets="@styles/back-office.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.ImprevusCasreelController.ImprevusBackController">
   <top>
     <VBox styleClass="top-shell">
       <padding><Insets bottom="0.0" left="28.0" right="28.0" top="22.0" /></padding>
@@ -85,14 +85,20 @@
                         <Label styleClass="panel-step" text="STEP 2" />
                         <Label styleClass="panel-title" text="Review Real Cases" />
                         <Label styleClass="page-subtitle" text="This area is only for case management and decision making. No add, modify, delete, and no table." wrapText="true" />
+                        <Label fx:id="systemStatusLabel" styleClass="system-banner" text="System status: notif in-app active | mail/maps selon .env" wrapText="true" />
                         <ListView fx:id="casListView" prefHeight="280.0" />
                         <Separator />
-                        <Label fx:id="casTitreLabel" styleClass="detail-title" text="Select a case" />
-                        <Label fx:id="casMetaLabel" styleClass="page-subtitle" text="No case selected" wrapText="true" />
-                        <Label fx:id="casEtatLabel" styleClass="status-pill" text="-" />
-                        <TextArea fx:id="casDescriptionArea" editable="false" prefHeight="130.0" promptText="Description du cas reel" wrapText="true" />
-                        <TextField fx:id="raisonRefusField" promptText="Raison de refus" />
-                        <HBox spacing="10.0">
+                         <Label fx:id="casTitreLabel" styleClass="detail-title" text="Select a case" />
+                         <Label fx:id="casMetaLabel" styleClass="page-subtitle" text="No case selected" wrapText="true" />
+                         <Label fx:id="casEtatLabel" styleClass="status-pill" text="-" />
+                         <Label fx:id="casPaymentLabel" styleClass="page-subtitle" text="Payment method: -" wrapText="true" />
+                         <Label fx:id="casAuditLabel" styleClass="page-subtitle" text="Processed by: -" wrapText="true" />
+                         <Label fx:id="casAiSuggestionLabel" styleClass="page-subtitle" text="AI suggestion: -" wrapText="true" />
+                         <Label fx:id="casNotificationLabel" styleClass="page-subtitle" text="Notification: -" wrapText="true" />
+                         <TextArea fx:id="casDescriptionArea" editable="false" prefHeight="130.0" promptText="Description du cas reel" wrapText="true" />
+                         <TextField fx:id="raisonRefusField" promptText="Raison de refus" />
+                         <TextArea fx:id="adminNoteArea" prefHeight="90.0" promptText="Note admin visible dans l'historique et dans le mail" wrapText="true" />
+                         <HBox spacing="10.0">
                           <children>
                             <Button onAction="#handleAcceptCas" styleClass="action-validate" text="Valider" HBox.hgrow="ALWAYS" />
                             <Button onAction="#handleRefuseCas" styleClass="action-refuse" text="Refuser" HBox.hgrow="ALWAYS" />

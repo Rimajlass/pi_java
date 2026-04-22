@@ -200,6 +200,11 @@
     -fx-border-width: 0 0 3 0;
 }
 
+.cyan-metric {
+    -fx-border-color: transparent transparent #08b7da transparent;
+    -fx-border-width: 0 0 3 0;
+}
+
 .red-metric {
     -fx-border-color: transparent transparent #f04d63 transparent;
     -fx-border-width: 0 0 3 0;
@@ -294,6 +299,28 @@
     -fx-font-weight: 700;
 }
 
+.advisor-pill {
+    -fx-background-color: #fff8e8;
+    -fx-border-color: #f5ddb0;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-padding: 12 14 12 14;
+    -fx-text-fill: #8b5c00;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.notification-banner {
+    -fx-background-color: linear-gradient(to right, #eef8ff, #f8fcff);
+    -fx-border-color: #cfe6fb;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-text-fill: #244261;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-padding: 12 16 12 16;
+}
+
 .strong-hint {
     -fx-font-size: 12px;
     -fx-text-fill: #4d647d;
@@ -305,8 +332,26 @@
 
 .explorer-card,
 .form-card,
-.history-card {
+.history-card,
+.risk-card {
     -fx-spacing: 14;
+}
+
+.risk-title {
+    -fx-text-fill: #17324d;
+    -fx-font-size: 22px;
+    -fx-font-weight: 800;
+}
+
+.risk-line {
+    -fx-text-fill: #4a627d;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+}
+
+.prominent-risk-card {
+    -fx-background-color: linear-gradient(to right, rgba(255,255,255,0.98), rgba(240,249,255,0.98));
+    -fx-border-color: rgba(12, 143, 179, 0.16);
 }
 
 .field-label,
@@ -561,4 +606,30 @@
 
 .table-view .column-header-background {
     -fx-background-color: #f7faff;
+}
+
+.table-view .column-header,
+.table-view .filler {
+    -fx-background-color: #f7faff;
+}
+
+.table-view .table-cell {
+    -fx-text-fill: #2b3d56;
+    -fx-font-size: 11px;
+    -fx-alignment: center-left;
+    -fx-padding: 6 8 6 8;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #415874;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.table-row-cell {
+    -fx-cell-size: 38px;
+}
+
+.table-row-cell:filled:selected {
+    -fx-background-color: #edf8ff;
 }
