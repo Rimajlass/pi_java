@@ -4,154 +4,109 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="980.0" prefWidth="1500.0" stylesheets="@styles/back-office.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.ImprevusCasreelController.ImprevusBackController">
-    <left>
-        <VBox prefWidth="280.0" styleClass="sidebar">
-            <padding>
-                <Insets bottom="20.0" left="16.0" right="16.0" top="20.0" />
-            </padding>
-            <children>
-                <Label styleClass="sidebar-brand" text="Decide$" />
-                <VBox spacing="8.0">
-                    <children>
-                        <Label styleClass="menu-item" text="Users" />
-                        <Label styleClass="menu-item" text="Transactions" />
-                        <Label styleClass="menu-item" text="Course &amp; Quiz" />
-                  <Label styleClass="menu-item" text="Imprevus &amp; Cas Reels" />
-                        <Label styleClass="menu-item" text="Real Cases" />
-                        <Label styleClass="menu-item" text="Revenues" />
-                        <Label styleClass="menu-item" text="Expenses" />
-                        <Label styleClass="menu-item" text="Reports" />
-                        <Label styleClass="menu-item" text="Investments" />
-                    </children>
+<BorderPane prefHeight="980.0" prefWidth="1500.0" stylesheets="@styles/back-office.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.ImprevusCasreelController.ImprevusBackController">
+  <top>
+    <VBox styleClass="top-shell">
+      <padding><Insets bottom="0.0" left="28.0" right="28.0" top="22.0" /></padding>
+      <children>
+        <HBox alignment="CENTER_LEFT" styleClass="top-nav">
+          <children>
+            <HBox alignment="CENTER_LEFT" spacing="12.0">
+              <children>
+                <Label styleClass="brand-badge" text="DS" />
+                <Label styleClass="brand-mark" text="Decide$" />
+              </children>
+            </HBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Label styleClass="workspace-title" text="Unexpected Events &amp; Real Cases Back Office" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button onAction="#handleGoFront" styleClass="header-start-btn" text="Go to Front" />
+          </children>
+        </HBox>
+      </children>
+    </VBox>
+  </top>
+  <center>
+    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="page-scroll" vbarPolicy="AS_NEEDED">
+      <content>
+        <VBox spacing="26.0" styleClass="back-root">
+          <padding>
+            <Insets bottom="28.0" left="30.0" right="30.0" top="24.0" />
+          </padding>
+          <children>
+            <VBox spacing="8.0" styleClass="hero-card">
+              <children>
+                <Label styleClass="page-title" text="Back Office Management" />
+                <Label styleClass="page-subtitle" text="New unexpected events are created with a default budget of 0. The displayed event budget is the total of all linked real cases." wrapText="true" />
+              </children>
+            </VBox>
+            <HBox alignment="TOP_CENTER" spacing="20.0">
+              <children>
+                <VBox prefWidth="470.0" spacing="18.0">
+                  <children>
+                    <VBox spacing="14.0" styleClass="panel-card">
+                      <padding>
+                        <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
+                      </padding>
+                      <children>
+                        <Label styleClass="panel-step" text="STEP 1" />
+                        <Label styleClass="panel-title" text="Manage Unexpected Events" />
+                        <Label styleClass="page-subtitle" text="Only the generic title is managed here. No manual budget entry." wrapText="true" />
+                        <TextField fx:id="imprevuTitreField" promptText="Titre generique de l'imprevu" />
+                        <ComboBox fx:id="imprevuTypeComboBox" promptText="Type" />
+                        <HBox spacing="10.0">
+                          <children>
+                            <Button onAction="#handleSaveImprevu" styleClass="action-primary" text="Ajouter / Modifier" HBox.hgrow="ALWAYS" />
+                            <Button onAction="#handleDeleteImprevu" styleClass="action-danger" text="Supprimer" HBox.hgrow="ALWAYS" />
+                          </children>
+                        </HBox>
+                        <ListView fx:id="imprevusListView" prefHeight="560.0" />
+                      </children>
+                    </VBox>
+                  </children>
                 </VBox>
-                <Region VBox.vgrow="ALWAYS" />
-                <Button mnemonicParsing="false" onAction="#handleGoFront" styleClass="sidebar-button" text="Go to Front" />
-            </children>
+                <VBox spacing="18.0" HBox.hgrow="ALWAYS">
+                  <children>
+                    <VBox spacing="14.0" styleClass="panel-card">
+                      <padding>
+                        <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
+                      </padding>
+                      <children>
+                        <Label styleClass="panel-step" text="STEP 2" />
+                        <Label styleClass="panel-title" text="Review Real Cases" />
+                        <Label styleClass="page-subtitle" text="This area is only for case management and decision making. No add, modify, delete, and no table." wrapText="true" />
+                        <ListView fx:id="casListView" prefHeight="280.0" />
+                        <Separator />
+                        <Label fx:id="casTitreLabel" styleClass="detail-title" text="Select a case" />
+                        <Label fx:id="casMetaLabel" styleClass="page-subtitle" text="No case selected" wrapText="true" />
+                        <Label fx:id="casEtatLabel" styleClass="status-pill" text="-" />
+                        <TextArea fx:id="casDescriptionArea" editable="false" prefHeight="130.0" promptText="Description du cas reel" wrapText="true" />
+                        <TextField fx:id="raisonRefusField" promptText="Raison de refus" />
+                        <HBox spacing="10.0">
+                          <children>
+                            <Button onAction="#handleAcceptCas" styleClass="action-validate" text="Valider" HBox.hgrow="ALWAYS" />
+                            <Button onAction="#handleRefuseCas" styleClass="action-refuse" text="Refuser" HBox.hgrow="ALWAYS" />
+                          </children>
+                        </HBox>
+                      </children>
+                    </VBox>
+                  </children>
+                </VBox>
+              </children>
+            </HBox>
+          </children>
         </VBox>
-    </left>
-    <center>
-        <VBox spacing="20.0" styleClass="back-root">
-            <padding>
-                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
-            </padding>
-            <children>
-                <HBox alignment="CENTER_LEFT">
-                    <children>
-                        <VBox spacing="4.0">
-                            <children>
-                                <Label styleClass="page-title" text="Unexpected Events &amp; Real Cases" />
-                                <Label styleClass="page-subtitle" text="Back office management for imprevus and cas reels" />
-                            </children>
-                        </VBox>
-                    </children>
-                </HBox>
-                <HBox spacing="20.0">
-                    <children>
-                        <VBox prefWidth="520.0" spacing="18.0">
-                            <children>
-                                <VBox spacing="14.0" styleClass="panel-card">
-                                    <padding>
-                                        <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
-                                    </padding>
-                                    <children>
-                                        <Label styleClass="panel-title" text="Gestion des Imprevus" />
-                                        <GridPane hgap="10.0" vgap="10.0">
-                                            <columnConstraints>
-                                                <ColumnConstraints hgrow="ALWAYS" />
-                                                <ColumnConstraints hgrow="ALWAYS" />
-                                            </columnConstraints>
-                                            <children>
-                                                <TextField fx:id="imprevuTitreField" promptText="Titre" GridPane.columnSpan="2" />
-                                                <ComboBox fx:id="imprevuTypeComboBox" promptText="Type" GridPane.rowIndex="1" />
-                                                <TextField fx:id="imprevuBudgetField" promptText="Budget" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                            </children>
-                                        </GridPane>
-                                        <HBox spacing="10.0">
-                                            <children>
-                                                <Button mnemonicParsing="false" onAction="#handleSaveImprevu" styleClass="action-primary" text="Ajouter / Modifier" HBox.hgrow="ALWAYS" />
-                                                <Button mnemonicParsing="false" onAction="#handleDeleteImprevu" styleClass="action-danger" text="Supprimer" HBox.hgrow="ALWAYS" />
-                                                <Button mnemonicParsing="false" onAction="#handleClearImprevu" styleClass="action-light" text="Vider" HBox.hgrow="ALWAYS" />
-                                            </children>
-                                        </HBox>
-                                        <TableView fx:id="imprevusTable" prefHeight="340.0">
-                                            <columns>
-                                                <TableColumn fx:id="imprevuIdColumn" prefWidth="45.0" text="#" />
-                                                <TableColumn fx:id="imprevuTitreColumn" prefWidth="180.0" text="TITRE" />
-                                                <TableColumn fx:id="imprevuTypeColumn" prefWidth="110.0" text="TYPE" />
-                                                <TableColumn fx:id="imprevuBudgetColumn" prefWidth="120.0" text="BUDGET" />
-                                            </columns>
-                                        </TableView>
-                                    </children>
-                                </VBox>
-                            </children>
-                        </VBox>
-                        <VBox spacing="18.0" HBox.hgrow="ALWAYS">
-                            <children>
-                                <VBox spacing="14.0" styleClass="panel-card">
-                                    <padding>
-                                        <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
-                                    </padding>
-                                    <children>
-                                        <Label styleClass="panel-title" text="Gestion des Cas Reels" />
-                                        <GridPane hgap="10.0" vgap="10.0">
-                                            <columnConstraints>
-                                                <ColumnConstraints hgrow="ALWAYS" />
-                                                <ColumnConstraints hgrow="ALWAYS" />
-                                            </columnConstraints>
-                                            <children>
-                                                <ComboBox fx:id="casImprevuComboBox" promptText="Associer a un imprevu (optionnel)" GridPane.columnSpan="2" />
-                                                <TextField fx:id="casTitreField" promptText="Titre du cas reel" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-                                                <ComboBox fx:id="casTypeComboBox" promptText="Type" GridPane.rowIndex="2" />
-                                                <TextField fx:id="casMontantField" promptText="Montant" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                                <TextField fx:id="casDateField" promptText="Date (YYYY-MM-DD)" GridPane.columnSpan="2" GridPane.rowIndex="3" />
-                                                <TextArea fx:id="casDescriptionField" prefHeight="80.0" promptText="Description" wrapText="true" GridPane.columnSpan="2" GridPane.rowIndex="4" />
-                                                <TextField fx:id="casJustificatifField" promptText="Justificatif (optionnel)" GridPane.columnSpan="2" GridPane.rowIndex="5" />
-                                                <TextField fx:id="raisonRefusField" promptText="Raison de refus (optionnel)" GridPane.columnSpan="2" GridPane.rowIndex="6" />
-                                            </children>
-                                        </GridPane>
-                                        <HBox spacing="10.0">
-                                            <children>
-                                                <Button mnemonicParsing="false" onAction="#handleSaveCas" styleClass="action-primary" text="Ajouter / Modifier" HBox.hgrow="ALWAYS" />
-                                                <Button mnemonicParsing="false" onAction="#handleDeleteCas" styleClass="action-danger" text="Supprimer" HBox.hgrow="ALWAYS" />
-                                                <Button mnemonicParsing="false" onAction="#handleClearCas" styleClass="action-light" text="Vider" HBox.hgrow="ALWAYS" />
-                                                <Button mnemonicParsing="false" onAction="#handleAcceptCas" styleClass="action-validate" text="Valider" HBox.hgrow="ALWAYS" />
-                                            </children>
-                                        </HBox>
-                                        <HBox spacing="10.0">
-                                            <children>
-                                                <Button mnemonicParsing="false" onAction="#handleRefuseCas" styleClass="action-refuse" text="Refuser" HBox.hgrow="ALWAYS" />
-                                            </children>
-                                        </HBox>
-                                        <TableView fx:id="casTable" prefHeight="360.0">
-                                            <columns>
-                                                <TableColumn fx:id="casIdColumn" prefWidth="45.0" text="#" />
-                                                <TableColumn fx:id="casTitreColumn" prefWidth="170.0" text="TITRE" />
-                                                <TableColumn fx:id="casTypeColumn" prefWidth="90.0" text="TYPE" />
-                                                <TableColumn fx:id="casMontantColumn" prefWidth="100.0" text="MONTANT" />
-                                                <TableColumn fx:id="casImprevuColumn" prefWidth="170.0" text="IMPREVU" />
-                                                <TableColumn fx:id="casStatutColumn" prefWidth="120.0" text="ETAT" />
-                                            </columns>
-                                        </TableView>
-                                    </children>
-                                </VBox>
-                            </children>
-                        </VBox>
-                    </children>
-                </HBox>
-            </children>
-        </VBox>
-    </center>
+      </content>
+    </ScrollPane>
+  </center>
 </BorderPane>
