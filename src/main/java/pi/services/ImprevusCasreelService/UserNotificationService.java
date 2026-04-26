@@ -94,6 +94,54 @@ public class UserNotificationService {
         }
     }
 
+    /**
+     * Notifies every user account that looks like an admin (ROLE_ADMIN in roles JSON).
+     */
+    public void notifyAdminUsers(String title, String message, String statusToken) {
+        for (Integer adminId : findAdminUserIds()) {
+            User admin = new User();
+            admin.setId(adminId);
+            create(new UserNotification(
+                    admin,
+                    truncateTitle(title),
+                    message,
+                    statusToken == null || statusToken.isBlank() ? "ADMIN" : statusToken,
+                    false,
+                    LocalDateTime.now()
+            ));
+        }
+    }
+
+    private String truncateTitle(String title) {
+        if (title == null) {
+            return "";
+        }
+        if (title.length() <= 180) {
+            return title;
+        }
+        return title.substring(0, 177) + "...";
+    }
+
+    private List<Integer> findAdminUserIds() {
+        String sql = """
+                SELECT id FROM `user`
+                WHERE roles LIKE '%ROLE_ADMIN%'
+                   OR LOWER(roles) LIKE '%"admin"%'
+                   OR LOWER(roles) LIKE '%admin%'
+                LIMIT 50
+                """;
+        List<Integer> ids = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                ids.add(resultSet.getInt("id"));
+            }
+        } catch (SQLException exception) {
+            throw new RuntimeException("Impossible de lister les admins : " + exception.getMessage(), exception);
+        }
+        return ids;
+    }
+
     private UserNotification map(ResultSet resultSet) throws SQLException {
         User user = new User();
         user.setId(resultSet.getInt("user_id"));

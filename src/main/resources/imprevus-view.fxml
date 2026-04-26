@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
@@ -19,120 +20,306 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="1080.0" prefWidth="1512.0" stylesheets="@styles/imprevus.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.ImprevusCasreelController.ImprevusFrontController">
-  <center>
-    <ScrollPane fx:id="pageScrollPane" fitToWidth="true" hbarPolicy="NEVER" pannable="true" styleClass="page-scroll" vbarPolicy="AS_NEEDED">
-      <content>
-        <VBox spacing="0.0" styleClass="page-shell">
-          <children>
-            <VBox styleClass="top-shell">
-              <children>
-                <HBox alignment="CENTER_LEFT" styleClass="top-nav">
-                  <children>
-                    <HBox alignment="CENTER_LEFT" spacing="12.0"><children><Label styleClass="brand-badge" text="DS" /><Label styleClass="brand-mark" text="Decide$" /></children></HBox>
-                    <HBox alignment="CENTER" spacing="30.0" styleClass="nav-links">
-                      <children>
-                        <Button onAction="#handleOpenHome" styleClass="header-nav-btn" text="Home" />
-                        <Button onAction="#handleOpenAbout" styleClass="header-nav-btn" text="About" />
-                        <Button onAction="#handleOpenService" styleClass="header-nav-btn" text="Service" />
-                        <Button onAction="#handleOpenContact" styleClass="header-nav-btn" text="Contact" />
-                      </children>
-                    </HBox>
-                    <Region HBox.hgrow="ALWAYS" />
-                    <HBox alignment="CENTER_RIGHT" spacing="12.0">
-                      <children>
-                        <HBox alignment="CENTER" spacing="10.0" styleClass="profile-pill"><children><Label styleClass="profile-icon" text="S" /><Label styleClass="profile-name" text="Unexpected Cases Workspace" /></children></HBox>
-                        <Button onAction="#handleGoBack" styleClass="header-start-btn" text="Back Office" />
-                        <Button onAction="#handleLogout" styleClass="header-logout-btn" text="Logout" />
-                      </children>
-                    </HBox>
-                  </children>
-                </HBox>
-              </children>
-            </VBox>
-            <VBox prefHeight="460.0" prefWidth="1494.0" spacing="18.0" styleClass="intro-card">
-              <padding><Insets bottom="36.0" left="34.0" right="34.0" top="36.0" /></padding>
-              <children>
-                <VBox alignment="CENTER" spacing="24.0" styleClass="intro-overlay" VBox.vgrow="ALWAYS">
-                  <children>
-                    <VBox alignment="CENTER" maxWidth="940.0" spacing="14.0">
-                      <children>
-                        <Label styleClass="intro-title" text="Unexpected Events &amp; Real Cases" />
-                        <Label styleClass="intro-subtitle" text="Track unexpected events, create real cases, manage budgets, and monitor progress all in one place." wrapText="true" />
-                        <Label styleClass="intro-path" text="Home / Modules / Unexpected Events &amp; Real Cases" />
-                      </children>
-                    </VBox>
-                    <HBox alignment="CENTER" spacing="16.0" styleClass="hero-button-row">
-                      <children>
-                        <Button onAction="#handleFocusAddCase" prefHeight="52.0" prefWidth="180.0" styleClass="hero-chip" text="+ Add Case" />
-                        <Button onAction="#handleFocusHistory" prefHeight="52.0" prefWidth="180.0" styleClass="hero-chip alt-chip" text="Case History" />
-                      </children>
-                    </HBox>
-                  </children>
-                </VBox>
-              </children>
-            </VBox>
-            <VBox spacing="26.0" styleClass="content-shell">
-              <padding><Insets bottom="48.0" left="34.0" right="34.0" top="16.0" /></padding>
-              <children>
-                <HBox alignment="CENTER" spacing="18.0" styleClass="metrics-row">
-                  <children>
-                    <VBox prefHeight="164.0" prefWidth="320.0" styleClass="metric-card blue-metric"><padding><Insets bottom="24.0" left="24.0" right="24.0" top="24.0" /></padding><children><Label styleClass="metric-icon blue-icon" text="RISK" /><Label styleClass="metric-top" text="Unexpected Events Available" /><Label fx:id="totalImprevusValueLabel" styleClass="metric-value" text="0" /></children></VBox>
-                    <VBox prefHeight="164.0" prefWidth="320.0" styleClass="metric-card cyan-metric"><padding><Insets bottom="24.0" left="24.0" right="24.0" top="24.0" /></padding><children><Label styleClass="metric-icon blue-icon" text="FUND" /><Label styleClass="metric-top" text="Emergency Fund" /><Label fx:id="emergencyFundValueLabel" styleClass="metric-value" text="0.00 DT" /></children></VBox>
-                    <VBox prefHeight="164.0" prefWidth="320.0" styleClass="metric-card red-metric"><padding><Insets bottom="24.0" left="24.0" right="24.0" top="24.0" /></padding><children><Label styleClass="metric-icon red-icon" text="WAIT" /><Label styleClass="metric-top" text="Cases Waiting For Review" /><Label fx:id="pendingCasesValueLabel" styleClass="metric-value red-text" text="0" /></children></VBox>
-                    <VBox prefHeight="164.0" prefWidth="320.0" styleClass="metric-card green-metric"><padding><Insets bottom="24.0" left="24.0" right="24.0" top="24.0" /></padding><children><Label styleClass="metric-icon green-icon" text="OK" /><Label styleClass="metric-top" text="Accepted Cases" /><Label fx:id="acceptedCasesValueLabel" styleClass="metric-value green-text" text="0" /></children></VBox>
-                  </children>
-                </HBox>
-                <Label fx:id="latestNotificationLabel" styleClass="notification-banner" text="Notifications: aucune notification pour le moment." wrapText="true" />
-                <VBox spacing="16.0" styleClass="content-card risk-card prominent-risk-card">
-                  <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
-                  <children>
-                    <Label styleClass="step-badge" text="RISK AI" />
-                    <Label styleClass="card-title" text="Typologie des Risques Personnels" />
-                    <Label fx:id="futureRiskLabel" styleClass="risk-title" text="Risque futur (30 jours): Faible (0/100)" />
-                    <HBox spacing="24.0" styleClass="risk-grid">
-                      <children>
-                        <VBox spacing="10.0" HBox.hgrow="ALWAYS">
-                          <children>
-                            <Label fx:id="voitureRiskLabel" styleClass="risk-line" text="Voiture: 0%" />
-                            <Label fx:id="santeRiskLabel" styleClass="risk-line" text="Sante: 0%" />
-                            <Label fx:id="maisonRiskLabel" styleClass="risk-line" text="Maison: 0%" />
-                            <Label fx:id="electroniqueRiskLabel" styleClass="risk-line" text="Electronique: 0%" />
-                          </children>
+<BorderPane prefHeight="1080.0" prefWidth="1512.0" stylesheets="@styles/imprevus.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.ImprevusCasreelController.ImprevusFrontController">
+
+    <center>
+        <ScrollPane fx:id="pageScrollPane" fitToWidth="true" hbarPolicy="NEVER" pannable="true" styleClass="page-scroll" vbarPolicy="AS_NEEDED">
+            <content>
+                <VBox spacing="0.0" styleClass="page-shell">
+                    <children>
+
+                        <VBox styleClass="top-shell">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" styleClass="top-nav">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                            <children>
+                                                <Label styleClass="brand-badge" text="DS" />
+                                                <Label styleClass="brand-mark" text="Decide$" />
+                                            </children>
+                                        </HBox>
+
+                                        <HBox alignment="CENTER" spacing="30.0" styleClass="nav-links">
+                                            <children>
+                                                <Button onAction="#handleOpenHome" styleClass="header-nav-btn" text="Home" />
+                                                <Button onAction="#handleOpenAbout" styleClass="header-nav-btn" text="About" />
+                                                <Button onAction="#handleOpenService" styleClass="header-nav-btn" text="Service" />
+                                                <Button onAction="#handleOpenContact" styleClass="header-nav-btn" text="Contact" />
+                                            </children>
+                                        </HBox>
+
+                                        <Region HBox.hgrow="ALWAYS" />
+
+                                        <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                                            <children>
+                                                <HBox alignment="CENTER" spacing="10.0" styleClass="profile-pill">
+                                                    <children>
+                                                        <Label styleClass="profile-icon" text="S" />
+                                                        <Label styleClass="profile-name" text="Unexpected Cases Workspace" />
+                                                    </children>
+                                                </HBox>
+                                                <Button onAction="#handleGoBack" styleClass="header-start-btn" text="Back Office" />
+                                                <Button onAction="#handleLogout" styleClass="header-logout-btn" text="Logout" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </HBox>
+                            </children>
                         </VBox>
-                        <VBox spacing="10.0" HBox.hgrow="ALWAYS">
-                          <children>
-                            <Label fx:id="educationRiskLabel" styleClass="risk-line" text="Education: 0%" />
-                            <Label fx:id="facturesRiskLabel" styleClass="risk-line" text="Factures: 0%" />
-                            <Label fx:id="autresRiskLabel" styleClass="risk-line" text="Autres: 0%" />
-                          </children>
+
+                        <VBox prefHeight="460.0" prefWidth="1494.0" spacing="18.0" styleClass="intro-card">
+                            <padding>
+                                <Insets bottom="36.0" left="34.0" right="34.0" top="36.0" />
+                            </padding>
+                            <children>
+                                <VBox alignment="CENTER" spacing="24.0" styleClass="intro-overlay" VBox.vgrow="ALWAYS">
+                                    <children>
+                                        <VBox alignment="CENTER" maxWidth="940.0" spacing="14.0">
+                                            <children>
+                                                <Label styleClass="intro-title" text="Unexpected Events &amp; Real Cases" />
+                                                <Label styleClass="intro-subtitle" text="Track unexpected events, create real cases, manage budgets, and monitor progress all in one place." wrapText="true" />
+                                                <Label styleClass="intro-path" text="Home / Modules / Unexpected Events &amp; Real Cases" />
+                                            </children>
+                                        </VBox>
+
+                                        <HBox alignment="CENTER" spacing="16.0" styleClass="hero-button-row">
+                                            <children>
+                                                <Button onAction="#handleFocusAddCase" prefHeight="52.0" prefWidth="180.0" styleClass="hero-chip" text="+ Add Case" />
+                                                <Button onAction="#handleFocusHistory" prefHeight="52.0" prefWidth="180.0" styleClass="hero-chip alt-chip" text="Case History" />
+                                                <Button onAction="#handleShowStats" prefHeight="52.0" prefWidth="160.0" styleClass="hero-chip stats-chip" text="Stats" />
+                                                <Button onAction="#handleExportPdfBilan" prefHeight="52.0" prefWidth="180.0" styleClass="hero-chip report-chip" text="PDF Bilan" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </children>
                         </VBox>
-                      </children>
-                    </HBox>
-                    <Label fx:id="weeklyAdviceLabel" styleClass="advisor-pill" text="Conseils hebdomadaires: Pas de risque fort detecte: continue le suivi hebdomadaire pour garder cette stabilite." wrapText="true" />
-                    <Label fx:id="appointmentSuggestionLabel" styleClass="selected-event-pill" text="Rendez-vous suggere: aucun rendez-vous prioritaire pour le moment." wrapText="true" />
-                  </children>
+
+                        <VBox spacing="26.0" styleClass="content-shell">
+                            <padding>
+                                <Insets bottom="48.0" left="34.0" right="34.0" top="16.0" />
+                            </padding>
+                            <children>
+
+                                <HBox alignment="CENTER" spacing="18.0" styleClass="metrics-row">
+                                    <children>
+                                        <VBox prefHeight="164.0" prefWidth="320.0" styleClass="metric-card blue-metric">
+                                            <padding><Insets bottom="24.0" left="24.0" right="24.0" top="24.0" /></padding>
+                                            <children>
+                                                <Label styleClass="metric-icon blue-icon" text="RISK" />
+                                                <Label styleClass="metric-top" text="Unexpected Events Available" />
+                                                <Label fx:id="totalImprevusValueLabel" styleClass="metric-value" text="0" />
+                                            </children>
+                                        </VBox>
+
+                                              <VBox prefHeight="164.0" prefWidth="320.0" styleClass="metric-card cyan-metric">
+                                            <padding>
+                                    <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                                 </padding>
+                                            <children>
+                                                <Label styleClass="metric-icon blue-icon" text="FUND" />
+                                                <Label styleClass="metric-top" text="Emergency Fund" />
+                                                <Label fx:id="emergencyFundValueLabel" styleClass="metric-value" text="0.00 DT" />
+                                            </children>
+                                        </VBox>
+
+                                        <VBox prefHeight="164.0" prefWidth="320.0" styleClass="metric-card red-metric">
+                                            <padding><Insets bottom="24.0" left="24.0" right="24.0" top="24.0" /></padding>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+
+                                <Label fx:id="latestNotificationLabel" styleClass="notification-banner" text="Notifications: aucune notification pour le moment." wrapText="true" />
+
+                                <VBox spacing="16.0" styleClass="content-card risk-card prominent-risk-card">
+                                    <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
+                                    <children>
+                                        <Label styleClass="step-badge" text="RISK AI" />
+                                        <Label styleClass="card-title" text="Typologie des Risques Personnels" />
+                                        <Label fx:id="futureRiskLabel" styleClass="risk-title" text="Risque futur (30 jours): Faible (0/100)" />
+
+                                        <HBox spacing="24.0" styleClass="risk-grid">
+                                            <children>
+                                                <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label fx:id="voitureRiskLabel" styleClass="risk-line" text="Voiture: 0%" />
+                                                        <Label fx:id="santeRiskLabel" styleClass="risk-line" text="Sante: 0%" />
+                                                        <Label fx:id="maisonRiskLabel" styleClass="risk-line" text="Maison: 0%" />
+                                                        <Label fx:id="electroniqueRiskLabel" styleClass="risk-line" text="Electronique: 0%" />
+                                                    </children>
+                                                </VBox>
+
+                                                <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label fx:id="educationRiskLabel" styleClass="risk-line" text="Education: 0%" />
+                                                        <Label fx:id="facturesRiskLabel" styleClass="risk-line" text="Factures: 0%" />
+                                                        <Label fx:id="autresRiskLabel" styleClass="risk-line" text="Autres: 0%" />
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+
+                                        <Label fx:id="weeklyAdviceLabel" styleClass="advisor-pill" text="Conseils hebdomadaires: Pas de risque fort detecte: continue le suivi hebdomadaire pour garder cette stabilite." wrapText="true" />
+                                        <Label fx:id="appointmentSuggestionLabel" styleClass="selected-event-pill appointment-pill" text="Rendez-vous suggere: aucun rendez-vous prioritaire pour le moment." wrapText="true" />
+                                        <Hyperlink fx:id="appointmentCalendarLink" managed="false" onAction="#handleOpenAppointmentCalendar" text="Ajouter ce rendez-vous au calendrier" visible="false" />
+                                        <Label fx:id="nearbyPlacesLabel" styleClass="selected-event-pill places-pill" text="Lieux proches: aucun lieu recommande pour le moment." wrapText="true" />
+                                    </children>
+                                </VBox>
+
+                                <HBox alignment="TOP_CENTER" spacing="20.0" styleClass="module-grid">
+                                    <children>
+
+                                        <!-- LEFT -->
+                                        <VBox maxWidth="1.7976931348623157E308" spacing="18.0" HBox.hgrow="ALWAYS" prefWidth="400">
+                                            <children>
+                                                <VBox spacing="14.0" styleClass="content-card explorer-card" VBox.vgrow="ALWAYS">
+                                                    <padding><Insets bottom="18.0" left="18.0" right="18.0" top="18.0" /></padding>
+                                                    <children>
+                                                        <Label styleClass="step-badge" text="STEP 1" />
+                                                         <Label styleClass="card-title" text="Choose an Unexpected Event" />
+                                                         <Label styleClass="section-note" text="This selection gives context only. It does not auto-fill the real-case form." wrapText="true" />
+                                                         <Label fx:id="eventListSummaryLabel" styleClass="tiny-hint" text="0 events available" />
+                                                         <HBox spacing="12.0" styleClass="list-header-row">
+                                                             <children>
+                                                                 <Label styleClass="list-header-label" text="Event" HBox.hgrow="ALWAYS" />
+                                                                 <Label styleClass="list-header-label right" text="Budget" />
+                                                             </children>
+                                                         </HBox>
+ 
+                                                         <HBox spacing="10.0">
+                                                             <children>
+                                                                 <TextField fx:id="searchImprevusField" promptText="Search event title..." HBox.hgrow="ALWAYS" />
+                                                                <ComboBox fx:id="triImprevusComboBox" prefWidth="150.0" promptText="Sort" />
+                                                            </children>
+                                                        </HBox>
+
+                                                        <ListView fx:id="imprevusListView" prefHeight="540.0" VBox.vgrow="ALWAYS" />
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </VBox>
+
+                                        <!-- MIDDLE -->
+                                        <VBox fx:id="caseFormCard" maxWidth="1.7976931348623157E308" spacing="18.0" HBox.hgrow="ALWAYS" prefWidth="400">
+                                            <children>
+                                                 <VBox spacing="14.0" styleClass="content-card form-card" VBox.vgrow="ALWAYS">
+                                                     <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
+                                                     <children>
+                                                         <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                             <children>
+                                                                 <Label styleClass="step-badge" text="STEP 2" />
+                                                                 <Label fx:id="editorModeLabel" styleClass="editor-mode-pill" text="Create mode" />
+                                                             </children>
+                                                         </HBox>
+                                                         <Label styleClass="card-title" text="Add or Update a Real Case" />
+                                                         <Label styleClass="section-note" text="The real-case form is independent. If an event is selected, the new case can be linked to it without copying its information." wrapText="true" />
+                                                        <Label fx:id="selectedEventHintLabel" styleClass="selected-event-pill" text="No unexpected event selected" wrapText="true" />
+
+                                                        <GridPane hgap="10.0" vgap="10.0">
+                                                            <columnConstraints>
+                                                                <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                                                                <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                                                            </columnConstraints>
+
+                                                            <rowConstraints>
+                                                                <RowConstraints />
+                                                                <RowConstraints />
+                                                                <RowConstraints />
+                                                                <RowConstraints />
+                                                                <RowConstraints />
+                                                                <RowConstraints />
+                                                            </rowConstraints>
+
+                                                            <children>
+                                                                <TextField fx:id="casTitreField" maxWidth="1.7976931348623157E308" promptText="Case title" GridPane.columnSpan="2" />
+                                                                <ComboBox fx:id="casTypeComboBox" maxWidth="1.7976931348623157E308" promptText="Type" GridPane.rowIndex="1" />
+                                                                <TextField fx:id="casMontantField" maxWidth="1.7976931348623157E308" promptText="Amount (DT)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                                <ComboBox fx:id="paymentMethodComboBox" maxWidth="1.7976931348623157E308" promptText="Payment method" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+                                                                <DatePicker fx:id="dateEffetPicker" maxWidth="1.7976931348623157E308" GridPane.columnSpan="2" GridPane.rowIndex="3" />
+                                                                <TextArea fx:id="casDescriptionField" maxWidth="1.7976931348623157E308" prefHeight="120.0" promptText="Describe what happened and why this real case exists." wrapText="true" GridPane.columnSpan="2" GridPane.rowIndex="4" />
+                                                                <Button maxWidth="1.7976931348623157E308" onAction="#handleChoisirFichier" styleClass="file-button" text="Choose file" GridPane.rowIndex="5" />
+                                                                <TextField fx:id="justificatifField" editable="false" maxWidth="1.7976931348623157E308" promptText="Optional supporting file" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                                            </children>
+                                                        </GridPane>
+
+                                                        <Label fx:id="fundingAdviceLabel" styleClass="advisor-pill" text="Choisis une methode de paiement pour voir le conseil intelligent." wrapText="true" />
+
+                                                        <HBox spacing="10.0">
+                                                            <children>
+                                                                <Button fx:id="saveCasButton" maxWidth="1.7976931348623157E308" onAction="#handleSaveCase" styleClass="primary-wide-button" text="Add case" HBox.hgrow="ALWAYS" />
+                                                                <Button maxWidth="1.7976931348623157E308" onAction="#handleClearCase" styleClass="light-button" text="Clear editor" HBox.hgrow="ALWAYS" />
+                                                            </children>
+                                                        </HBox>
+
+                                                        <Label fx:id="statusLabel" styleClass="tiny-hint strong-hint" text="You can create a case without selecting an event, or link it to the selected event." wrapText="true" />
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </VBox>
+
+                                        <!-- RIGHT -->
+                                        <VBox fx:id="historyCard" maxWidth="1.7976931348623157E308" spacing="18.0" HBox.hgrow="ALWAYS" prefWidth="800">
+                                            <children>
+                                                <VBox spacing="12.0" styleClass="content-card history-card compact-history" VBox.vgrow="ALWAYS">
+                                                    <padding><Insets bottom="16.0" left="16.0" right="16.0" top="16.0" /></padding>
+                                                    <children>
+                                                        <Label styleClass="step-badge" text="STEP 3" />
+
+                                                        <HBox alignment="CENTER_LEFT" styleClass="history-toolbar">
+                                                            <children>
+                                                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                                                     <children>
+                                                                         <Label styleClass="card-title" text="History" />
+                                                                         <Label styleClass="section-note" text="Double-click a row to open it in the editor above." wrapText="true" />
+                                                                         <Label fx:id="historySummaryLabel" styleClass="tiny-hint" text="0 cases shown" />
+                                                                     </children>
+                                                                 </VBox>
+                                                                 <Button onAction="#handleShowStats" styleClass="toolbar-action-button ghost-action-button" text="Stats" />
+                                                                <Button onAction="#handleExportPdfBilan" styleClass="toolbar-action-button accent-action-button" text="PDF bilan" />
+                                                            </children>
+                                                        </HBox>
+
+                                                         <HBox spacing="10.0">
+                                                             <children>
+                                                                 <TextField fx:id="searchCasReelsField" promptText="Search a case..." HBox.hgrow="ALWAYS" />
+                                                                <ComboBox fx:id="triCasReelsComboBox" prefWidth="180.0" promptText="Sort" />
+                                                            </children>
+                                                        </HBox>
+
+                                                        <TableView fx:id="casReelsTableView"
+                                                                   prefHeight="450.0"
+                                                                   VBox.vgrow="ALWAYS">
+
+                                                            <columns>
+                                                                <TableColumn fx:id="historyDateColumn" text="Date" prefWidth="95.0" />
+                                                                <TableColumn fx:id="historyTitleColumn" text="Title" prefWidth="130.0" />
+                                                                <TableColumn fx:id="historyTypeColumn" text="Type" prefWidth="80.0" />
+                                                                <TableColumn fx:id="historyCategoryColumn" text="Categorie" prefWidth="110.0" />
+                                                                <TableColumn fx:id="historyAmountColumn" text="Amount" prefWidth="95.0" />
+                                                                <TableColumn fx:id="historySolutionColumn" text="Payment" prefWidth="120.0" />
+                                                                <TableColumn fx:id="historyStatusColumn" text="Status" prefWidth="95.0" />
+                                                                <TableColumn fx:id="historyJustificatifColumn" text="Proof" prefWidth="100.0" />
+                                                                <TableColumn fx:id="historyTreatedByColumn" text="Treated by" prefWidth="110.0" />
+                                                                <TableColumn fx:id="historyTreatedAtColumn" text="Treated at" prefWidth="130.0" />
+                                                                <TableColumn fx:id="historyRefusalReasonColumn" text="Refusal reason" prefWidth="150.0" />
+                                                            </columns>
+
+                                                        </TableView>
+
+                                                      </children>
+                                                  </VBox>
+                                              </children>
+                                         </VBox>
+
+                                    </children>
+                                </HBox>
+
+                            </children>
+                        </VBox>
+
+                    </children>
                 </VBox>
-                <HBox alignment="TOP_CENTER" spacing="20.0" styleClass="module-grid">
-                  <children>
-                    <VBox prefWidth="340.0" spacing="18.0"><children><VBox spacing="14.0" styleClass="content-card explorer-card"><padding><Insets bottom="18.0" left="18.0" right="18.0" top="18.0" /></padding><children><Label styleClass="step-badge" text="STEP 1" /><Label styleClass="card-title" text="Choose an Unexpected Event" /><Label styleClass="section-note" text="This selection gives context only. It does not auto-fill the real-case form." wrapText="true" /><HBox spacing="10.0"><children><TextField fx:id="searchImprevusField" promptText="Search event title..." HBox.hgrow="ALWAYS" /><ComboBox fx:id="triImprevusComboBox" prefWidth="150.0" promptText="Sort" /></children></HBox><ListView fx:id="imprevusListView" prefHeight="360.0" /></children></VBox></children></VBox>
-                    <VBox fx:id="caseFormCard" prefWidth="430.0" spacing="18.0"><children><VBox spacing="14.0" styleClass="content-card form-card"><padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding><children><Label styleClass="step-badge" text="STEP 2" /><Label styleClass="card-title" text="Add or Update a Real Case" /><Label styleClass="section-note" text="The real-case form is independent. If an event is selected, the new case can be linked to it without copying its information." wrapText="true" /><Label fx:id="selectedEventHintLabel" styleClass="selected-event-pill" text="No unexpected event selected" wrapText="true" /><GridPane hgap="10.0" vgap="10.0"><columnConstraints><ColumnConstraints hgrow="ALWAYS" /><ColumnConstraints hgrow="ALWAYS" /></columnConstraints><children><TextField fx:id="casTitreField" promptText="Case title" GridPane.columnSpan="2" /><ComboBox fx:id="casTypeComboBox" promptText="Type" GridPane.rowIndex="1" /><TextField fx:id="casMontantField" promptText="Amount (DT)" GridPane.columnIndex="1" GridPane.rowIndex="1" /><ComboBox fx:id="paymentMethodComboBox" promptText="Payment method" GridPane.columnSpan="2" GridPane.rowIndex="2" /><DatePicker fx:id="dateEffetPicker" GridPane.columnSpan="2" GridPane.rowIndex="3" /><TextArea fx:id="casDescriptionField" prefHeight="120.0" promptText="Describe what happened and why this real case exists." wrapText="true" GridPane.columnSpan="2" GridPane.rowIndex="4" /><Button onAction="#handleChoisirFichier" styleClass="file-button" text="Choose file" GridPane.rowIndex="5" /><TextField fx:id="justificatifField" editable="false" promptText="Optional supporting file" GridPane.columnIndex="1" GridPane.rowIndex="5" /></children>
-                                             <rowConstraints>
-                                                 <RowConstraints />
-                                                 <RowConstraints />
-                                                 <RowConstraints />
-                                                 <RowConstraints />
-                                                 <RowConstraints />
-                                                 <RowConstraints />
-                                             </rowConstraints></GridPane><Label fx:id="fundingAdviceLabel" styleClass="advisor-pill" text="Choisis une methode de paiement pour voir le conseil intelligent." wrapText="true" /><HBox spacing="10.0"><children><Button fx:id="saveCasButton" onAction="#handleSaveCase" styleClass="primary-wide-button" text="Add case" HBox.hgrow="ALWAYS" /><Button onAction="#handleClearCase" styleClass="light-button" text="Clear editor" HBox.hgrow="ALWAYS" /></children></HBox><Label fx:id="statusLabel" styleClass="tiny-hint strong-hint" text="You can create a case without selecting an event, or link it to the selected event." wrapText="true" /></children></VBox></children></VBox>
-                    <VBox fx:id="historyCard" spacing="18.0" HBox.hgrow="ALWAYS"><children><VBox spacing="12.0" styleClass="content-card history-card compact-history"><padding><Insets bottom="16.0" left="16.0" right="16.0" top="16.0" /></padding><children><Label styleClass="step-badge" text="STEP 3" /><Label styleClass="card-title" text="History" /><Label styleClass="section-note" text="Double-click a row to reload it in the editor." wrapText="true" /><HBox spacing="10.0"><children><TextField fx:id="searchCasReelsField" promptText="Search a case..." HBox.hgrow="ALWAYS" /><ComboBox fx:id="triCasReelsComboBox" prefWidth="180.0" promptText="Sort" /></children></HBox><TableView fx:id="casReelsTableView" prefHeight="292.0"><columns><TableColumn fx:id="historyDateColumn" prefWidth="85.0" text="Date" /><TableColumn fx:id="historyTitleColumn" prefWidth="105.0" text="Title" /><TableColumn fx:id="historyTypeColumn" prefWidth="72.0" text="Type" /><TableColumn fx:id="historyCategoryColumn" prefWidth="95.0" text="Categorie" /><TableColumn fx:id="historyAmountColumn" prefWidth="86.0" text="Amount" /><TableColumn fx:id="historySolutionColumn" prefWidth="118.0" text="Payment" /><TableColumn fx:id="historyStatusColumn" prefWidth="88.0" text="Status" /><TableColumn fx:id="historyJustificatifColumn" prefWidth="92.0" text="Proof" /><TableColumn fx:id="historyTreatedByColumn" prefWidth="95.0" text="Treated by" /><TableColumn fx:id="historyTreatedAtColumn" prefWidth="122.0" text="Treated at" /><TableColumn fx:id="historyRefusalReasonColumn" prefWidth="132.0" text="Refusal reason" /></columns></TableView></children></VBox></children></VBox>
-                  </children>
-                </HBox>
-              </children>
-            </VBox>
-          </children>
-        </VBox>
-      </content>
-    </ScrollPane>
-  </center>
+            </content>
+        </ScrollPane>
+    </center>
 </BorderPane>

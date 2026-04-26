@@ -3,6 +3,7 @@ module Pidev3A47 {
     requires javafx.fxml;
     requires java.sql;
     requires java.net.http;
+    requires java.desktop;
     requires mysql.connector.j;
     requires jakarta.mail;
 

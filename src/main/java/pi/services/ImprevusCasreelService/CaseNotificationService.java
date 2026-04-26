@@ -10,9 +10,13 @@ import pi.entities.CasRelles;
 import pi.entities.User;
 import pi.tools.AppEnv;
 
+import java.util.List;
 import java.util.Properties;
 
 public class CaseNotificationService {
+
+    private final LocationSuggestionService locationSuggestionService = new LocationSuggestionService();
+    private final AppointmentSuggestionService appointmentSuggestionService = new AppointmentSuggestionService();
 
     public record EmailSendResult(boolean sent, String failureReason) {
         public static EmailSendResult ok() {
@@ -31,6 +35,77 @@ public class CaseNotificationService {
     /**
      * Sends the decision email and returns a structured result (useful to show admin-facing errors).
      */
+    /**
+     * Proactive email when similar risk events repeat (health, car, home): suggests a monthly follow-up and nearby places.
+     */
+    public EmailSendResult sendRecurrenceRiskEmail(User user, String riskCategory, int occurrencesInWindow,
+                                                   String monthlySuggestion, List<String> nearbyPlaces) {
+        if (user == null || user.getEmail() == null || user.getEmail().isBlank()) {
+            return EmailSendResult.fail("missing recipient email");
+        }
+        MailConfig config = MailConfig.load();
+        if (!config.isComplete()) {
+            return EmailSendResult.fail("SMTP config incomplete");
+        }
+        try {
+            Properties properties = new Properties();
+            properties.put("mail.smtp.auth", "true");
+            properties.put("mail.smtp.starttls.enable", config.tls ? "true" : "false");
+            if (config.tls) {
+                properties.put("mail.smtp.starttls.required", "true");
+            }
+            properties.put("mail.smtp.host", config.host);
+            properties.put("mail.smtp.port", String.valueOf(config.port));
+            properties.put("mail.smtp.ssl.trust", config.host);
+
+            Session session = Session.getInstance(properties, new jakarta.mail.Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(config.username, config.password);
+                }
+            });
+
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(config.fromAddress, config.fromName));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(user.getEmail()));
+            message.setSubject("Decide$ - suivi preventif (" + riskCategory + ")");
+            message.setText(buildRecurrenceBody(user, riskCategory, occurrencesInWindow, monthlySuggestion, nearbyPlaces));
+            Transport.send(message);
+            return EmailSendResult.ok();
+        } catch (Exception exception) {
+            return EmailSendResult.fail(exception.getMessage());
+        }
+    }
+
+    private String buildRecurrenceBody(User user, String riskCategory, int occurrences, String monthlySuggestion, List<String> nearbyPlaces) {
+        String name = user.getNom() == null || user.getNom().isBlank() ? user.getEmail() : user.getNom();
+        AppointmentSuggestionService.AppointmentSuggestion appointment = appointmentSuggestionService.suggest(riskCategory, "risque " + riskCategory, monthlySuggestion, user);
+        String places = nearbyPlaces == null || nearbyPlaces.isEmpty()
+                ? "(Activez LOCATIONIQ_API_KEY dans .env pour des suggestions de lieux pres de vous.)"
+                : String.join("\n  - ", nearbyPlaces);
+        return """
+                Bonjour %s,
+
+                Nous constatons que plusieurs evenements lies a "%s" sont survenus recemment sur votre compte (%d occurrences sur la periode analysee).
+
+                D'apres la topologie des risques et votre historique, nous vous proposons immediatement :
+                %s
+
+                Un rendez-vous est recommande :
+                %s
+                Pourquoi : %s
+                Types de lieux utiles : %s
+                Ajouter au calendrier : %s
+
+                Exemples de lieux / prestataires a proximite (selon vos APIs) :
+                - %s
+
+                Un rendez-vous mensuel (medical, entretien, inspection selon le cas) peut reduire les surprises et mieux lisser vos depenses.
+
+                L'equipe Decide$
+                """.formatted(name, riskCategory, occurrences, monthlySuggestion, appointment.description(), appointment.reason(), String.join(", ", appointment.placeTypesNeeded()), appointment.calendarUrl(), places);
+    }
+
     public EmailSendResult sendDecisionEmailDetailed(CasRelles cas, User user) {
         if (cas == null || user == null || user.getEmail() == null || user.getEmail().isBlank()) {
             return EmailSendResult.fail("missing recipient email on case user");
@@ -93,17 +168,35 @@ public class CaseNotificationService {
                 : (cas.getConfirmedBy().getNom() == null || cas.getConfirmedBy().getNom().isBlank()
                 ? cas.getConfirmedBy().getEmail()
                 : cas.getConfirmedBy().getNom());
+        String city = user.getGeoCityName() == null || user.getGeoCityName().isBlank()
+                ? defaultSuggestionCity()
+                : user.getGeoCityName();
+        String riskCategory = new CasReelService().inferRiskCategory(cas.getTitre(), cas.getDescription(), cas.getImprevus());
+        AppointmentSuggestionService.AppointmentSuggestion appointment = appointmentSuggestionService.suggest(riskCategory, cas.getTitre(), cas.getDescription(), user);
+        List<String> places = locationSuggestionService.suggestNearbyPlacesForNeeds(appointment.placeTypesNeeded(), city);
+        String placesText = places == null || places.isEmpty()
+                ? "Aucun lieu recommande pour le moment (verifie LOCATIONIQ_API_KEY dans .env)."
+                : String.join(" | ", places);
 
         return """
-                Hello %s,
+                Bonjour %s,
 
-                Your real case "%s" has been processed.
+                Votre cas reel "%s" a ete traite.
 
-                Status: %s
-                Payment method: %s
-                Processed by: %s
-                Reason for refusal: %s
-                Admin note: %s
+                Statut: %s
+                Affectation: %s
+                Traite par: %s
+                Raison de refus: %s
+                Note admin: %s
+
+                Un rendez-vous est recommande :
+                %s
+                Pourquoi: %s
+                Types de lieux utiles: %s
+                Ajouter au calendrier : %s
+
+                Meilleurs lieux suggeres :
+                %s
 
                 Decide$ Finance Bot
                 """.formatted(
@@ -113,8 +206,18 @@ public class CaseNotificationService {
                 cas.getPaymentMethod() == null ? "-" : cas.getPaymentMethod(),
                 processedBy == null ? "Admin" : processedBy,
                 cas.getRaisonRefus() == null || cas.getRaisonRefus().isBlank() ? "-" : cas.getRaisonRefus(),
-                cas.getAdminNote() == null || cas.getAdminNote().isBlank() ? "-" : cas.getAdminNote()
+                cas.getAdminNote() == null || cas.getAdminNote().isBlank() ? "-" : cas.getAdminNote(),
+                appointment.description(),
+                appointment.reason(),
+                String.join(", ", appointment.placeTypesNeeded()),
+                appointment.calendarUrl(),
+                placesText
         );
+    }
+
+    private String defaultSuggestionCity() {
+        String city = AppEnv.get("DEFAULT_SUGGESTION_CITY");
+        return city == null || city.isBlank() ? "Tunis" : city.trim();
     }
 
     private static final class MailConfig {
@@ -207,3 +310,4 @@ public class CaseNotificationService {
         }
     }
 }
+

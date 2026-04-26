@@ -1,5 +1,7 @@
 package pi.controllers.ImprevusCasreelController;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,12 +17,15 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import pi.entities.CasRelles;
 import pi.entities.Imprevus;
 import pi.entities.User;
+import pi.entities.UserNotification;
 import pi.mains.MainFx;
 import pi.services.ImprevusCasreelService.CasReelService;
 import pi.services.ImprevusCasreelService.ImprevusService;
+import pi.services.ImprevusCasreelService.UserNotificationService;
 import pi.tools.AppEnv;
 
 import java.io.IOException;
@@ -50,6 +55,9 @@ public class ImprevusBackController {
     private Imprevus selectedImprevu;
     private CasRelles selectedCas;
     private User currentAdmin;
+    private final UserNotificationService adminNotificationService = new UserNotificationService();
+    private Timeline adminNotificationPoller;
+    private int lastAdminPopupNotificationId = -1;
 
     @FXML
     public void initialize() {
@@ -107,6 +115,45 @@ public class ImprevusBackController {
 
         refreshImprevus();
         refreshCas();
+        Platform.runLater(this::startAdminNotificationPolling);
+    }
+
+    private void startAdminNotificationPolling() {
+        if (adminNotificationPoller != null) {
+            return;
+        }
+        adminNotificationPoller = new Timeline(new KeyFrame(Duration.seconds(5), e -> checkAdminPopupNotification()));
+        adminNotificationPoller.setCycleCount(Timeline.INDEFINITE);
+        adminNotificationPoller.play();
+    }
+
+    private void checkAdminPopupNotification() {
+        if (currentAdmin == null || currentAdmin.getId() <= 0) {
+            return;
+        }
+        adminNotificationService.findLatestByUserId(currentAdmin.getId()).ifPresent(this::maybePopupAdminNotification);
+    }
+
+    private void maybePopupAdminNotification(UserNotification notification) {
+        if (notification.getId() <= 0 || notification.isRead()) {
+            lastAdminPopupNotificationId = Math.max(lastAdminPopupNotificationId, notification.getId());
+            return;
+        }
+        if (notification.getId() == lastAdminPopupNotificationId) {
+            return;
+        }
+        lastAdminPopupNotificationId = notification.getId();
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Back-office");
+            alert.setHeaderText(notification.getTitle());
+            alert.setContentText(notification.getMessage());
+            alert.show();
+        });
+        try {
+            adminNotificationService.markAsRead(notification.getId());
+        } catch (Exception ignored) {
+        }
     }
 
     @FXML
@@ -247,6 +294,9 @@ public class ImprevusBackController {
         if (CasReelService.STATUT_REFUSE.equals(statut)) {
             return "status-refused";
         }
+        if (CasReelService.STATUT_EN_ATTENTE_ALLOCATION.equals(statut)) {
+            return "status-pending";
+        }
         return "status-pending";
     }
 
@@ -283,6 +333,7 @@ public class ImprevusBackController {
         Object userData = stage.getUserData();
         if (userData instanceof User user) {
             currentAdmin = user;
+            startAdminNotificationPolling();
         }
     }
 
@@ -325,6 +376,10 @@ public class ImprevusBackController {
         }
         if (outcome.notificationError() != null && !outcome.notificationError().isBlank()) {
             showInfo("Notification", "Statut mis a jour, mais notification in-app: " + outcome.notificationError());
+        }
+        if (outcome.decisionEmailSkippedByPolicy()) {
+            showInfo("Email", "Pas d'email de decision (politique allocation / validation auto — notifications in-app uniquement).");
+            return;
         }
         if (!outcome.emailSent()) {
             String reason = outcome.emailError() == null || outcome.emailError().isBlank()

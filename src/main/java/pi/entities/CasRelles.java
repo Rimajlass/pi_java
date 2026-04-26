@@ -26,6 +26,8 @@ public class CasRelles {
     private String adminNote;
     private String aiRefusalSuggestion;
     private LocalDateTime notificationSentAt;
+    /** When true, accept/refuse workflow skips the decision email (allocation review or auto-user path). */
+    private boolean suppressDecisionEmail;
 
     public CasRelles() {
     }
@@ -177,6 +179,10 @@ public class CasRelles {
     public LocalDateTime getNotificationSentAt() { return this.notificationSentAt; }
 
     public void setNotificationSentAt(LocalDateTime notificationSentAt) { this.notificationSentAt = notificationSentAt; }
+
+    public boolean isSuppressDecisionEmail() { return this.suppressDecisionEmail; }
+
+    public void setSuppressDecisionEmail(boolean suppressDecisionEmail) { this.suppressDecisionEmail = suppressDecisionEmail; }
 
     @Override
     public String toString() {

@@ -7,9 +7,8 @@ import pi.entities.SavingAccount;
 import pi.entities.User;
 import pi.savings.repository.FinancialGoalRepository;
 import pi.savings.repository.SavingAccountRepository;
+import pi.tools.AppEnv;
 import pi.tools.MyDatabase;
-import javafx.scene.control.Alert;
-import javafx.application.Platform;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -20,6 +19,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -30,8 +30,13 @@ import java.util.Optional;
 public class CasReelService {
 
     public static final String STATUT_EN_ATTENTE = "EN_ATTENTE";
+    /** Admin must arbitrate emergency fund vs savings (goal almost reached). */
+    public static final String STATUT_EN_ATTENTE_ALLOCATION = "EN_ATTENTE_ALLOCATION";
     public static final String STATUT_ACCEPTE = "ACCEPTE";
     public static final String STATUT_REFUSE = "REFUSE";
+
+    private static final int RECURRENCE_WINDOW_DAYS = 180;
+    private static final int RECURRENCE_MIN_EVENTS = 3;
     public static final String PAYMENT_EMERGENCY_FUND = "EMERGENCY_FUND";
     public static final String PAYMENT_SAVING_ACCOUNT = "SAVING_ACCOUNT";
 
@@ -40,12 +45,42 @@ public class CasReelService {
     private final FinancialGoalRepository financialGoalRepository;
     private final CaseNotificationService caseNotificationService;
     private final UserNotificationService userNotificationService;
+    private final LocationSuggestionService locationSuggestionService;
 
     public record CaseWorkflowOutcome(
             boolean notificationCreated,
             String notificationError,
             boolean emailSent,
-            String emailError
+            String emailError,
+            boolean decisionEmailSkippedByPolicy
+    ) {
+    }
+
+    public record CaseInsertOutcome(
+            int caseId,
+            boolean allocationPending,
+            boolean autoAccepted,
+            boolean recurrenceRiskEmailSent,
+            String userMessage
+    ) {
+    }
+
+    public record GainAllocationDecision(
+            String recommendedPaymentMethod,
+            FinancialGoal targetGoal,
+            String suggestion,
+            double emergencyFundBalance,
+            double savingBalance
+    ) {
+    }
+
+    private record StatusChangeDecision(
+            String paymentMethod,
+            FinancialGoal financialGoal,
+            String solution,
+            String aiSuggestion,
+            String adminNote,
+            boolean suppressDecisionEmail
     ) {
     }
 
@@ -55,26 +90,94 @@ public class CasReelService {
         financialGoalRepository = new FinancialGoalRepository();
         caseNotificationService = new CaseNotificationService();
         userNotificationService = new UserNotificationService();
+        locationSuggestionService = new LocationSuggestionService();
         creerTableSiAbsente();
         ajouterColonnesWorkflowSiNecessaire();
     }
 
-    public void ajouter(CasRelles casReel) {
+    public CaseInsertOutcome ajouter(CasRelles casReel) {
         CasRelles prepared = prepareCaseBeforePersistence(casReel);
+        CaseFundingAdvice advice = analyzeFundingChoice(
+                prepared.getUser().getId(),
+                prepared.getPaymentMethod(),
+                prepared.getMontant()
+        );
+
+        boolean needsAdminAllocation = needsAdminAllocationReview(prepared, advice);
+        boolean isGain = "Gain".equalsIgnoreCase(prepared.getType());
+        prepared.setSuppressDecisionEmail(false);
+
+        LocalDateTime now = LocalDateTime.now();
+        if (isGain) {
+            prepared.setResultat(STATUT_EN_ATTENTE);
+            prepared.setConfirmedAt(null);
+            prepared.setConfirmedBy(null);
+        } else if (needsAdminAllocation) {
+            prepared.setResultat(STATUT_EN_ATTENTE_ALLOCATION);
+            prepared.setConfirmedAt(null);
+            prepared.setConfirmedBy(null);
+        } else {
+            prepared.setResultat(STATUT_ACCEPTE);
+            prepared.setConfirmedAt(now);
+            User self = new User();
+            self.setId(prepared.getUser().getId());
+            self.setNom(prepared.getUser().getNom());
+            self.setEmail(prepared.getUser().getEmail());
+            prepared.setConfirmedBy(self);
+        }
+
         String req = """
                 INSERT INTO cas_relles
                 (user_id, imprevus_id, confirmed_by_id, financial_goal_id, titre, description, type, categorie, montant, solution,
                  date_effet, resultat, raison_refus, confirmed_at, justificatif_file_name, updated_at, payment_method, admin_note,
-                 ai_refusal_suggestion, notification_sent_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 ai_refusal_suggestion, notification_sent_at, suppress_decision_email)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
-        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+        int newId;
+        try (PreparedStatement ps = cnx.prepareStatement(req, Statement.RETURN_GENERATED_KEYS)) {
             bindCase(ps, prepared, false);
             ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (!keys.next()) {
+                    throw new RuntimeException("Impossible de recuperer l'id du cas cree.");
+                }
+                newId = keys.getInt(1);
+            }
         } catch (SQLException e) {
             throw new RuntimeException("Erreur ajout cas reel : " + e.getMessage(), e);
         }
+
+        boolean recurrenceSent = false;
+        if (isGain) {
+            notifyAdminsPendingReview(prepared, newId);
+            notifyCaseOwnerInApp(prepared.getUser(),
+                    "Gain en attente de traitement",
+                    "Votre gain \"" + safeShort(prepared.getTitre(), 80) + "\" est en attente. "
+                            + "L'admin choisira l'affectation finale entre epargne et fonds d'urgence.",
+                    STATUT_EN_ATTENTE);
+        } else if (needsAdminAllocation) {
+            notifyAdminsPendingReview(prepared, newId);
+            notifyCaseOwnerInApp(prepared.getUser(),
+                    "Validation administrateur requise",
+                    "Votre cas \"" + safeShort(prepared.getTitre(), 80) + "\" necessite un arbitrage epargne / fonds d'urgence. "
+                            + "L'admin vous notifiera apres decision.",
+                    STATUT_EN_ATTENTE_ALLOCATION);
+        } else {
+            notifyCaseOwnerInApp(prepared.getUser(),
+                    "Cas enregistre",
+                    "Votre cas \"" + safeShort(prepared.getTitre(), 80) + "\" est accepte automatiquement (date, preuve et montant enregistres).",
+                    STATUT_ACCEPTE);
+            recurrenceSent = maybeSendRecurrenceInsight(prepared, newId);
+        }
+
+        String userMessage = isGain
+                ? "Gain soumis : statut EN_ATTENTE. L'admin decidera l'affectation epargne / fonds d'urgence."
+                : needsAdminAllocation
+                ? "Cas soumis : en attente de validation admin pour le choix epargne / fonds de securite (notification in-app, pas d'email)."
+                : "Cas enregistre et valide automatiquement." + (recurrenceSent ? " Un email de prevention vous a ete envoye (repetition du risque)." : "");
+
+        return new CaseInsertOutcome(newId, isGain || needsAdminAllocation, !isGain && !needsAdminAllocation, recurrenceSent, userMessage);
     }
 
     public void modifier(CasRelles casReel) {
@@ -83,7 +186,7 @@ public class CasReelService {
                 UPDATE cas_relles
                 SET user_id = ?, imprevus_id = ?, confirmed_by_id = ?, financial_goal_id = ?, titre = ?, description = ?, type = ?, categorie = ?,
                     montant = ?, solution = ?, date_effet = ?, resultat = ?, raison_refus = ?, confirmed_at = ?, justificatif_file_name = ?,
-                    updated_at = ?, payment_method = ?, admin_note = ?, ai_refusal_suggestion = ?, notification_sent_at = ?
+                    updated_at = ?, payment_method = ?, admin_note = ?, ai_refusal_suggestion = ?, notification_sent_at = ?, suppress_decision_email = ?
                 WHERE id = ?
                 """;
 
@@ -123,17 +226,21 @@ public class CasReelService {
     }
 
     public CaseWorkflowOutcome changerStatutWithOutcome(int id, String statut, String raisonRefus, String adminNote, Integer confirmedById) {
+        Optional<CasRelles> prior = findById(id);
+
         String req = """
                 UPDATE cas_relles
-                SET resultat = ?, raison_refus = ?, admin_note = ?, confirmed_at = ?, confirmed_by_id = ?, updated_at = ?
+                SET resultat = ?, raison_refus = ?, admin_note = ?, confirmed_at = ?, confirmed_by_id = ?, updated_at = ?,
+                    payment_method = ?, financial_goal_id = ?, solution = ?, ai_refusal_suggestion = ?, suppress_decision_email = ?
                 WHERE id = ?
                 """;
 
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
             LocalDateTime now = LocalDateTime.now();
+            StatusChangeDecision decision = resolveStatusChangeDecision(prior.orElse(null), statut, adminNote);
             ps.setString(1, statut);
             ps.setString(2, emptyToNull(raisonRefus));
-            ps.setString(3, emptyToNull(adminNote));
+            ps.setString(3, emptyToNull(decision.adminNote()));
             ps.setTimestamp(4, Timestamp.valueOf(now));
             if (confirmedById == null || confirmedById <= 0) {
                 ps.setNull(5, Types.INTEGER);
@@ -141,20 +248,25 @@ public class CasReelService {
                 ps.setInt(5, confirmedById);
             }
             ps.setTimestamp(6, Timestamp.valueOf(now));
-            ps.setInt(7, id);
+            ps.setString(7, emptyToNull(decision.paymentMethod()));
+            setFinancialGoal(ps, 8, decision.financialGoal());
+            ps.setString(9, emptyToNull(decision.solution()));
+            ps.setString(10, emptyToNull(decision.aiSuggestion()));
+            ps.setBoolean(11, decision.suppressDecisionEmail());
+            ps.setInt(12, id);
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Erreur confirmation cas reel : " + e.getMessage(), e);
         }
 
-        return afterStatusChangeSideEffects(id);
+        return afterStatusChangeSideEffects(id, prior.orElse(null));
     }
 
-    private CaseWorkflowOutcome afterStatusChangeSideEffects(int id) {
+    private CaseWorkflowOutcome afterStatusChangeSideEffects(int id, CasRelles prior) {
         LocalDateTime now = LocalDateTime.now();
         Optional<CasRelles> refreshed = findById(id);
         if (refreshed.isEmpty()) {
-            return new CaseWorkflowOutcome(false, "case not found after update", false, null);
+            return new CaseWorkflowOutcome(false, "case not found after update", false, null, false);
         }
         CasRelles cas = refreshed.get();
         User targetUser = cas.getUser();
@@ -172,20 +284,23 @@ public class CasReelService {
             notificationError = e.getMessage();
         }
 
+        boolean skipDecisionEmail = prior != null && prior.isSuppressDecisionEmail();
         boolean emailSent = false;
         String emailError = null;
-        try {
-            CaseNotificationService.EmailSendResult emailResult = caseNotificationService.sendDecisionEmailDetailed(cas, targetUser);
-            emailSent = emailResult.sent();
-            emailError = emailResult.failureReason();
-            if (emailSent) {
-                markNotificationSent(id, now);
+        if (!skipDecisionEmail) {
+            try {
+                CaseNotificationService.EmailSendResult emailResult = caseNotificationService.sendDecisionEmailDetailed(cas, targetUser);
+                emailSent = emailResult.sent();
+                emailError = emailResult.failureReason();
+                if (emailSent) {
+                    markNotificationSent(id, now);
+                }
+            } catch (Exception e) {
+                emailError = e.getMessage();
             }
-        } catch (Exception e) {
-            emailError = e.getMessage();
         }
 
-        return new CaseWorkflowOutcome(notificationCreated, notificationError, emailSent, emailError);
+        return new CaseWorkflowOutcome(notificationCreated, notificationError, emailSent, emailError, skipDecisionEmail);
     }
 
     public void supprimer(int id) {
@@ -202,7 +317,7 @@ public class CasReelService {
         String req = """
                 SELECT COALESCE(SUM(
                     CASE
-                        WHEN LOWER(type) = 'gain' AND resultat = ? THEN montant
+                        WHEN LOWER(type) = 'gain' AND resultat = ? AND payment_method = ? THEN montant
                         WHEN LOWER(type) = 'depense' AND resultat = ? AND payment_method = ? THEN -montant
                         ELSE 0
                     END
@@ -212,9 +327,10 @@ public class CasReelService {
                 """;
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
             ps.setString(1, STATUT_ACCEPTE);
-            ps.setString(2, STATUT_ACCEPTE);
-            ps.setString(3, PAYMENT_EMERGENCY_FUND);
-            ps.setInt(4, userId);
+            ps.setString(2, PAYMENT_EMERGENCY_FUND);
+            ps.setString(3, STATUT_ACCEPTE);
+            ps.setString(4, PAYMENT_EMERGENCY_FUND);
+            ps.setInt(5, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return Math.max(rs.getDouble("emergency_balance"), 0);
@@ -282,6 +398,40 @@ public class CasReelService {
         return new CaseFundingAdvice(emergencyFundBalance, savingBalance, suggestion, suggestedRefusal);
     }
 
+    public GainAllocationDecision analyzeGainAllocation(int userId, double amount) {
+        double emergencyFundBalance = calculateEmergencyFundBalance(userId);
+        double savingBalance = getSavingBalance(userId);
+        Optional<FinancialGoal> closestGoal = findClosestGoalToCompletion(userId);
+        if (closestGoal.isPresent()) {
+            FinancialGoal goal = closestGoal.get();
+            double remaining = Math.max(goal.getMontantCible() - goal.getMontantActuel(), 0);
+            double progress = goal.getMontantCible() <= 0 ? 0 : (goal.getMontantActuel() / goal.getMontantCible()) * 100.0;
+            if (progress >= 80.0 || amount >= remaining) {
+                String suggestion = String.format(Locale.US,
+                        "Gain en attente de validation admin. Suggestion: affecter a l'epargne pour accelerer l'objectif \"%s\" (%.0f%% atteint, %.2f DT restants).",
+                        goal.getNom(), progress, remaining);
+                return new GainAllocationDecision(
+                        PAYMENT_SAVING_ACCOUNT,
+                        goal,
+                        suggestion,
+                        emergencyFundBalance,
+                        savingBalance
+                );
+            }
+        }
+
+        String suggestion = String.format(Locale.US,
+                "Gain en attente de validation admin. Suggestion: affecter au fonds d'urgence. Solde projete: %.2f DT.",
+                emergencyFundBalance + amount);
+        return new GainAllocationDecision(
+                PAYMENT_EMERGENCY_FUND,
+                null,
+                suggestion,
+                emergencyFundBalance,
+                savingBalance
+        );
+    }
+
     public String inferRiskCategory(String titre, String description, Imprevus imprevu) {
         String source = (titre == null ? "" : titre) + " "
                 + (description == null ? "" : description) + " "
@@ -321,7 +471,7 @@ public class CasReelService {
         return """
                 SELECT cr.id, cr.user_id, cr.imprevus_id, cr.confirmed_by_id, cr.financial_goal_id, cr.titre, cr.description, cr.type, cr.categorie,
                        cr.montant, cr.solution, cr.date_effet, cr.justificatif_file_name, cr.resultat, cr.raison_refus, cr.confirmed_at,
-                       cr.updated_at, cr.payment_method, cr.admin_note, cr.ai_refusal_suggestion, cr.notification_sent_at,
+                       cr.updated_at, cr.payment_method, cr.admin_note, cr.ai_refusal_suggestion, cr.notification_sent_at, cr.suppress_decision_email,
                        i.titre AS imprevu_titre, i.type AS imprevu_type, i.budget AS imprevu_budget,
                        u.nom AS user_nom, u.email AS user_email,
                        cb.nom AS confirmed_by_nom, cb.email AS confirmed_by_email,
@@ -402,6 +552,11 @@ public class CasReelService {
         cas.setAdminNote(rs.getString("admin_note"));
         cas.setAiRefusalSuggestion(rs.getString("ai_refusal_suggestion"));
         cas.setNotificationSentAt(notificationSentAt == null ? null : notificationSentAt.toLocalDateTime());
+        try {
+            cas.setSuppressDecisionEmail(rs.getBoolean("suppress_decision_email"));
+        } catch (SQLException ignored) {
+            cas.setSuppressDecisionEmail(false);
+        }
         return cas;
     }
 
@@ -426,8 +581,9 @@ public class CasReelService {
         ps.setString(18, emptyToNull(cas.getAdminNote()));
         ps.setString(19, emptyToNull(cas.getAiRefusalSuggestion()));
         ps.setTimestamp(20, cas.getNotificationSentAt() == null ? null : Timestamp.valueOf(cas.getNotificationSentAt()));
+        ps.setBoolean(21, cas.isSuppressDecisionEmail());
         if (withIdAtEnd) {
-            ps.setInt(21, cas.getId());
+            ps.setInt(22, cas.getId());
         }
     }
 
@@ -450,7 +606,14 @@ public class CasReelService {
         }
 
         CaseFundingAdvice advice = analyzeFundingChoice(casReel.getUser().getId(), normalizedPaymentMethod, casReel.getMontant());
-        casReel.setAiRefusalSuggestion(advice.suggestion());
+        if ("Gain".equalsIgnoreCase(casReel.getType())) {
+            GainAllocationDecision gainDecision = analyzeGainAllocation(casReel.getUser().getId(), casReel.getMontant());
+            casReel.setPaymentMethod(gainDecision.recommendedPaymentMethod());
+            casReel.setFinancialGoal(gainDecision.targetGoal());
+            casReel.setAiRefusalSuggestion(gainDecision.suggestion());
+        } else {
+            casReel.setAiRefusalSuggestion(advice.suggestion());
+        }
         casReel.setUpdatedAt(LocalDateTime.now());
 
         if ("Depense".equalsIgnoreCase(casReel.getType())) {
@@ -636,6 +799,179 @@ public class CasReelService {
         }
     }
 
+    private boolean needsAdminAllocationReview(CasRelles prepared, CaseFundingAdvice advice) {
+        if ("Gain".equalsIgnoreCase(prepared.getType())) {
+            return true;
+        }
+        return "Depense".equalsIgnoreCase(prepared.getType()) && advice.suggestedRefusal();
+    }
+
+    private void notifyAdminsAllocationPending(CasRelles prepared, int caseId) {
+        String title = "Arbitrage epargne / fonds — cas #" + caseId;
+        String message = "Utilisateur #" + prepared.getUser().getId()
+                + " — \"" + safeShort(prepared.getTitre(), 120) + "\" — "
+                + String.format(Locale.US, "%.2f DT", prepared.getMontant())
+                + " — methode demandee: " + prepared.getPaymentMethod()
+                + ". Suggestion moteur: " + safeShort(prepared.getAiRefusalSuggestion(), 400);
+        userNotificationService.notifyAdminUsers(title, message, STATUT_EN_ATTENTE_ALLOCATION);
+    }
+
+    private void notifyAdminsPendingReview(CasRelles prepared, int caseId) {
+        boolean isGain = "Gain".equalsIgnoreCase(prepared.getType());
+        String title = (isGain ? "Gain a affecter" : "Arbitrage epargne / fonds") + " - cas #" + caseId;
+        String message = "Utilisateur #" + prepared.getUser().getId()
+                + " - \"" + safeShort(prepared.getTitre(), 120) + "\" - "
+                + String.format(Locale.US, "%.2f DT", prepared.getMontant())
+                + " - methode suggeree: " + prepared.getPaymentMethod()
+                + ". Suggestion moteur: " + safeShort(prepared.getAiRefusalSuggestion(), 400);
+        userNotificationService.notifyAdminUsers(title, message, isGain ? STATUT_EN_ATTENTE : STATUT_EN_ATTENTE_ALLOCATION);
+    }
+
+    private StatusChangeDecision resolveStatusChangeDecision(CasRelles prior, String statut, String requestedAdminNote) {
+        if (prior == null) {
+            return new StatusChangeDecision(null, null, null, null, emptyToNull(requestedAdminNote), false);
+        }
+
+        String paymentMethod = prior.getPaymentMethod();
+        FinancialGoal financialGoal = prior.getFinancialGoal();
+        String solution = prior.getSolution();
+        String aiSuggestion = prior.getAiRefusalSuggestion();
+        String finalAdminNote = emptyToNull(requestedAdminNote);
+
+        if (STATUT_ACCEPTE.equalsIgnoreCase(statut) && "Gain".equalsIgnoreCase(prior.getType()) && prior.getUser() != null) {
+            GainAllocationDecision gainDecision = analyzeGainAllocation(prior.getUser().getId(), prior.getMontant());
+            paymentMethod = gainDecision.recommendedPaymentMethod();
+            financialGoal = gainDecision.targetGoal();
+            aiSuggestion = gainDecision.suggestion();
+            solution = PAYMENT_SAVING_ACCOUNT.equals(paymentMethod) ? "Allocation admin -> Epargne" : "Allocation admin -> Fonds d'urgence";
+            String autoNote = PAYMENT_SAVING_ACCOUNT.equals(paymentMethod)
+                    ? "Affectation admin: epargne" + (financialGoal == null ? "" : " pour l'objectif " + financialGoal.getNom())
+                    : "Affectation admin: fonds d'urgence";
+            finalAdminNote = finalAdminNote == null || finalAdminNote.isBlank()
+                    ? autoNote
+                    : finalAdminNote + " | " + autoNote;
+        }
+
+        return new StatusChangeDecision(
+                paymentMethod,
+                financialGoal,
+                solution,
+                aiSuggestion,
+                finalAdminNote,
+                false
+        );
+    }
+
+    private void notifyCaseOwnerInApp(User user, String title, String message, String statusToken) {
+        if (user == null || user.getId() <= 0) {
+            return;
+        }
+        userNotificationService.create(new pi.entities.UserNotification(
+                user,
+                truncateNotifTitle(title),
+                message,
+                statusToken,
+                false,
+                LocalDateTime.now()
+        ));
+    }
+
+    private String truncateNotifTitle(String title) {
+        if (title == null) {
+            return "";
+        }
+        return title.length() <= 180 ? title : title.substring(0, 177) + "...";
+    }
+
+    private static String safeShort(String s, int max) {
+        if (s == null) {
+            return "";
+        }
+        String t = s.trim();
+        return t.length() <= max ? t : t.substring(0, max - 3) + "...";
+    }
+
+    private boolean maybeSendRecurrenceInsight(CasRelles inserted, int caseId) {
+        User user = inserted.getUser();
+        if (user == null || user.getId() <= 0) {
+            return false;
+        }
+        String riskKey = inferRiskCategory(inserted.getTitre(), inserted.getDescription(), inserted.getImprevus());
+        if (!isTrackedRecurrenceCluster(riskKey)) {
+            return false;
+        }
+        LocalDate since = LocalDate.now().minusDays(RECURRENCE_WINDOW_DAYS);
+        int n = countSimilarRiskEvents(user.getId(), riskKey, since);
+        if (n < RECURRENCE_MIN_EVENTS) {
+            return false;
+        }
+        String city = resolveCityForSuggestions(user);
+        List<String> places = locationSuggestionService.suggestNearbyPlaces(riskKey, city);
+        String monthly = buildMonthlySuggestionFr(riskKey);
+        CaseNotificationService.EmailSendResult r = caseNotificationService.sendRecurrenceRiskEmail(
+                user, riskKey, n, monthly, places);
+        return r.sent();
+    }
+
+    private boolean isTrackedRecurrenceCluster(String riskKey) {
+        return "Sante".equals(riskKey) || "Voiture".equals(riskKey) || "Maison".equals(riskKey);
+    }
+
+    private String resolveCityForSuggestions(User user) {
+        if (user != null && user.getGeoCityName() != null && !user.getGeoCityName().isBlank()) {
+            return user.getGeoCityName();
+        }
+        String fromEnv = AppEnv.get("DEFAULT_SUGGESTION_CITY");
+        if (fromEnv != null && !fromEnv.isBlank()) {
+            return fromEnv.trim();
+        }
+        return "Tunis";
+    }
+
+    private String buildMonthlySuggestionFr(String riskKey) {
+        return switch (riskKey) {
+            case "Sante" -> "Planifier un rendez-vous medical de suivi chaque mois (medecin traitant, prevention, bilan).";
+            case "Voiture" -> "Planifier un entretien preventive mensuel (vidange, pneus, diagnostic garage).";
+            case "Maison" -> "Planifier une inspection / maintenance mensuelle (plomberie, electricite, toiture).";
+            default -> "Planifier un suivi mensuel adapte a ce type de depense.";
+        };
+    }
+
+    private int countSimilarRiskEvents(int userId, String riskKey, LocalDate since) {
+        String req = """
+                SELECT cr.titre, cr.description, i.titre AS imprevu_titre, i.type AS imprevu_type, i.budget AS imprevu_budget
+                FROM cas_relles cr
+                LEFT JOIN imprevus i ON cr.imprevus_id = i.id
+                WHERE cr.user_id = ? AND cr.date_effet >= ?
+                """;
+        int count = 0;
+        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+            ps.setInt(1, userId);
+            ps.setDate(2, Date.valueOf(since));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Imprevus im = null;
+                    String imTitre = rs.getString("imprevu_titre");
+                    if (imTitre != null) {
+                        im = new Imprevus(
+                                0,
+                                imTitre,
+                                rs.getString("imprevu_type"),
+                                rs.getDouble("imprevu_budget")
+                        );
+                    }
+                    String cat = inferRiskCategory(rs.getString("titre"), rs.getString("description"), im);
+                    if (riskKey.equals(cat)) {
+                        count++;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur analyse recurrence risque : " + e.getMessage(), e);
+        }
+        return count;
+    }
+
     private void creerTableSiAbsente() {
         String req = """
                 CREATE TABLE IF NOT EXISTS cas_relles (
@@ -659,7 +995,8 @@ public class CasReelService {
                     payment_method VARCHAR(30) NULL,
                     admin_note LONGTEXT NULL,
                     ai_refusal_suggestion LONGTEXT NULL,
-                    notification_sent_at DATETIME NULL
+                    notification_sent_at DATETIME NULL,
+                    suppress_decision_email TINYINT(1) NOT NULL DEFAULT 0
                 )
                 """;
 
@@ -682,6 +1019,7 @@ public class CasReelService {
         ajouterColonneSiAbsente("ALTER TABLE cas_relles ADD COLUMN admin_note LONGTEXT NULL");
         ajouterColonneSiAbsente("ALTER TABLE cas_relles ADD COLUMN ai_refusal_suggestion LONGTEXT NULL");
         ajouterColonneSiAbsente("ALTER TABLE cas_relles ADD COLUMN notification_sent_at DATETIME NULL");
+        ajouterColonneSiAbsente("ALTER TABLE cas_relles ADD COLUMN suppress_decision_email TINYINT(1) NOT NULL DEFAULT 0");
     }
 
     private void ajouterColonneSiAbsente(String sql) {
