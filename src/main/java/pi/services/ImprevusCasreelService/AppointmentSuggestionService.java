@@ -82,11 +82,17 @@ public class AppointmentSuggestionService {
         if (suggestion == null) {
             return "Rendez-vous suggere: aucun rendez-vous prioritaire pour le moment.";
         }
+        if (suggestion.recurringMonthly()) {
+            return "Rappel conseille pour \"" + suggestion.caseTitle() + "\": " + suggestion.title()
+                    + " le " + suggestion.startAt().format(UI_DATE_FORMAT)
+                    + " a " + suggestion.city()
+                    + ". Pourquoi ce rappel mensuel: " + suggestion.reason()
+                    + ". L'objectif est d'agir avant que ce probleme revienne encore.";
+        }
         return "Rendez-vous suggere pour \"" + suggestion.caseTitle() + "\": " + suggestion.title()
                 + " le " + suggestion.startAt().format(UI_DATE_FORMAT)
                 + " a " + suggestion.city()
-                + (suggestion.recurringMonthly() ? ". Ce rappel sera planifie chaque mois." : ".")
-                + " Pourquoi: " + suggestion.reason();
+                + ". Pourquoi: " + suggestion.reason();
     }
 
     public String formatPlaceTypesForUi(AppointmentSuggestion suggestion) {

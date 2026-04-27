@@ -85,7 +85,6 @@
                                         <HBox alignment="CENTER" spacing="16.0" styleClass="hero-button-row">
                                             <children>
                                                 <Button onAction="#handleFocusAddCase" prefHeight="52.0" prefWidth="180.0" styleClass="hero-chip" text="+ Add Case" />
-                                                <Button onAction="#handleFocusHistory" prefHeight="52.0" prefWidth="180.0" styleClass="hero-chip alt-chip" text="Case History" />
                                                 <Button onAction="#handleShowStats" prefHeight="52.0" prefWidth="160.0" styleClass="hero-chip stats-chip" text="Stats" />
                                                 <Button onAction="#handleExportPdfBilan" prefHeight="52.0" prefWidth="180.0" styleClass="hero-chip report-chip" text="PDF Bilan" />
                                             </children>
@@ -169,7 +168,7 @@
                                                 <Button onAction="#handleUseCurrentLocation" styleClass="light-button" text="Use my current location" />
                                             </children>
                                         </HBox>
-                                        <HBox alignment="CENTER_LEFT" managed="false" spacing="10.0" visible="false" fx:id="placesSelectionRow">
+                                        <HBox fx:id="placesSelectionRow" alignment="CENTER_LEFT" managed="false" spacing="10.0" visible="false">
                                             <children>
                                                 <ComboBox fx:id="recommendedPlacesComboBox" prefWidth="420.0" promptText="Choisir un lieu recommande" />
                                                 <Hyperlink fx:id="directionsLink" managed="false" onAction="#handleOpenDirections" text="Voir le chemin" visible="false" />
@@ -182,7 +181,7 @@
                                     <children>
 
                                         <!-- LEFT -->
-                                        <VBox maxWidth="1.7976931348623157E308" spacing="18.0" HBox.hgrow="ALWAYS" prefWidth="400">
+                                        <VBox maxWidth="1.7976931348623157E308" prefWidth="400" spacing="18.0" HBox.hgrow="ALWAYS">
                                             <children>
                                                 <VBox spacing="14.0" styleClass="content-card explorer-card" VBox.vgrow="ALWAYS">
                                                     <padding><Insets bottom="18.0" left="18.0" right="18.0" top="18.0" /></padding>
@@ -201,7 +200,7 @@
                                                          <HBox spacing="10.0">
                                                              <children>
                                                                  <TextField fx:id="searchImprevusField" promptText="Search event title..." HBox.hgrow="ALWAYS" />
-                                                                <ComboBox fx:id="triImprevusComboBox" prefWidth="150.0" promptText="Sort" />
+                                                                  <ComboBox fx:id="triImprevusComboBox" prefWidth="160.0" promptText="Sort" />
                                                             </children>
                                                         </HBox>
 
@@ -212,7 +211,7 @@
                                         </VBox>
 
                                         <!-- MIDDLE -->
-                                        <VBox fx:id="caseFormCard" maxWidth="1.7976931348623157E308" spacing="18.0" HBox.hgrow="ALWAYS" prefWidth="400">
+                                        <VBox fx:id="caseFormCard" maxWidth="1.7976931348623157E308" prefWidth="400" spacing="18.0" HBox.hgrow="ALWAYS">
                                             <children>
                                                  <VBox spacing="14.0" styleClass="content-card form-card" VBox.vgrow="ALWAYS">
                                                      <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
@@ -244,7 +243,7 @@
 
                                                             <children>
                                                                 <TextField fx:id="casTitreField" maxWidth="1.7976931348623157E308" promptText="Case title" GridPane.columnSpan="2" />
-                                                                <ComboBox fx:id="casTypeComboBox" prefWidth="180" promptText="Type" GridPane.rowIndex="1" />
+                                                                <ComboBox fx:id="casTypeComboBox" prefWidth="180.0" promptText="Type" GridPane.rowIndex="1" />
                                                                 <TextField fx:id="casMontantField" maxWidth="1.7976931348623157E308" promptText="Amount (DT)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                                                 <ComboBox fx:id="paymentMethodComboBox" maxWidth="1.7976931348623157E308" promptText="Payment method" GridPane.columnSpan="2" GridPane.rowIndex="2" />
                                                                 <DatePicker fx:id="dateEffetPicker" maxWidth="1.7976931348623157E308" GridPane.columnSpan="2" GridPane.rowIndex="3" />
@@ -270,7 +269,7 @@
                                         </VBox>
 
                                         <!-- RIGHT -->
-                                        <VBox fx:id="historyCard" maxWidth="1.7976931348623157E308" spacing="18.0" HBox.hgrow="ALWAYS" prefWidth="800">
+                                        <VBox fx:id="historyCard" maxWidth="1.7976931348623157E308" prefWidth="800" spacing="18.0" HBox.hgrow="ALWAYS">
                                             <children>
                                                 <VBox spacing="12.0" styleClass="content-card history-card compact-history" VBox.vgrow="ALWAYS">
                                                     <padding><Insets bottom="16.0" left="16.0" right="16.0" top="16.0" /></padding>
@@ -294,26 +293,24 @@
                                                          <HBox spacing="10.0">
                                                              <children>
                                                                  <TextField fx:id="searchCasReelsField" promptText="Search a case..." HBox.hgrow="ALWAYS" />
-                                                                <ComboBox fx:id="triCasReelsComboBox" prefWidth="180.0" promptText="Sort" />
+                                                                 <ComboBox fx:id="triCasReelsComboBox" prefWidth="160.0" promptText="Sort" />
                                                             </children>
                                                         </HBox>
 
-                                                        <TableView fx:id="casReelsTableView"
-                                                                   prefHeight="450.0"
-                                                                   VBox.vgrow="ALWAYS">
+                                                        <TableView fx:id="casReelsTableView" prefHeight="450.0" VBox.vgrow="ALWAYS">
 
                                                             <columns>
-                                                                <TableColumn fx:id="historyDateColumn" text="Date" prefWidth="95.0" />
-                                                                <TableColumn fx:id="historyTitleColumn" text="Title" prefWidth="130.0" />
-                                                                <TableColumn fx:id="historyTypeColumn" text="Type" prefWidth="80.0" />
-                                                                <TableColumn fx:id="historyCategoryColumn" text="Categorie" prefWidth="110.0" />
-                                                                <TableColumn fx:id="historyAmountColumn" text="Amount" prefWidth="95.0" />
-                                                                <TableColumn fx:id="historySolutionColumn" text="Payment" prefWidth="120.0" />
-                                                                <TableColumn fx:id="historyStatusColumn" text="Status" prefWidth="95.0" />
-                                                                <TableColumn fx:id="historyJustificatifColumn" text="Proof" prefWidth="100.0" />
-                                                                <TableColumn fx:id="historyTreatedByColumn" text="Treated by" prefWidth="110.0" />
-                                                                <TableColumn fx:id="historyTreatedAtColumn" text="Treated at" prefWidth="130.0" />
-                                                                <TableColumn fx:id="historyRefusalReasonColumn" text="Refusal reason" prefWidth="150.0" />
+                                                                <TableColumn fx:id="historyDateColumn" prefWidth="95.0" text="Date" />
+                                                                <TableColumn fx:id="historyTitleColumn" prefWidth="130.0" text="Title" />
+                                                                <TableColumn fx:id="historyTypeColumn" prefWidth="80.0" text="Type" />
+                                                                <TableColumn fx:id="historyCategoryColumn" prefWidth="110.0" text="Categorie" />
+                                                                <TableColumn fx:id="historyAmountColumn" prefWidth="95.0" text="Amount" />
+                                                                <TableColumn fx:id="historySolutionColumn" prefWidth="120.0" text="Payment" />
+                                                                <TableColumn fx:id="historyStatusColumn" prefWidth="95.0" text="Status" />
+                                                                <TableColumn fx:id="historyJustificatifColumn" prefWidth="100.0" text="Proof" />
+                                                                <TableColumn fx:id="historyTreatedByColumn" prefWidth="110.0" text="Treated by" />
+                                                                <TableColumn fx:id="historyTreatedAtColumn" prefWidth="130.0" text="Treated at" />
+                                                                <TableColumn fx:id="historyRefusalReasonColumn" prefWidth="150.0" text="Refusal reason" />
                                                             </columns>
 
                                                         </TableView>

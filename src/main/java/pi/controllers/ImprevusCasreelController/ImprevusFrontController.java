@@ -196,18 +196,37 @@ public class ImprevusFrontController {
     @FXML
     public void initialize() {
         casTypeComboBox.setItems(FXCollections.observableArrayList("Depense", "Gain"));
+        casTypeComboBox.setVisibleRowCount(2);
         paymentMethodComboBox.setItems(FXCollections.observableArrayList(
                 CasReelService.PAYMENT_EMERGENCY_FUND,
                 CasReelService.PAYMENT_SAVING_ACCOUNT
         ));
+        paymentMethodComboBox.setVisibleRowCount(2);
         paymentMethodComboBox.setValue(CasReelService.PAYMENT_EMERGENCY_FUND);
         triImprevusComboBox.setItems(FXCollections.observableArrayList("Titre A-Z", "Titre Z-A"));
+        triImprevusComboBox.setVisibleRowCount(2);
         triCasReelsComboBox.setItems(FXCollections.observableArrayList("Plus recent", "Plus ancien", "Titre A-Z", "Titre Z-A"));
+        triCasReelsComboBox.setVisibleRowCount(4);
         triImprevusComboBox.setValue("Titre A-Z");
         triCasReelsComboBox.setValue("Plus recent");
         dateEffetPicker.setValue(LocalDate.now());
         if (recommendedPlacesComboBox != null) {
+            recommendedPlacesComboBox.setVisibleRowCount(5);
             recommendedPlacesComboBox.valueProperty().addListener((obs, oldValue, newValue) -> updateDirectionsLink(newValue));
+            recommendedPlacesComboBox.setCellFactory(list -> new ListCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty || item == null ? null : shortenPlaceLabel(item));
+                }
+            });
+            recommendedPlacesComboBox.setButtonCell(new ListCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty || item == null ? null : shortenPlaceLabel(item));
+                }
+            });
         }
         appliquerControleSaisie();
         configureLists();
@@ -399,6 +418,7 @@ public class ImprevusFrontController {
         if (cas == null) {
             return;
         }
+        boolean creatingNewCase = casReelSelectionne == null;
         if (isDuplicateCas(cas)) {
             afficherErreur("Ce cas reel existe deja.");
             return;
@@ -416,6 +436,9 @@ public class ImprevusFrontController {
                 showStatus(outcome.userMessage(), true);
             }
             refreshCasReels();
+            if (creatingNewCase) {
+                suggestUrgentPlaceFlow(findMatchingRecentCase(cas));
+            }
             clearCaseEditor();
         } catch (RuntimeException e) {
             afficherErreur(e.getMessage());
@@ -809,13 +832,18 @@ public class ImprevusFrontController {
     private String buildWeeklyAdvice(String dominant, int score) {
         if ("Sante".equals(dominant)) {
             return score >= 35
-                    ? "Conseils hebdomadaires: plusieurs signaux sante detectes. Garde un budget prevention et prevois un suivi medical regulier."
+                    ? "Conseils hebdomadaires: plusieurs signaux sante detectes. Cela signifie qu'un petit probleme risque de revenir sans suivi. Un rappel medical mensuel est donc conseille pour agir avant l'urgence."
                     : "Conseils hebdomadaires: risque sante leger detecte. Continue la prevention et garde une reserve medicale.";
         }
         if ("Voiture".equals(dominant)) {
             return score >= 35
-                    ? "Conseils hebdomadaires: plusieurs depenses voiture detectees. Planifie un entretien preventif et surveille les frais recurrents."
+                    ? "Conseils hebdomadaires: plusieurs depenses voiture detectees. Cela montre une repetition concrete, pas un hasard. Un rappel mensuel d'entretien est conseille pour prevenir la prochaine panne."
                     : "Conseils hebdomadaires: risque voiture leger detecte. Un controle mensuel peut eviter une panne plus lourde.";
+        }
+        if ("Maison".equals(dominant)) {
+            return score >= 35
+                    ? "Conseils hebdomadaires: plusieurs incidents maison detectes. Le systeme recommande un rappel mensuel de controle car la repetition montre un risque qui s'installe."
+                    : "Conseils hebdomadaires: risque maison leger detecte. Un controle preventif regulier peut limiter les prochaines depenses.";
         }
         return "Conseils hebdomadaires: le risque dominant est " + dominant + ". Continue le suivi hebdomadaire pour limiter les nouvelles occurrences.";
     }
@@ -826,30 +854,38 @@ public class ImprevusFrontController {
 
     private void updateAppointmentInsights() {
         AppointmentContext context = resolveAppointmentContext();
-        if (context == null) {
+        String recurringRisk = computeRecurringReminderRisk();
+        if (context == null && recurringRisk == null) {
             appointmentSuggestionLabel.setText("Rendez-vous suggere: aucun rendez-vous prioritaire pour le moment.");
-            nearbyPlacesLabel.setText(!hasMapsConfig()
-                    ? "Types de lieux utiles: ajoute LOCATIONIQ_API_KEY dans .env pour activer les suggestions maps."
-                    : "Types de lieux utiles: selectionne un cas pour obtenir un rendez-vous cible.");
+            nearbyPlacesLabel.setText("L'assistance lieux proches apparaitra seulement dans la popup d'urgence apres ajout d'un cas.");
             updateAppointmentLink(null);
-            updateRecommendedPlaces(List.of());
             return;
         }
-
-        boolean recurringMonthly = isMonthlyRecurringRisk(context.riskCategory());
-        AppointmentSuggestionService.AppointmentSuggestion suggestion = appointmentSuggestionService.suggest(
-                context.riskCategory(),
-                context.caseTitle(),
-                context.caseDescription(),
-                currentUser,
-                recurringMonthly,
-                resolveActiveCity()
-        );
+        AppointmentSuggestionService.AppointmentSuggestion suggestion;
+        if (recurringRisk != null) {
+            suggestion = appointmentSuggestionService.suggest(
+                    recurringRisk,
+                    buildRecurringReminderCaseTitle(recurringRisk),
+                    buildRecurringReminderReason(recurringRisk),
+                    currentUser,
+                    true,
+                    resolveActiveCity()
+            );
+        } else {
+            suggestion = appointmentSuggestionService.suggest(
+                    context.riskCategory(),
+                    context.caseTitle(),
+                    context.caseDescription(),
+                    currentUser,
+                    false,
+                    resolveActiveCity()
+            );
+        }
         appointmentSuggestionLabel.setText(appointmentSuggestionService.formatForUi(suggestion));
         updateAppointmentLink(suggestion);
-        String placeTypesText = appointmentSuggestionService.formatPlaceTypesForUi(suggestion);
-        nearbyPlacesLabel.setText(placeTypesText);
-        loadNearbySuggestions(suggestion);
+        nearbyPlacesLabel.setText(recurringRisk != null
+                ? "Le rappel mensuel est affiche ici parce que le conseil hebdomadaire a detecte un cas repetitif. Pour les lieux proches et la carte, utilise la popup d'urgence apres ajout d'un cas."
+                : "Pour les lieux proches et la carte, utilise la popup d'urgence apres ajout d'un cas.");
     }
 
     private void loadNearbySuggestions(AppointmentSuggestionService.AppointmentSuggestion suggestion) {
@@ -957,7 +993,10 @@ public class ImprevusFrontController {
         if (appointmentCalendarLink == null) {
             return;
         }
-        boolean active = currentAppointmentCalendarUrl != null && !currentAppointmentCalendarUrl.isBlank();
+        boolean active = suggestion != null
+                && suggestion.recurringMonthly()
+                && currentAppointmentCalendarUrl != null
+                && !currentAppointmentCalendarUrl.isBlank();
         appointmentCalendarLink.setVisible(active);
         appointmentCalendarLink.setManaged(active);
         appointmentCalendarLink.setDisable(!active);
@@ -1182,6 +1221,9 @@ public class ImprevusFrontController {
         return value == null || value.isBlank() ? "-" : value;
     }
 
+    private record UrgentAssistanceData(AppointmentSuggestionService.AppointmentSuggestion suggestion, List<String> places) {
+    }
+
     private void configureHistoryColumns() {
         historyDateColumn.setPrefWidth(92);
         historyTitleColumn.setPrefWidth(210);
@@ -1306,6 +1348,255 @@ public class ImprevusFrontController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void suggestUrgentPlaceFlow(CasRelles cas) {
+        if (cas == null || !"Depense".equalsIgnoreCase(cas.getType())) {
+            return;
+        }
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Urgent assistance");
+        alert.setHeaderText("Do you want urgent help for this case?");
+        alert.setContentText("""
+                The case was saved.
+                
+                If this situation is urgent, the app can now:
+                1. suggest the most relevant nearby places,
+                2. show the monthly reminder if the issue repeats,
+                3. open the route in Google Maps.
+                
+                Choose OK to open this help now, or Cancel to ignore it.
+                """);
+        alert.showAndWait().ifPresent(button -> {
+            if (button == ButtonType.OK) {
+                showStatus("Preparation de l'assistance urgente...", false);
+                openUrgentAssistanceDialog(cas);
+            }
+        });
+    }
+
+    private CasRelles findMatchingRecentCase(CasRelles template) {
+        if (template == null) {
+            return null;
+        }
+        return allCasReelsList.stream()
+                .filter(existing -> normalize(existing.getTitre()).equals(normalize(template.getTitre())))
+                .filter(existing -> normalize(existing.getType()).equals(normalize(template.getType())))
+                .filter(existing -> existing.getDateEffet() != null && existing.getDateEffet().equals(template.getDateEffet()))
+                .filter(existing -> Double.compare(existing.getMontant(), template.getMontant()) == 0)
+                .max(Comparator.comparing(CasRelles::getId))
+                .orElse(null);
+    }
+
+    private String shortenPlaceLabel(String value) {
+        if (value == null) {
+            return "";
+        }
+        String cleaned = value.replace(" | ", " - ");
+        return cleaned.length() <= 72 ? cleaned : cleaned.substring(0, 69) + "...";
+    }
+
+    private void openUrgentAssistanceDialog(CasRelles cas) {
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Assistance urgente");
+        dialog.setHeaderText("Agir maintenant");
+        final UrgentAssistanceData[] loadedData = new UrgentAssistanceData[1];
+
+        ButtonType routeButton = new ButtonType("Voir le chemin", ButtonBar.ButtonData.APPLY);
+        ButtonType reminderButton = new ButtonType("Ajouter rappel mensuel", ButtonBar.ButtonData.OTHER);
+        ButtonType closeButton = new ButtonType("Fermer", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        dialog.getDialogPane().getButtonTypes().setAll(closeButton, routeButton, reminderButton);
+
+        Label intro = new Label("Analyse du cas en cours...");
+        intro.setWrapText(true);
+
+        Label placesLabel = new Label("Chargement des meilleures adresses proches...");
+        placesLabel.setWrapText(true);
+
+        ProgressIndicator loadingIndicator = new ProgressIndicator();
+        loadingIndicator.setMaxSize(42, 42);
+
+        ComboBox<String> placesCombo = new ComboBox<>();
+        placesCombo.setMaxWidth(Double.MAX_VALUE);
+        placesCombo.setVisible(false);
+        placesCombo.setManaged(false);
+        placesCombo.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : shortenPlaceLabel(item));
+            }
+        });
+        placesCombo.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : shortenPlaceLabel(item));
+            }
+        });
+
+        VBox content = new VBox(12, intro, placesLabel, loadingIndicator, placesCombo);
+        content.setFillWidth(true);
+        dialog.getDialogPane().setContent(content);
+
+        Node routeNode = dialog.getDialogPane().lookupButton(routeButton);
+        Node reminderNode = dialog.getDialogPane().lookupButton(reminderButton);
+        if (routeNode != null) {
+            routeNode.setDisable(true);
+        }
+        if (reminderNode != null) {
+            reminderNode.setDisable(true);
+        }
+
+        String risk = inferRiskCategory(cas);
+        String city = resolveActiveCity();
+        Double latitude = currentDetectedLocation == null ? null : currentDetectedLocation.latitude();
+        Double longitude = currentDetectedLocation == null ? null : currentDetectedLocation.longitude();
+        boolean recurringMonthly = isMonthlyRecurringRisk(risk);
+        AppointmentSuggestionService.AppointmentSuggestion initialSuggestion = appointmentSuggestionService.suggest(
+                risk,
+                recurringMonthly ? buildRecurringReminderCaseTitle(risk) : cas.getTitre(),
+                recurringMonthly ? buildRecurringReminderReason(risk) : cas.getDescription(),
+                currentUser,
+                recurringMonthly,
+                city
+        );
+        List<String> fallbackPlaces = locationSuggestionService.suggestFallbackPlacesForNeeds(initialSuggestion.placeTypesNeeded(), city);
+        loadedData[0] = new UrgentAssistanceData(initialSuggestion, fallbackPlaces);
+        applyUrgentAssistanceData(dialog, routeNode, reminderNode, intro, placesLabel, placesCombo, loadedData[0]);
+        placesLabel.setText(fallbackPlaces.isEmpty()
+                ? "Recherche des adresses proches en cours..."
+                : "Des choix utiles sont deja prets. Recherche des lieux reels proches en cours...");
+        loadingIndicator.setVisible(true);
+        loadingIndicator.setManaged(true);
+
+        CompletableFuture
+                .supplyAsync(() -> {
+                    AppointmentSuggestionService.AppointmentSuggestion suggestion = initialSuggestion;
+                    List<String> places = locationSuggestionService.suggestNearbyPlacesForNeeds(
+                            suggestion.placeTypesNeeded(), city, latitude, longitude
+                    );
+                    if (places == null || places.isEmpty()) {
+                        places = fallbackPlaces;
+                    }
+                    return new UrgentAssistanceData(suggestion, places);
+                })
+                .orTimeout(12, TimeUnit.SECONDS)
+                .exceptionally(error -> loadedData[0])
+                .thenAccept(data -> Platform.runLater(() -> {
+                    loadedData[0] = data;
+                    loadingIndicator.setVisible(false);
+                    loadingIndicator.setManaged(false);
+                    applyUrgentAssistanceData(dialog, routeNode, reminderNode, intro, placesLabel, placesCombo, data);
+                }));
+
+        dialog.showAndWait().ifPresent(button -> {
+            if (button == routeButton) {
+                openDirectionsForPlace(placesCombo.getValue());
+            } else if (button == reminderButton && loadedData[0] != null && loadedData[0].suggestion() != null) {
+                currentAppointmentCalendarUrl = loadedData[0].suggestion().calendarUrl();
+                handleOpenAppointmentCalendar();
+            }
+        });
+    }
+
+    private void applyUrgentAssistanceData(Dialog<ButtonType> dialog,
+                                           Node routeNode,
+                                           Node reminderNode,
+                                           Label intro,
+                                           Label placesLabel,
+                                           ComboBox<String> placesCombo,
+                                           UrgentAssistanceData data) {
+        if (data == null || data.suggestion() == null) {
+            intro.setText("L'assistance urgente n'a pas pu preparer les informations pour ce cas.");
+            placesLabel.setText("Reessaie dans un instant apres avoir active la localisation.");
+            if (routeNode != null) {
+                routeNode.setDisable(true);
+            }
+            if (reminderNode != null) {
+                reminderNode.setDisable(true);
+            }
+            return;
+        }
+
+        intro.setText(data.suggestion().description() + "\nPourquoi: " + data.suggestion().reason());
+
+        boolean hasPlaces = data.places() != null && !data.places().isEmpty();
+        placesCombo.getItems().setAll(hasPlaces ? data.places() : List.of());
+        if (hasPlaces) {
+            placesCombo.getSelectionModel().selectFirst();
+        }
+        placesCombo.setVisible(hasPlaces);
+        placesCombo.setManaged(hasPlaces);
+        placesLabel.setText(hasPlaces
+                ? "Choisis un lieu proche utile pour agir maintenant."
+                : "Aucun lieu proche n'a ete trouve pour le moment.");
+
+        if (routeNode != null) {
+            routeNode.setDisable(!hasPlaces);
+            routeNode.setVisible(hasPlaces);
+            routeNode.setManaged(hasPlaces);
+        }
+
+        boolean showReminder = data.suggestion().recurringMonthly();
+        if (reminderNode != null) {
+            reminderNode.setDisable(!showReminder);
+            reminderNode.setVisible(showReminder);
+            reminderNode.setManaged(showReminder);
+        }
+
+        dialog.getDialogPane().requestLayout();
+        showStatus("Assistance urgente prete.", true);
+    }
+
+    private void openDirectionsForPlace(String place) {
+        if (place == null || place.isBlank()) {
+            showStatus("Aucun lieu selectionne pour le trajet.", false);
+            return;
+        }
+        String url = locationSuggestionService.buildDirectionsUrl(
+                currentDetectedLocation == null ? null : currentDetectedLocation.latitude(),
+                currentDetectedLocation == null ? null : currentDetectedLocation.longitude(),
+                resolveActiveCity(),
+                place
+        );
+        if (url == null || url.isBlank()) {
+            showStatus("Impossible de construire le trajet pour ce lieu.", false);
+            return;
+        }
+        try {
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().browse(URI.create(url));
+            }
+        } catch (Exception e) {
+            afficherErreur("Impossible d'ouvrir le trajet : " + e.getMessage());
+        }
+    }
+
+    private String computeRecurringReminderRisk() {
+        return List.of("Sante", "Voiture", "Maison").stream()
+                .filter(this::isMonthlyRecurringRisk)
+                .max(Comparator.comparingLong(this::countRecentRiskCases))
+                .orElse(null);
+    }
+
+    private long countRecentRiskCases(String riskCategory) {
+        return allCasReelsList.stream()
+                .filter(cas -> "Depense".equalsIgnoreCase(cas.getType()))
+                .filter(cas -> cas.getDateEffet() != null && !cas.getDateEffet().isBefore(LocalDate.now().minusDays(180)))
+                .filter(cas -> riskCategory.equals(inferRiskCategory(cas)))
+                .count();
+    }
+
+    private String buildRecurringReminderCaseTitle(String riskCategory) {
+        return "Cas repetitif: " + riskCategory;
+    }
+
+    private String buildRecurringReminderReason(String riskCategory) {
+        long count = countRecentRiskCases(riskCategory);
+        return "Le conseil hebdomadaire a detecte " + count + " cas repetitifs de type " + riskCategory
+                + " sur les derniers mois. Ce rappel mensuel est ajoute pour aider l'utilisateur a prevenir le prochain incident avant qu'il ne devienne urgent.";
     }
 
     private void openEditPopup(CasRelles cas) {

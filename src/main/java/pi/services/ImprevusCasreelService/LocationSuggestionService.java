@@ -81,6 +81,13 @@ public class LocationSuggestionService {
         return new ArrayList<>(merged).subList(0, Math.min(merged.size(), 5));
     }
 
+    public List<String> suggestFallbackPlacesForNeeds(List<String> needs, String city) {
+        if (needs == null || needs.isEmpty()) {
+            return List.of();
+        }
+        return buildFallbackPlaceQueries(needs, city);
+    }
+
     public String buildDirectionsUrl(String originCity, String destination) {
         return buildDirectionsUrl(null, null, originCity, destination);
     }

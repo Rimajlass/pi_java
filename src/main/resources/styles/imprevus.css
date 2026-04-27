@@ -516,6 +516,14 @@
     -fx-padding: 10 12 10 12;
 }
 
+.combo-box .list-cell {
+    -fx-font-size: 13px;
+}
+
+.combo-box-popup .list-cell {
+    -fx-padding: 8 12 8 12;
+}
+
 .text-field:focused,
 .text-area:focused,
 .combo-box:focused,
@@ -772,7 +780,7 @@
     -fx-border-color: #8fb7ff;
 }
 
-.list-view,
+#imprevusListView,
 .table-view {
     -fx-background-color: #ffffff;
     -fx-border-color: #e0e8f3;
@@ -781,7 +789,7 @@
     -fx-min-height: 380px;
 }
 
-.list-view {
+#imprevusListView {
     -fx-pref-height: 540px;
 }
 
@@ -789,18 +797,18 @@
     -fx-pref-height: 420px;
 }
 
-.list-view .list-cell {
+#imprevusListView .list-cell {
     -fx-background-color: transparent;
     -fx-padding: 8 6 8 6;
 }
 
-.list-view .list-cell:filled:selected,
-.list-view .list-cell:filled:selected:hover {
+#imprevusListView .list-cell:filled:selected,
+#imprevusListView .list-cell:filled:selected:hover {
     -fx-background-color: transparent;
 }
 
-.list-view .scroll-bar:vertical,
-.list-view .scroll-bar:horizontal {
+#imprevusListView .scroll-bar:vertical,
+#imprevusListView .scroll-bar:horizontal {
     -fx-background-color: transparent;
 }
 
@@ -813,7 +821,7 @@
     -fx-effect: dropshadow(gaussian, rgba(18, 34, 57, 0.08), 16, 0.14, 0, 4);
 }
 
-.list-view .list-cell:filled:selected .list-card-box {
+#imprevusListView .list-cell:filled:selected .list-card-box {
     -fx-background-color: #edf8ff;
     -fx-border-color: #7fc9e8;
     -fx-effect: dropshadow(gaussian, rgba(17, 138, 165, 0.12), 16, 0.16, 0, 4);

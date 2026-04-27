@@ -314,6 +314,9 @@ public class CasReelService {
     }
 
     public double calculateEmergencyFundBalance(int userId) {
+        if (userId <= 0) {
+            return 0;
+        }
         String req = """
                 SELECT COALESCE(SUM(
                     CASE
@@ -333,22 +336,29 @@ public class CasReelService {
             ps.setInt(5, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return Math.max(rs.getDouble("emergency_balance"), 0);
+                    double balance = rs.getDouble("emergency_balance");
+                    if (Double.isNaN(balance) || Double.isInfinite(balance)) {
+                        return 0;
+                    }
+                    return Math.max(balance, 0);
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur calcul emergency fund : " + e.getMessage(), e);
+            return 0;
         }
         return 0;
     }
 
     public double getSavingBalance(int userId) {
+        if (userId <= 0) {
+            return 0;
+        }
         try {
             return savingAccountRepository.findLatestByUserId(userId)
                     .map(SavingAccount::getSold)
                     .orElse(0.0);
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur lecture compte epargne : " + e.getMessage(), e);
+            return 0;
         }
     }
 
