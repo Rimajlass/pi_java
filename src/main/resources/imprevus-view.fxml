@@ -159,13 +159,26 @@
                                         </HBox>
 
                                         <Label fx:id="weeklyAdviceLabel" styleClass="advisor-pill" text="Conseils hebdomadaires: Pas de risque fort detecte: continue le suivi hebdomadaire pour garder cette stabilite." wrapText="true" />
+                                        <VBox fx:id="preventionPlanBox" managed="false" spacing="8.0" styleClass="prevention-plan-box" visible="false">
+                                            <children>
+                                                <Label styleClass="prevention-plan-title" text="Plan preventif du moment" />
+                                                <Label styleClass="prevention-plan-subtitle" text="Les 3 actions les plus utiles a faire maintenant pour limiter ce risque." wrapText="true" />
+                                                <VBox spacing="10.0" styleClass="prevention-plan-grid">
+                                                    <children>
+                                                        <Label fx:id="preventionImmediateActionLabel" maxWidth="1.7976931348623157E308" styleClass="prevention-plan-line prevention-plan-action" text="Action immediate: -" wrapText="true" />
+                                                        <Label fx:id="preventionBudgetLabel" maxWidth="1.7976931348623157E308" styleClass="prevention-plan-line prevention-plan-budget" text="Budget conseille: -" wrapText="true" />
+                                                        <Label fx:id="preventionAdviceLabel" maxWidth="1.7976931348623157E308" styleClass="prevention-plan-line prevention-plan-advice" text="Conseil: -" wrapText="true" />
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </VBox>
                                         <Label fx:id="appointmentSuggestionLabel" styleClass="selected-event-pill appointment-pill" text="Rendez-vous suggere: aucun rendez-vous prioritaire pour le moment." wrapText="true" />
                                         <Hyperlink fx:id="appointmentCalendarLink" managed="false" onAction="#handleOpenAppointmentCalendar" text="Ajouter ce rendez-vous au calendrier" visible="false" />
                                         <Label fx:id="nearbyPlacesLabel" styleClass="selected-event-pill places-pill" text="Lieux proches: aucun lieu recommande pour le moment." wrapText="true" />
-                                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                        <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="location-action-row">
                                             <children>
-                                                <Label fx:id="currentLocationLabel" styleClass="tiny-hint strong-hint" text="Current location: detecting..." />
-                                                <Button onAction="#handleUseCurrentLocation" styleClass="light-button" text="Use my current location" />
+                                                <Label fx:id="currentLocationLabel" maxWidth="1.7976931348623157E308" styleClass="location-status-pill" text="Current location: detecting..." HBox.hgrow="ALWAYS" />
+                                                <Button onAction="#handleUseCurrentLocation" styleClass="location-refresh-button" text="Refresh location" />
                                             </children>
                                         </HBox>
                                         <HBox fx:id="placesSelectionRow" alignment="CENTER_LEFT" managed="false" spacing="10.0" visible="false">

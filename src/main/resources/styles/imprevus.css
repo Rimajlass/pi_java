@@ -406,6 +406,94 @@
     -fx-padding: 14 16 14 16;
 }
 
+.prevention-plan-box {
+    -fx-background-color:
+            linear-gradient(to right, #f8fffc, #f2f9ff);
+    -fx-border-color: rgba(35, 113, 90, 0.18);
+    -fx-border-width: 1.2;
+    -fx-border-radius: 24;
+    -fx-background-radius: 24;
+    -fx-padding: 20 20 20 20;
+    -fx-spacing: 12;
+    -fx-effect: dropshadow(gaussian, rgba(19, 42, 55, 0.08), 22, 0.14, 0, 6);
+}
+
+.prevention-plan-title {
+    -fx-text-fill: #173247;
+    -fx-font-size: 22px;
+    -fx-font-weight: 900;
+}
+
+.prevention-plan-subtitle {
+    -fx-text-fill: #5b6f82;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+}
+
+.prevention-plan-grid {
+    -fx-spacing: 12;
+}
+
+.prevention-plan-line {
+    -fx-background-color:
+            linear-gradient(to bottom, #ffffff, #f8fbff);
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-border-width: 1.2;
+    -fx-padding: 16 18 16 18;
+    -fx-text-fill: #16314a;
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+    -fx-line-spacing: 4px;
+    -fx-min-height: 86px;
+    -fx-alignment: top-left;
+    -fx-content-display: text-only;
+    -fx-wrap-text: true;
+}
+
+.prevention-plan-action {
+    -fx-border-color: rgba(18, 148, 103, 0.28);
+    -fx-background-insets: 0, 0 0 0 0;
+}
+
+.prevention-plan-budget {
+    -fx-border-color: rgba(42, 113, 207, 0.24);
+}
+
+.prevention-plan-advice {
+    -fx-border-color: rgba(198, 141, 31, 0.24);
+}
+
+.location-action-row {
+    -fx-background-color: rgba(255,255,255,0.72);
+    -fx-border-color: #d8e7f4;
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-padding: 10 12 10 12;
+}
+
+.location-status-pill {
+    -fx-text-fill: #33506a;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.location-refresh-button {
+    -fx-background-color: linear-gradient(to right, #ffffff, #edf6ff);
+    -fx-text-fill: #244261;
+    -fx-border-color: #cfe0ef;
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+    -fx-padding: 9 16 9 16;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-cursor: hand;
+}
+
+.location-refresh-button:hover {
+    -fx-background-color: linear-gradient(to right, #f8fcff, #e3f2ff);
+}
+
 #recommendedPlacesComboBox {
     -fx-background-radius: 12;
     -fx-border-radius: 12;

@@ -40,6 +40,7 @@ import pi.services.ImprevusCasreelService.CurrentLocationService;
 import pi.services.ImprevusCasreelService.ImprevusService;
 import pi.services.ImprevusCasreelService.LocationSuggestionService;
 import pi.services.ImprevusCasreelService.AppointmentSuggestionService;
+import pi.services.ImprevusCasreelService.PreventionPlanService;
 import pi.services.ImprevusCasreelService.UserNotificationService;
 import pi.savings.ui.SavingsGoalsApp;
 import pi.tools.AppEnv;
@@ -104,6 +105,10 @@ public class ImprevusFrontController {
     @FXML private Label facturesRiskLabel;
     @FXML private Label autresRiskLabel;
     @FXML private Label weeklyAdviceLabel;
+    @FXML private VBox preventionPlanBox;
+    @FXML private Label preventionImmediateActionLabel;
+    @FXML private Label preventionBudgetLabel;
+    @FXML private Label preventionAdviceLabel;
     @FXML private Label appointmentSuggestionLabel;
     @FXML private Label nearbyPlacesLabel;
     @FXML private Label currentLocationLabel;
@@ -130,6 +135,7 @@ public class ImprevusFrontController {
     private final UserNotificationService userNotificationService = new UserNotificationService();
     private final LocationSuggestionService locationSuggestionService = new LocationSuggestionService();
     private final AppointmentSuggestionService appointmentSuggestionService = new AppointmentSuggestionService();
+    private final PreventionPlanService preventionPlanService = new PreventionPlanService();
     private final CurrentLocationService currentLocationService = new CurrentLocationService();
     private final ObservableList<Imprevus> imprevusList = FXCollections.observableArrayList();
     private final ObservableList<CasRelles> casReelsList = FXCollections.observableArrayList();
@@ -794,10 +800,17 @@ public class ImprevusFrontController {
         String dominant = counts.entrySet().stream().max(Map.Entry.comparingByValue()).filter(entry -> entry.getValue() > 0).map(Map.Entry::getKey).orElse(null);
         if (dominant == null) {
             weeklyAdviceLabel.setText("Pas de risque fort detecte: continue le suivi hebdomadaire pour garder cette stabilite.");
+            updatePreventionPlan(null);
             return;
         }
 
         weeklyAdviceLabel.setText(buildWeeklyAdvice(dominant, overallScore));
+        PreventionPlanService.PreventionPlan plan = preventionPlanService.buildPlan(
+                List.copyOf(allCasReelsList),
+                this::inferRiskCategory,
+                resolveActiveCity()
+        );
+        updatePreventionPlan(plan);
     }
 
     private void updateLatestNotification() {
@@ -846,6 +859,21 @@ public class ImprevusFrontController {
                     : "Conseils hebdomadaires: risque maison leger detecte. Un controle preventif regulier peut limiter les prochaines depenses.";
         }
         return "Conseils hebdomadaires: le risque dominant est " + dominant + ". Continue le suivi hebdomadaire pour limiter les nouvelles occurrences.";
+    }
+
+    private void updatePreventionPlan(PreventionPlanService.PreventionPlan plan) {
+        if (preventionPlanBox == null) {
+            return;
+        }
+        boolean visible = plan != null && plan.eligible();
+        preventionPlanBox.setVisible(visible);
+        preventionPlanBox.setManaged(visible);
+        if (!visible) {
+            return;
+        }
+        preventionImmediateActionLabel.setText("Action immediate\n" + plan.immediateAction());
+        preventionBudgetLabel.setText("Budget conseille\n" + plan.suggestedBudget());
+        preventionAdviceLabel.setText("Conseil\n" + plan.preventionAdvice());
     }
 
     private String buildAppointmentSuggestion(String dominant) {
