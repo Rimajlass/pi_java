@@ -406,6 +406,16 @@
     -fx-padding: 14 16 14 16;
 }
 
+#recommendedPlacesComboBox {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+}
+
+#directionsLink {
+    -fx-text-fill: #1f67f4;
+    -fx-font-weight: 800;
+}
+
 .advisor-pill {
     -fx-background-color: #fff8e8;
     -fx-border-color: #f5ddb0;

@@ -23,25 +23,43 @@ public class UserNotificationService {
         this.connection = MyDatabase.getInstance().getCnx();
         createTableIfMissing();
     }
-
     public void create(UserNotification notification) {
         String sql = """
-                INSERT INTO user_notification (user_id, title, message, status, is_read, created_at)
-                VALUES (?, ?, ?, ?, ?, ?)
-                """;
+        INSERT INTO user_notification (user_id, title, message, status, is_read, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """;
+
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
+
             statement.setInt(1, notification.getUser().getId());
             statement.setString(2, notification.getTitle());
             statement.setString(3, notification.getMessage());
             statement.setString(4, notification.getStatus());
             statement.setBoolean(5, notification.isRead());
-            statement.setTimestamp(6, Timestamp.valueOf(notification.getCreatedAt() == null ? LocalDateTime.now() : notification.getCreatedAt()));
+            statement.setTimestamp(6, Timestamp.valueOf(notification.getCreatedAt()));
+
             statement.executeUpdate();
+
         } catch (SQLException exception) {
-            throw new RuntimeException("Impossible d'enregistrer la notification utilisateur : " + exception.getMessage(), exception);
+            throw new RuntimeException("Erreur création notification : " + exception.getMessage(), exception);
         }
     }
+    public void createNotification(int userId, String title, String message) {
 
+        User user = new User();
+        user.setId(userId);
+
+        UserNotification notification = new UserNotification(
+                user,
+                truncateTitle(title),
+                message,
+                "USER",
+                false,
+                LocalDateTime.now()
+        );
+
+        create(notification);
+    }
     public Optional<UserNotification> findLatestByUserId(int userId) {
         String sql = """
                 SELECT id, user_id, title, message, status, is_read, created_at

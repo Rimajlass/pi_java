@@ -163,6 +163,18 @@
                                         <Label fx:id="appointmentSuggestionLabel" styleClass="selected-event-pill appointment-pill" text="Rendez-vous suggere: aucun rendez-vous prioritaire pour le moment." wrapText="true" />
                                         <Hyperlink fx:id="appointmentCalendarLink" managed="false" onAction="#handleOpenAppointmentCalendar" text="Ajouter ce rendez-vous au calendrier" visible="false" />
                                         <Label fx:id="nearbyPlacesLabel" styleClass="selected-event-pill places-pill" text="Lieux proches: aucun lieu recommande pour le moment." wrapText="true" />
+                                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                            <children>
+                                                <Label fx:id="currentLocationLabel" styleClass="tiny-hint strong-hint" text="Current location: detecting..." />
+                                                <Button onAction="#handleUseCurrentLocation" styleClass="light-button" text="Use my current location" />
+                                            </children>
+                                        </HBox>
+                                        <HBox alignment="CENTER_LEFT" managed="false" spacing="10.0" visible="false" fx:id="placesSelectionRow">
+                                            <children>
+                                                <ComboBox fx:id="recommendedPlacesComboBox" prefWidth="420.0" promptText="Choisir un lieu recommande" />
+                                                <Hyperlink fx:id="directionsLink" managed="false" onAction="#handleOpenDirections" text="Voir le chemin" visible="false" />
+                                            </children>
+                                        </HBox>
                                     </children>
                                 </VBox>
 
@@ -232,7 +244,7 @@
 
                                                             <children>
                                                                 <TextField fx:id="casTitreField" maxWidth="1.7976931348623157E308" promptText="Case title" GridPane.columnSpan="2" />
-                                                                <ComboBox fx:id="casTypeComboBox" maxWidth="1.7976931348623157E308" promptText="Type" GridPane.rowIndex="1" />
+                                                                <ComboBox fx:id="casTypeComboBox" prefWidth="180" promptText="Type" GridPane.rowIndex="1" />
                                                                 <TextField fx:id="casMontantField" maxWidth="1.7976931348623157E308" promptText="Amount (DT)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                                                 <ComboBox fx:id="paymentMethodComboBox" maxWidth="1.7976931348623157E308" promptText="Payment method" GridPane.columnSpan="2" GridPane.rowIndex="2" />
                                                                 <DatePicker fx:id="dateEffetPicker" maxWidth="1.7976931348623157E308" GridPane.columnSpan="2" GridPane.rowIndex="3" />

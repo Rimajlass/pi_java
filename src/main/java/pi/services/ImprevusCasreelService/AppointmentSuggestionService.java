@@ -22,6 +22,7 @@ public class AppointmentSuggestionService {
             String city,
             LocalDateTime startAt,
             LocalDateTime endAt,
+            boolean recurringMonthly,
             List<String> placeTypesNeeded,
             String calendarUrl
     ) {
@@ -31,12 +32,20 @@ public class AppointmentSuggestionService {
     private static final DateTimeFormatter UI_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy 'a' HH:mm");
 
     public AppointmentSuggestion suggest(String dominantRisk, User user) {
-        return suggest(dominantRisk, null, null, user);
+        return suggest(dominantRisk, null, null, user, false, null);
     }
 
     public AppointmentSuggestion suggest(String dominantRisk, String caseTitle, String caseDescription, User user) {
+        return suggest(dominantRisk, caseTitle, caseDescription, user, false, null);
+    }
+
+    public AppointmentSuggestion suggest(String dominantRisk, String caseTitle, String caseDescription, User user, boolean recurringMonthly) {
+        return suggest(dominantRisk, caseTitle, caseDescription, user, recurringMonthly, null);
+    }
+
+    public AppointmentSuggestion suggest(String dominantRisk, String caseTitle, String caseDescription, User user, boolean recurringMonthly, String cityOverride) {
         String normalizedRisk = dominantRisk == null || dominantRisk.isBlank() ? "Autres" : dominantRisk;
-        String city = resolveCity(user);
+        String city = resolveCity(user, cityOverride);
         LocalDateTime startAt = resolveStart(normalizedRisk);
         LocalDateTime endAt = startAt.plusMinutes(45);
         String title = switch (normalizedRisk) {
@@ -63,8 +72,9 @@ public class AppointmentSuggestionService {
                 city,
                 startAt,
                 endAt,
+                recurringMonthly,
                 placeTypes,
-                buildCalendarUrl(title, description + " Motif: " + reason, city, startAt, endAt)
+                buildCalendarUrl(title, description + " Motif: " + reason, city, startAt, endAt, recurringMonthly)
         );
     }
 
@@ -75,7 +85,8 @@ public class AppointmentSuggestionService {
         return "Rendez-vous suggere pour \"" + suggestion.caseTitle() + "\": " + suggestion.title()
                 + " le " + suggestion.startAt().format(UI_DATE_FORMAT)
                 + " a " + suggestion.city()
-                + ". Pourquoi: " + suggestion.reason();
+                + (suggestion.recurringMonthly() ? ". Ce rappel sera planifie chaque mois." : ".")
+                + " Pourquoi: " + suggestion.reason();
     }
 
     public String formatPlaceTypesForUi(AppointmentSuggestion suggestion) {
@@ -85,7 +96,10 @@ public class AppointmentSuggestionService {
         return "Types de lieux utiles pour eviter ce cas: " + String.join(", ", suggestion.placeTypesNeeded()) + ".";
     }
 
-    private String resolveCity(User user) {
+    private String resolveCity(User user, String cityOverride) {
+        if (cityOverride != null && !cityOverride.isBlank()) {
+            return cityOverride.trim();
+        }
         if (user != null && user.getGeoCityName() != null && !user.getGeoCityName().isBlank()) {
             return user.getGeoCityName();
         }
@@ -108,12 +122,16 @@ public class AppointmentSuggestionService {
         return LocalDateTime.of(date, time);
     }
 
-    private String buildCalendarUrl(String title, String description, String city, LocalDateTime startAt, LocalDateTime endAt) {
-        return "https://calendar.google.com/calendar/render?action=TEMPLATE"
+    private String buildCalendarUrl(String title, String description, String city, LocalDateTime startAt, LocalDateTime endAt, boolean recurringMonthly) {
+        String url = "https://calendar.google.com/calendar/render?action=TEMPLATE"
                 + "&text=" + encode(title)
                 + "&details=" + encode(description)
                 + "&location=" + encode(city)
                 + "&dates=" + startAt.format(CALENDAR_FORMAT) + "/" + endAt.format(CALENDAR_FORMAT);
+        if (recurringMonthly) {
+            url += "&recur=" + encode("RRULE:FREQ=MONTHLY;COUNT=12");
+        }
+        return url;
     }
 
     private String buildReason(String dominantRisk, String caseTitle, String caseDescription) {

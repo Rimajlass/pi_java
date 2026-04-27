@@ -36,6 +36,7 @@ import pi.mains.Main;
 import pi.services.ImprevusCasreelService.CasReelService;
 import pi.services.ImprevusCasreelService.CaseReportExporter;
 import pi.services.ImprevusCasreelService.CaseFundingAdvice;
+import pi.services.ImprevusCasreelService.CurrentLocationService;
 import pi.services.ImprevusCasreelService.ImprevusService;
 import pi.services.ImprevusCasreelService.LocationSuggestionService;
 import pi.services.ImprevusCasreelService.AppointmentSuggestionService;
@@ -58,7 +59,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-
+import java.util.concurrent.TimeUnit;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
+import java.awt.Toolkit;
+import java.awt.Image;
 public class ImprevusFrontController {
     @FXML private ScrollPane pageScrollPane;
     @FXML private VBox caseFormCard;
@@ -73,6 +78,7 @@ public class ImprevusFrontController {
     @FXML private ComboBox<String> triImprevusComboBox;
     @FXML private ComboBox<String> triCasReelsComboBox;
     @FXML private ComboBox<String> paymentMethodComboBox;
+    @FXML private ComboBox<String> recommendedPlacesComboBox;
     @FXML private DatePicker dateEffetPicker;
     @FXML private Label statusLabel;
     @FXML private Label fundingAdviceLabel;
@@ -100,8 +106,11 @@ public class ImprevusFrontController {
     @FXML private Label weeklyAdviceLabel;
     @FXML private Label appointmentSuggestionLabel;
     @FXML private Label nearbyPlacesLabel;
+    @FXML private Label currentLocationLabel;
     @FXML private Hyperlink appointmentCalendarLink;
+    @FXML private Hyperlink directionsLink;
     @FXML private ListView<Imprevus> imprevusListView;
+    @FXML private HBox placesSelectionRow;
     @FXML private TableView<CasRelles> casReelsTableView;
     @FXML private TableColumn<CasRelles, String> historyDateColumn;
     @FXML private TableColumn<CasRelles, String> historyTitleColumn;
@@ -121,6 +130,7 @@ public class ImprevusFrontController {
     private final UserNotificationService userNotificationService = new UserNotificationService();
     private final LocationSuggestionService locationSuggestionService = new LocationSuggestionService();
     private final AppointmentSuggestionService appointmentSuggestionService = new AppointmentSuggestionService();
+    private final CurrentLocationService currentLocationService = new CurrentLocationService();
     private final ObservableList<Imprevus> imprevusList = FXCollections.observableArrayList();
     private final ObservableList<CasRelles> casReelsList = FXCollections.observableArrayList();
     private final ObservableList<Imprevus> allImprevusList = FXCollections.observableArrayList();
@@ -131,6 +141,9 @@ public class ImprevusFrontController {
     private Timeline notificationPoller;
     private int lastPoppedNotificationId = -1;
     private String currentAppointmentCalendarUrl;
+    private String currentDirectionsUrl;
+    private CurrentLocationService.CurrentLocation currentDetectedLocation;
+    private boolean liveLocationRequestInProgress;
 
     public void setUser(User user) {
         this.currentUser = user;
@@ -141,7 +154,45 @@ public class ImprevusFrontController {
         updateLatestNotification();
         startNotificationPolling();
     }
+    private void showLocalPcNotification(String title, String message) {
+        try {
+            if (!SystemTray.isSupported()) {
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle(title);
+                    alert.setHeaderText(title);
+                    alert.setContentText(message);
+                    alert.show();
+                });
+                return;
+            }
 
+            SystemTray tray = SystemTray.getSystemTray();
+            Image image = Toolkit.getDefaultToolkit().createImage("");
+
+            TrayIcon trayIcon = new TrayIcon(image, "Decide$");
+            trayIcon.setImageAutoSize(true);
+
+            tray.add(trayIcon);
+            trayIcon.displayMessage(title, message, TrayIcon.MessageType.INFO);
+
+            new Thread(() -> {
+                try {
+                    Thread.sleep(6000);
+                    tray.remove(trayIcon);
+                } catch (Exception ignored) {}
+            }).start();
+
+        } catch (Exception e) {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle(title);
+                alert.setHeaderText(title);
+                alert.setContentText(message);
+                alert.show();
+            });
+        }
+    }
     @FXML
     public void initialize() {
         casTypeComboBox.setItems(FXCollections.observableArrayList("Depense", "Gain"));
@@ -155,6 +206,9 @@ public class ImprevusFrontController {
         triImprevusComboBox.setValue("Titre A-Z");
         triCasReelsComboBox.setValue("Plus recent");
         dateEffetPicker.setValue(LocalDate.now());
+        if (recommendedPlacesComboBox != null) {
+            recommendedPlacesComboBox.valueProperty().addListener((obs, oldValue, newValue) -> updateDirectionsLink(newValue));
+        }
         appliquerControleSaisie();
         configureLists();
         searchImprevusField.textProperty().addListener((obs, oldValue, newValue) -> filtrerImprevus(newValue));
@@ -170,7 +224,7 @@ public class ImprevusFrontController {
         updateSelectedEventHint();
         updateFundingControlsForType();
         updateAppointmentLink(null);
-        startNotificationPolling();
+        detectCurrentLocation(false);
     }
 
     private void startNotificationPolling() {
@@ -183,6 +237,17 @@ public class ImprevusFrontController {
     }
 
     private void checkAndPopupLatestNotification() {
+        System.out.println("CHECK NOTIF...");
+
+        if (currentUser != null) {
+            System.out.println("USER ID = " + currentUser.getId());
+        } else {
+            System.out.println("USER IS NULL ❌");
+        }
+
+        if (currentUser == null || currentUser.getId() <= 0) {
+            return;
+        }
         if (currentUser == null || currentUser.getId() <= 0) {
             return;
         }
@@ -200,11 +265,10 @@ public class ImprevusFrontController {
             }
             lastPoppedNotificationId = notification.getId();
             Platform.runLater(() -> {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Notification");
-                alert.setHeaderText(notification.getTitle());
-                alert.setContentText(notification.getMessage());
-                alert.show();
+                showLocalPcNotification(
+                        notification.getTitle(),
+                        notification.getMessage()
+                );
             });
             try {
                 userNotificationService.markAsRead(notification.getId());
@@ -768,14 +832,18 @@ public class ImprevusFrontController {
                     ? "Types de lieux utiles: ajoute LOCATIONIQ_API_KEY dans .env pour activer les suggestions maps."
                     : "Types de lieux utiles: selectionne un cas pour obtenir un rendez-vous cible.");
             updateAppointmentLink(null);
+            updateRecommendedPlaces(List.of());
             return;
         }
 
+        boolean recurringMonthly = isMonthlyRecurringRisk(context.riskCategory());
         AppointmentSuggestionService.AppointmentSuggestion suggestion = appointmentSuggestionService.suggest(
                 context.riskCategory(),
                 context.caseTitle(),
                 context.caseDescription(),
-                currentUser
+                currentUser,
+                recurringMonthly,
+                resolveActiveCity()
         );
         appointmentSuggestionLabel.setText(appointmentSuggestionService.formatForUi(suggestion));
         updateAppointmentLink(suggestion);
@@ -785,21 +853,21 @@ public class ImprevusFrontController {
     }
 
     private void loadNearbySuggestions(AppointmentSuggestionService.AppointmentSuggestion suggestion) {
-        if (!hasMapsConfig()) {
+        String city = resolveActiveCity();
+        Double latitude = currentDetectedLocation == null ? null : currentDetectedLocation.latitude();
+        Double longitude = currentDetectedLocation == null ? null : currentDetectedLocation.longitude();
+        if ((city == null || city.isBlank()) && (latitude == null || longitude == null)) {
             nearbyPlacesLabel.setText(appointmentSuggestionService.formatPlaceTypesForUi(suggestion)
-                    + " Suggestions maps desactivees. Ajoute LOCATIONIQ_API_KEY dans .env.");
+                    + " Active la localisation ou ajoute une ville utilisateur pour voir les meilleures adresses.");
+            updateRecommendedPlaces(List.of());
             return;
         }
-        if (currentUser == null || currentUser.getGeoCityName() == null || currentUser.getGeoCityName().isBlank()) {
-            nearbyPlacesLabel.setText(appointmentSuggestionService.formatPlaceTypesForUi(suggestion)
-                    + " Ajoute une ville utilisateur pour voir les meilleures adresses.");
-            return;
-        }
-        String city = currentUser.getGeoCityName();
         nearbyPlacesLabel.setText(appointmentSuggestionService.formatPlaceTypesForUi(suggestion)
                 + " Chargement des meilleures adresses...");
         CompletableFuture
-                .supplyAsync(() -> locationSuggestionService.suggestNearbyPlacesForNeeds(suggestion.placeTypesNeeded(), city))
+                .supplyAsync(() -> locationSuggestionService.suggestNearbyPlacesForNeeds(suggestion.placeTypesNeeded(), city, latitude, longitude))
+                .orTimeout(20, TimeUnit.SECONDS)
+                .exceptionally(error -> List.of())
                 .thenAccept(suggestions -> Platform.runLater(() -> applyNearbySuggestions(suggestion, suggestions)));
     }
 
@@ -807,10 +875,12 @@ public class ImprevusFrontController {
         if (suggestions == null || suggestions.isEmpty()) {
             nearbyPlacesLabel.setText(appointmentSuggestionService.formatPlaceTypesForUi(suggestion)
                     + " Aucun lieu suggere via maps pour le moment.");
+            updateRecommendedPlaces(List.of());
             return;
         }
         nearbyPlacesLabel.setText(appointmentSuggestionService.formatPlaceTypesForUi(suggestion)
-                + " Meilleures adresses proches: " + String.join(" | ", suggestions));
+                + " 5 options utiles sont pretes. Choisis-en une pour ouvrir le trajet dans Google Maps.");
+        updateRecommendedPlaces(suggestions);
     }
 
     private AppointmentContext resolveAppointmentContext() {
@@ -891,6 +961,9 @@ public class ImprevusFrontController {
         appointmentCalendarLink.setVisible(active);
         appointmentCalendarLink.setManaged(active);
         appointmentCalendarLink.setDisable(!active);
+        appointmentCalendarLink.setText(suggestion != null && suggestion.recurringMonthly()
+                ? "Ajouter ce rappel mensuel au calendrier"
+                : "Ajouter ce rendez-vous au calendrier");
     }
 
     @FXML
@@ -908,12 +981,131 @@ public class ImprevusFrontController {
         }
     }
 
+    @FXML
+    private void handleOpenDirections() {
+        if (currentDirectionsUrl == null || currentDirectionsUrl.isBlank()) {
+            statusLabel.setText("Choisis un lieu recommande pour voir le chemin.");
+            return;
+        }
+        try {
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().browse(URI.create(currentDirectionsUrl));
+            }
+        } catch (Exception e) {
+            afficherErreur("Impossible d'ouvrir le trajet : " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleUseCurrentLocation() {
+        detectCurrentLocation(true);
+    }
+
     private boolean hasMailConfig() {
         return AppEnv.has("MAILER_DSN") && AppEnv.has("MAILER_FROM_ADDRESS");
     }
 
     private boolean hasMapsConfig() {
         return AppEnv.has("LOCATIONIQ_API_KEY");
+    }
+
+    private void updateRecommendedPlaces(List<String> places) {
+        if (recommendedPlacesComboBox == null || placesSelectionRow == null) {
+            return;
+        }
+        recommendedPlacesComboBox.getItems().setAll(places);
+        boolean hasPlaces = places != null && !places.isEmpty();
+        placesSelectionRow.setManaged(hasPlaces);
+        placesSelectionRow.setVisible(hasPlaces);
+        if (hasPlaces) {
+            recommendedPlacesComboBox.getSelectionModel().selectFirst();
+            updateDirectionsLink(recommendedPlacesComboBox.getValue());
+        } else {
+            recommendedPlacesComboBox.getSelectionModel().clearSelection();
+            updateDirectionsLink(null);
+        }
+    }
+
+    private void updateDirectionsLink(String place) {
+        currentDirectionsUrl = null;
+        if (directionsLink == null) {
+            return;
+        }
+        currentDirectionsUrl = locationSuggestionService.buildDirectionsUrl(
+                currentDetectedLocation == null ? null : currentDetectedLocation.latitude(),
+                currentDetectedLocation == null ? null : currentDetectedLocation.longitude(),
+                resolveActiveCity(),
+                place
+        );
+        boolean active = currentDirectionsUrl != null && !currentDirectionsUrl.isBlank();
+        directionsLink.setManaged(active);
+        directionsLink.setVisible(active);
+        directionsLink.setDisable(!active);
+    }
+
+    private boolean isMonthlyRecurringRisk(String riskCategory) {
+        if (riskCategory == null || (!"Sante".equals(riskCategory) && !"Voiture".equals(riskCategory) && !"Maison".equals(riskCategory))) {
+            return false;
+        }
+        long count = allCasReelsList.stream()
+                .filter(cas -> "Depense".equalsIgnoreCase(cas.getType()))
+                .filter(cas -> cas.getDateEffet() != null && !cas.getDateEffet().isBefore(LocalDate.now().minusDays(180)))
+                .filter(cas -> riskCategory.equals(inferRiskCategory(cas)))
+                .count();
+        return count >= 3;
+    }
+
+    private void detectCurrentLocation(boolean preferBrowserGps) {
+        liveLocationRequestInProgress = preferBrowserGps;
+        if (currentLocationLabel != null) {
+            currentLocationLabel.setText(preferBrowserGps
+                    ? "Current location: requesting live location..."
+                    : "Current location: detecting automatically...");
+        }
+        CompletableFuture<CurrentLocationService.CurrentLocation> future = preferBrowserGps
+                ? currentLocationService.detectWithBrowserGpsOrIpAsync(pageScrollPane == null ? null : pageScrollPane.getScene().getWindow())
+                : currentLocationService.detectByIpAsync();
+        future.thenAccept(location -> Platform.runLater(() -> applyDetectedLocation(location)));
+    }
+
+    private void applyDetectedLocation(CurrentLocationService.CurrentLocation location) {
+        currentDetectedLocation = location;
+        if (currentLocationLabel != null) {
+            if (location == null) {
+                currentLocationLabel.setText("Current location: unavailable");
+            } else {
+                String coordinates = location.hasCoordinates()
+                        ? String.format(Locale.US, " [%.5f, %.5f]", location.latitude(), location.longitude())
+                        : "";
+                currentLocationLabel.setText("Current location: " + location.city() + " (" + location.source() + ")" + coordinates);
+            }
+        }
+        if (location != null && liveLocationRequestInProgress && location.hasCoordinates()) {
+            showStatus("Live location received: " + location.city() + ".", true);
+            showInfoPopup("Location updated", "Live location received for " + location.city() + ".");
+        }
+        if (liveLocationRequestInProgress && preferLiveLocationRequestedButUnavailable(location)) {
+            showStatus("Windows/browser live location was unavailable. The app used fallback detection instead.", false);
+        }
+        liveLocationRequestInProgress = false;
+        updateAppointmentInsights();
+    }
+
+    private String resolveActiveCity() {
+        if (currentDetectedLocation != null && currentDetectedLocation.city() != null && !currentDetectedLocation.city().isBlank()) {
+            return currentDetectedLocation.city();
+        }
+        if (currentUser != null && currentUser.getGeoCityName() != null && !currentUser.getGeoCityName().isBlank()) {
+            return currentUser.getGeoCityName();
+        }
+        return null;
+    }
+
+    private boolean preferLiveLocationRequestedButUnavailable(CurrentLocationService.CurrentLocation location) {
+        if (location == null || location.source() == null) {
+            return false;
+        }
+        return "IP location".equals(location.source()) || "Default city".equals(location.source()) || "Windows live location unavailable".equals(location.source());
     }
 
     private boolean sameImprevu(Imprevus first, Imprevus second) {

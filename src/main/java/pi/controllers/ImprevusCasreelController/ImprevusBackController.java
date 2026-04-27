@@ -205,7 +205,13 @@ public class ImprevusBackController {
                 null,
                 safe(adminNoteArea),
                 currentAdmin == null ? null : currentAdmin.getId()
-        );
+        );if (selectedCas.getUser() != null) {
+            adminNotificationService.createNotification(
+                    selectedCas.getUser().getId(),
+                    "Case approved",
+                    "Your gain case \"" + selectedCas.getTitre() + "\" has been approved."
+            );
+        }
         refreshCas();
         reselectCase(caseId);
         showWorkflowOutcome(outcome);
@@ -246,9 +252,23 @@ public class ImprevusBackController {
     }
 
     private void refreshCas() {
-        casReels.setAll(casReelService.afficher());
+        casReels.setAll(
+                casReelService.afficher()
+                        .stream()
+                        .filter(cas -> "Gain".equalsIgnoreCase(cas.getType()))
+                        .toList()
+        );
+
         casListView.refresh();
-        showSelectedCase(selectedCas == null ? null : casReels.stream().filter(c -> c.getId() == selectedCas.getId()).findFirst().orElse(null));
+
+        showSelectedCase(
+                selectedCas == null
+                        ? null
+                        : casReels.stream()
+                          .filter(c -> c.getId() == selectedCas.getId())
+                          .findFirst()
+                          .orElse(null)
+        );
     }
 
     private void reselectCase(int id) {

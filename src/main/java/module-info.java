@@ -1,9 +1,12 @@
 module Pidev3A47 {
     requires javafx.controls;
     requires javafx.fxml;
+    requires javafx.web;
     requires java.sql;
     requires java.net.http;
     requires java.desktop;
+    requires jdk.jsobject;
+    requires jdk.httpserver;
     requires mysql.connector.j;
     requires jakarta.mail;
 
