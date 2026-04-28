@@ -1,7 +1,11 @@
 module Pidev3A47 {
     requires javafx.controls;
     requires javafx.fxml;
+    requires java.net.http;
     requires java.sql;
+    requires java.desktop;
+    requires com.fasterxml.jackson.databind;
+    requires vosk;
     requires mysql.connector.j;
 
     exports pi.mains;
@@ -9,6 +13,7 @@ module Pidev3A47 {
     exports pi.entities;
     exports pi.services.RevenueExpenseService;
     exports pi.tools;
+    exports pi.assistant;
 
     opens pi.mains to javafx.fxml;
     opens pi.controllers.UserTransactionController to javafx.fxml;

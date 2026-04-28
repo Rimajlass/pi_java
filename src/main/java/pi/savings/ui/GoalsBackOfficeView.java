@@ -27,8 +27,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import pi.savings.repository.SavingsTransactionRepository;
 import pi.savings.service.SavingsModuleService;
+import pi.savings.service.SavingsStatsService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -60,6 +63,7 @@ final class GoalsBackOfficeView {
     private Label activeSearchValue;
     private Label activeSortValue;
     private TabPane tabPane;
+    private ComboBox<String> currencyComboBox;
     private PieChart savingsPieChart;
     private BarChart<String, Number> savingsBarChart;
     private PieChart goalsPieChart;
@@ -127,7 +131,33 @@ final class GoalsBackOfficeView {
         refreshButton.getStyleClass().add("primary-action-btn");
         refreshButton.setOnAction(event -> reloadDashboard());
 
-        top.getChildren().addAll(title, spacer, openMainButton, refreshButton);
+        currencyComboBox = new ComboBox<>();
+        currencyComboBox.getItems().setAll(controller.getSupportedCurrencies());
+        currencyComboBox.setValue(controller.getSelectedCurrency());
+        currencyComboBox.getStyleClass().add("toolbar-combo");
+        currencyComboBox.setOnAction(event -> handleCurrencyChange());
+
+        Button statsButton = new Button("Global Stats");
+        statsButton.getStyleClass().add("secondary-action-btn");
+        statsButton.setOnAction(event -> showGlobalStatsWindow());
+
+        Button savingsCsvButton = new Button("Savings CSV");
+        savingsCsvButton.getStyleClass().add("secondary-action-btn");
+        savingsCsvButton.setOnAction(event -> exportAllSavingsCsv());
+
+        Button savingsPdfButton = new Button("Savings PDF");
+        savingsPdfButton.getStyleClass().add("secondary-action-btn");
+        savingsPdfButton.setOnAction(event -> exportAllSavingsPdf());
+
+        Button goalsCsvButton = new Button("Goals CSV");
+        goalsCsvButton.getStyleClass().add("secondary-action-btn");
+        goalsCsvButton.setOnAction(event -> exportAllGoalsCsv());
+
+        Button goalsPdfButton = new Button("Goals PDF");
+        goalsPdfButton.getStyleClass().add("secondary-action-btn");
+        goalsPdfButton.setOnAction(event -> exportAllGoalsPdf());
+
+        top.getChildren().addAll(title, spacer, currencyComboBox, statsButton, savingsCsvButton, savingsPdfButton, goalsCsvButton, goalsPdfButton, openMainButton, refreshButton);
 
         Label subtitle = new Label("Admin-style interface for browsing, searching, sorting, and monitoring savings transactions and financial goals.");
         subtitle.getStyleClass().add("hero-subtitle");
@@ -822,5 +852,98 @@ final class GoalsBackOfficeView {
         if (goalsNextButton != null) {
             goalsNextButton.setDisable(page.pageIndex() >= page.pageCount() - 1);
         }
+    }
+
+    private void handleCurrencyChange() {
+        SavingsUiController.OperationResult result = controller.selectCurrency(
+                currencyComboBox == null ? "TND" : currencyComboBox.getValue()
+        );
+        if (result.success()) {
+            refreshOverviewFromCurrentTab();
+            showInfo(result.message());
+        } else {
+            showError(result.message());
+        }
+    }
+
+    private void exportAllSavingsCsv() {
+        SavingsUiController.OperationResult result = controller.safeExportAllSavingAccountsCsv(java.nio.file.Paths.get("target", "exports"));
+        if (result.success()) {
+            showInfo(result.message());
+        } else {
+            showError(result.message());
+        }
+    }
+
+    private void exportAllSavingsPdf() {
+        SavingsUiController.OperationResult result = controller.safeExportAllSavingAccountsPdf(java.nio.file.Paths.get("target", "exports"));
+        if (result.success()) {
+            showInfo(result.message());
+        } else {
+            showError(result.message());
+        }
+    }
+
+    private void exportAllGoalsCsv() {
+        SavingsUiController.OperationResult result = controller.safeExportAllGoalsCsv(java.nio.file.Paths.get("target", "exports"));
+        if (result.success()) {
+            showInfo(result.message());
+        } else {
+            showError(result.message());
+        }
+    }
+
+    private void exportAllGoalsPdf() {
+        SavingsUiController.OperationResult result = controller.safeExportAllGoalsPdf(java.nio.file.Paths.get("target", "exports"));
+        if (result.success()) {
+            showInfo(result.message());
+        } else {
+            showError(result.message());
+        }
+    }
+
+    private void showGlobalStatsWindow() {
+        SavingsStatsService.BackOfficeStatsSnapshot stats = controller.loadBackOfficeStats();
+        Stage stage = new Stage();
+        VBox root = new VBox(18);
+        root.setStyle("-fx-padding: 22;");
+        root.getStyleClass().add("table-card");
+
+        Label title = new Label("Back Office Statistics");
+        title.getStyleClass().add("hero-title");
+        title.setStyle("-fx-font-size: 28px;");
+
+        Label subtitle = new Label("Global figures enriched with Currency API and holiday risk detection.");
+        subtitle.getStyleClass().add("hero-subtitle");
+
+        HBox cards = new HBox(10,
+                summaryBlock("Accounts", valueOf(String.valueOf(stats.totalSavingsAccounts()))),
+                summaryBlock("Balance", valueOf(formatMoney(stats.totalBalance()))),
+                summaryBlock("Goals", valueOf(String.valueOf(stats.totalGoals()))),
+                summaryBlock("Near holiday", valueOf(String.valueOf(stats.nearHolidayGoals())))
+        );
+
+        VBox topUsers = cardTitle("Top Users", stats.topUsers().stream()
+                .map(row -> row.userName() + " - " + row.userEmail() + " - " + formatMoney(row.balance()))
+                .reduce((left, right) -> left + "\n" + right)
+                .orElse("No users"));
+        VBox topGoals = cardTitle("Top Goals", stats.topGoals().stream()
+                .map(row -> row.goalName() + " - " + row.progressPercent().stripTrailingZeros().toPlainString() + "% - " + row.status())
+                .reduce((left, right) -> left + "\n" + right)
+                .orElse("No goals"));
+
+        root.getChildren().addAll(title, subtitle, cards, topUsers, topGoals);
+
+        Scene scene = new Scene(root, 920, 620);
+        scene.getStylesheets().add(GoalsBackOfficeView.class.getResource("/pi/savings/ui/goals-backoffice.css").toExternalForm());
+        stage.setTitle("Back Office Statistics");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    private Label valueOf(String text) {
+        Label label = new Label(text);
+        label.getStyleClass().add("summary-value");
+        return label;
     }
 }
