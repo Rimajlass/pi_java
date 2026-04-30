@@ -504,6 +504,21 @@
     -fx-font-weight: 800;
 }
 
+.calendar-action-button {
+    -fx-background-color: linear-gradient(to right, #1f9a5f, #22b36c);
+    -fx-text-fill: white;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 10 18 10 18;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-cursor: hand;
+}
+
+.calendar-action-button:hover {
+    -fx-background-color: linear-gradient(to right, #188451, #1fa764);
+}
+
 .advisor-pill {
     -fx-background-color: #fff8e8;
     -fx-border-color: #f5ddb0;
@@ -909,6 +924,16 @@
     -fx-effect: dropshadow(gaussian, rgba(18, 34, 57, 0.08), 16, 0.14, 0, 4);
 }
 
+.list-card-box.amount-positive {
+    -fx-background-color: linear-gradient(to bottom, #eefcf4, #e2f8eb);
+    -fx-border-color: #86d6a8;
+}
+
+.list-card-box.amount-negative {
+    -fx-background-color: linear-gradient(to bottom, #fff2f4, #ffe6ea);
+    -fx-border-color: #f0a7b3;
+}
+
 #imprevusListView .list-cell:filled:selected .list-card-box {
     -fx-background-color: #edf8ff;
     -fx-border-color: #7fc9e8;
@@ -957,6 +982,14 @@
     -fx-text-fill: #123455;
     -fx-font-size: 13px;
     -fx-font-weight: 900;
+}
+
+.amount-positive {
+    -fx-text-fill: #14925b;
+}
+
+.amount-negative {
+    -fx-text-fill: #eb405a;
 }
 
 .list-card-linked {

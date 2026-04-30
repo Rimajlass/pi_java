@@ -106,12 +106,14 @@ public class ImprevusFrontController {
     @FXML private Label autresRiskLabel;
     @FXML private Label weeklyAdviceLabel;
     @FXML private VBox preventionPlanBox;
+    @FXML private HBox appointmentActionRow;
     @FXML private Label preventionImmediateActionLabel;
     @FXML private Label preventionBudgetLabel;
     @FXML private Label preventionAdviceLabel;
     @FXML private Label appointmentSuggestionLabel;
     @FXML private Label nearbyPlacesLabel;
     @FXML private Label currentLocationLabel;
+    @FXML private Button appointmentCalendarButton;
     @FXML private Hyperlink appointmentCalendarLink;
     @FXML private Hyperlink directionsLink;
     @FXML private ListView<Imprevus> imprevusListView;
@@ -316,8 +318,11 @@ public class ImprevusFrontController {
                 title.getStyleClass().add("list-card-title");
                 Label subtitle = new Label(blankToDash(item.getType()));
                 subtitle.getStyleClass().add("list-card-type");
-                Label budgetBadge = new Label(formatMontant(calculerBudgetImprevu(item)));
+                double signedBudget = calculerBudgetImprevu(item);
+                Label budgetBadge = new Label(formatSignedAmount(signedBudget));
+                String amountStyle = signedBudget >= 0 ? "amount-positive" : "amount-negative";
                 budgetBadge.getStyleClass().add("list-card-budget");
+                budgetBadge.getStyleClass().add(amountStyle);
                 Label linkedCases = new Label(countLinkedCases(item) + " linked case" + (countLinkedCases(item) > 1 ? "s" : ""));
                 linkedCases.getStyleClass().add("list-card-linked");
                 Region spacer = new Region();
@@ -328,6 +333,7 @@ public class ImprevusFrontController {
                 bottomRow.getStyleClass().add("list-card-bottom-row");
                 VBox box = new VBox(6, topRow, bottomRow);
                 box.getStyleClass().add("list-card-box");
+                box.getStyleClass().add(amountStyle);
                 setGraphic(box);
             }
         });
@@ -556,8 +562,7 @@ public class ImprevusFrontController {
         cas.setPaymentMethod(paymentMethod);
         if (currentUser != null) {
             if ("Gain".equalsIgnoreCase(type)) {
-                CasReelService.GainAllocationDecision decision = casReelService.analyzeGainAllocation(currentUser.getId(), montant);
-                cas.setPaymentMethod(decision.recommendedPaymentMethod());
+                CasReelService.GainAllocationDecision decision = casReelService.analyzeGainAllocation(currentUser.getId(), montant, paymentMethod);
                 cas.setFinancialGoal(decision.targetGoal());
                 cas.setAiRefusalSuggestion(decision.suggestion());
             } else {
@@ -663,7 +668,7 @@ public class ImprevusFrontController {
             return;
         }
         if ("Gain".equalsIgnoreCase(casTypeComboBox.getValue())) {
-            CasReelService.GainAllocationDecision decision = casReelService.analyzeGainAllocation(currentUser.getId(), amount);
+            CasReelService.GainAllocationDecision decision = casReelService.analyzeGainAllocation(currentUser.getId(), amount, paymentMethodComboBox.getValue());
             fundingAdviceLabel.setText(decision.suggestion());
             return;
         }
@@ -738,7 +743,7 @@ public class ImprevusFrontController {
         if (imprevu == null) return 0;
         return allCasReelsList.stream()
                 .filter(cas -> cas.getImprevus() != null && cas.getImprevus().getId() == imprevu.getId())
-                .mapToDouble(CasRelles::getMontant)
+                .mapToDouble(cas -> "Depense".equalsIgnoreCase(cas.getType()) ? -Math.abs(cas.getMontant()) : Math.abs(cas.getMontant()))
                 .sum();
     }
 
@@ -881,11 +886,18 @@ public class ImprevusFrontController {
     }
 
     private void updateAppointmentInsights() {
+        if (appointmentSuggestionLabel == null && nearbyPlacesLabel == null) {
+            return;
+        }
         AppointmentContext context = resolveAppointmentContext();
         String recurringRisk = computeRecurringReminderRisk();
         if (context == null && recurringRisk == null) {
-            appointmentSuggestionLabel.setText("Rendez-vous suggere: aucun rendez-vous prioritaire pour le moment.");
-            nearbyPlacesLabel.setText("L'assistance lieux proches apparaitra seulement dans la popup d'urgence apres ajout d'un cas.");
+            if (appointmentSuggestionLabel != null) {
+                appointmentSuggestionLabel.setText("Rendez-vous suggere: aucun rendez-vous prioritaire pour le moment.");
+            }
+            if (nearbyPlacesLabel != null) {
+                nearbyPlacesLabel.setText("L'assistance lieux proches apparaitra seulement dans la popup d'urgence apres ajout d'un cas.");
+            }
             updateAppointmentLink(null);
             return;
         }
@@ -909,14 +921,17 @@ public class ImprevusFrontController {
                     resolveActiveCity()
             );
         }
-        appointmentSuggestionLabel.setText(appointmentSuggestionService.formatForUi(suggestion));
+        if (appointmentSuggestionLabel != null) {
+            appointmentSuggestionLabel.setText(appointmentSuggestionService.formatForUi(suggestion));
+        }
         updateAppointmentLink(suggestion);
-        nearbyPlacesLabel.setText(recurringRisk != null
-                ? "Le rappel mensuel est affiche ici parce que le conseil hebdomadaire a detecte un cas repetitif. Pour les lieux proches et la carte, utilise la popup d'urgence apres ajout d'un cas."
-                : "Pour les lieux proches et la carte, utilise la popup d'urgence apres ajout d'un cas.");
+        loadNearbySuggestions(suggestion);
     }
 
     private void loadNearbySuggestions(AppointmentSuggestionService.AppointmentSuggestion suggestion) {
+        if (nearbyPlacesLabel == null) {
+            return;
+        }
         String city = resolveActiveCity();
         Double latitude = currentDetectedLocation == null ? null : currentDetectedLocation.latitude();
         Double longitude = currentDetectedLocation == null ? null : currentDetectedLocation.longitude();
@@ -936,10 +951,14 @@ public class ImprevusFrontController {
     }
 
     private void applyNearbySuggestions(AppointmentSuggestionService.AppointmentSuggestion suggestion, List<String> suggestions) {
+        if (nearbyPlacesLabel == null) {
+            return;
+        }
         if (suggestions == null || suggestions.isEmpty()) {
+            List<String> fallbackPlaces = locationSuggestionService.suggestFallbackPlacesForNeeds(suggestion.placeTypesNeeded(), resolveActiveCity());
             nearbyPlacesLabel.setText(appointmentSuggestionService.formatPlaceTypesForUi(suggestion)
-                    + " Aucun lieu suggere via maps pour le moment.");
-            updateRecommendedPlaces(List.of());
+                    + " Resultats maps limites pour le moment, mais voici des recherches utiles a ouvrir.");
+            updateRecommendedPlaces(fallbackPlaces);
             return;
         }
         nearbyPlacesLabel.setText(appointmentSuggestionService.formatPlaceTypesForUi(suggestion)
@@ -1018,19 +1037,32 @@ public class ImprevusFrontController {
 
     private void updateAppointmentLink(AppointmentSuggestionService.AppointmentSuggestion suggestion) {
         currentAppointmentCalendarUrl = suggestion == null ? null : suggestion.calendarUrl();
-        if (appointmentCalendarLink == null) {
+        if (appointmentCalendarLink == null && appointmentCalendarButton == null) {
             return;
         }
         boolean active = suggestion != null
                 && suggestion.recurringMonthly()
                 && currentAppointmentCalendarUrl != null
                 && !currentAppointmentCalendarUrl.isBlank();
-        appointmentCalendarLink.setVisible(active);
-        appointmentCalendarLink.setManaged(active);
-        appointmentCalendarLink.setDisable(!active);
-        appointmentCalendarLink.setText(suggestion != null && suggestion.recurringMonthly()
-                ? "Ajouter ce rappel mensuel au calendrier"
-                : "Ajouter ce rendez-vous au calendrier");
+        String actionText = suggestion != null && suggestion.recurringMonthly()
+                ? "Programmer un controle mensuel"
+                : "Ajouter ce rendez-vous au calendrier";
+        if (appointmentActionRow != null) {
+            appointmentActionRow.setVisible(active);
+            appointmentActionRow.setManaged(active);
+        }
+        if (appointmentCalendarLink != null) {
+            appointmentCalendarLink.setVisible(active);
+            appointmentCalendarLink.setManaged(active);
+            appointmentCalendarLink.setDisable(!active);
+            appointmentCalendarLink.setText(actionText);
+        }
+        if (appointmentCalendarButton != null) {
+            appointmentCalendarButton.setVisible(active);
+            appointmentCalendarButton.setManaged(active);
+            appointmentCalendarButton.setDisable(!active);
+            appointmentCalendarButton.setText(actionText);
+        }
     }
 
     @FXML
@@ -1119,7 +1151,7 @@ public class ImprevusFrontController {
                 .filter(cas -> cas.getDateEffet() != null && !cas.getDateEffet().isBefore(LocalDate.now().minusDays(180)))
                 .filter(cas -> riskCategory.equals(inferRiskCategory(cas)))
                 .count();
-        return count >= 3;
+        return count >= 2;
     }
 
     private void detectCurrentLocation(boolean preferBrowserGps) {
@@ -1228,6 +1260,10 @@ public class ImprevusFrontController {
 
     private String formatMontant(double montant) {
         return String.format(Locale.US, "%.2f DT", montant);
+    }
+
+    private String formatSignedAmount(double montant) {
+        return String.format(Locale.US, "%+.2f DT", montant);
     }
 
     private String formatSignedMontant(CasRelles cas) {

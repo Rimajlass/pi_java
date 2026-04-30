@@ -219,8 +219,8 @@
 
 .list-view .list-cell {
     -fx-background-color: transparent;
-    -fx-font-size: 13px;
-    -fx-padding: 8 6 8 6;
+    -fx-font-size: 14px;
+    -fx-padding: 10 8 10 8;
 }
 
 .list-view .list-cell:filled:selected,
@@ -233,7 +233,7 @@
     -fx-background-radius: 14;
     -fx-border-color: #dce7f2;
     -fx-border-radius: 14;
-    -fx-padding: 14 16 14 16;
+    -fx-padding: 16 18 16 18;
     -fx-effect: dropshadow(gaussian, rgba(18, 34, 57, 0.06), 14, 0.14, 0, 3);
 }
 
@@ -244,13 +244,13 @@
 
 .list-card-title {
     -fx-text-fill: #16314d;
-    -fx-font-size: 15px;
+    -fx-font-size: 16px;
     -fx-font-weight: 800;
 }
 
 .list-card-meta {
     -fx-text-fill: #667c93;
-    -fx-font-size: 12px;
+    -fx-font-size: 13px;
 }
 
 .status-pending,
