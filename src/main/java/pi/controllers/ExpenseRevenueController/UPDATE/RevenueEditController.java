@@ -12,6 +12,7 @@ import pi.entities.Revenue;
 import pi.services.RevenueExpenseService.RevenueService;
 
 import java.time.LocalDate;
+import java.util.Locale;
 import java.util.Objects;
 
 public class RevenueEditController {
@@ -31,13 +32,13 @@ public class RevenueEditController {
 
     @FXML
     public void initialize() {
-        typeComboBox.setItems(FXCollections.observableArrayList("FIXE", "BONUS", "FREELANCE", "OTHER"));
+        typeComboBox.setItems(FXCollections.observableArrayList("FIXED", "BONUS", "FREELANCE", "OTHER"));
     }
 
     public void setRevenue(Revenue revenue) {
         this.revenue = revenue;
         amountField.setText(String.valueOf(revenue.getAmount()));
-        typeComboBox.setValue(revenue.getType());
+        typeComboBox.setValue(localizeRevenueType(revenue.getType()));
         receivedAtPicker.setValue(Objects.requireNonNullElse(revenue.getReceivedAt(), LocalDate.now()));
         descriptionArea.setText(revenue.getDescription());
     }
@@ -50,7 +51,7 @@ public class RevenueEditController {
     private void handleSave() {
         try {
             revenue.setAmount(parseAmount(amountField.getText()));
-            revenue.setType(requireValue(typeComboBox.getValue(), "Revenue type"));
+            revenue.setType(normalizeRevenueType(requireValue(typeComboBox.getValue(), "Revenue type")));
             revenue.setReceivedAt(Objects.requireNonNullElse(receivedAtPicker.getValue(), LocalDate.now()));
             revenue.setDescription(normalizeText(descriptionArea.getText()));
 
@@ -91,6 +92,22 @@ public class RevenueEditController {
 
     private String normalizeText(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private String normalizeRevenueType(String value) {
+        if (value == null) {
+            return "";
+        }
+        return switch (value.trim().toUpperCase()) {
+            case "FIXE", "FIXED" -> "FIXED";
+            case "BONUS" -> "BONUS";
+            case "FREELANCE" -> "FREELANCE";
+            default -> "OTHER";
+        };
+    }
+
+    private String localizeRevenueType(String value) {
+        return normalizeRevenueType(value);
     }
 
     private void showError(String message) {

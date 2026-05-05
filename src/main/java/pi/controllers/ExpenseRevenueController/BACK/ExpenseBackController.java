@@ -21,9 +21,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import pi.controllers.ExpenseRevenueController.UPDATE.ExpenseEditController;
 import pi.entities.Expense;
 import pi.entities.Revenue;
 import pi.entities.User;
@@ -54,6 +52,8 @@ public class ExpenseBackController {
     private DatePicker expenseDatePicker;
     @FXML
     private TextArea expenseDescriptionArea;
+    @FXML
+    private Button expenseSubmitButton;
     @FXML
     private ComboBox<Revenue> expenseRevenueComboBox;
     @FXML
@@ -87,6 +87,7 @@ public class ExpenseBackController {
     private final ObservableList<ExpenseRow> expenses = FXCollections.observableArrayList();
     private final User currentUser = createCurrentUser();
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private Expense editingExpense;
 
     @FXML
     public void initialize() {
@@ -107,17 +108,30 @@ public class ExpenseBackController {
             double expenseAmount = parseAmount(expenseAmountField.getText(), "Expense amount");
             validateExpenseAgainstRevenue(expenseAmount, linkedRevenue);
 
-            Expense expense = new Expense(
-                    linkedRevenue,
-                    currentUser,
-                    expenseAmount,
-                    requireValue(expenseCategoryComboBox.getValue(), "Expense category"),
-                    Objects.requireNonNullElse(expenseDatePicker.getValue(), LocalDate.now()),
-                    normalizeText(expenseDescriptionArea.getText())
-            );
-
-            expenseService.add(expense);
-            showInfo("Expense added successfully.");
+            boolean updating = editingExpense != null;
+            Expense expense;
+            if (updating) {
+                expense = editingExpense;
+                expense.setRevenue(linkedRevenue);
+                expense.setUser(currentUser);
+                expense.setAmount(expenseAmount);
+                expense.setCategory(normalizeExpenseCategory(requireValue(expenseCategoryComboBox.getValue(), "Expense category")));
+                expense.setExpenseDate(Objects.requireNonNullElse(expenseDatePicker.getValue(), LocalDate.now()));
+                expense.setDescription(normalizeText(expenseDescriptionArea.getText()));
+                expenseService.update(expense);
+                showInfo("Expense updated successfully.");
+            } else {
+                expense = new Expense(
+                        linkedRevenue,
+                        currentUser,
+                        expenseAmount,
+                        normalizeExpenseCategory(requireValue(expenseCategoryComboBox.getValue(), "Expense category")),
+                        Objects.requireNonNullElse(expenseDatePicker.getValue(), LocalDate.now()),
+                        normalizeText(expenseDescriptionArea.getText())
+                );
+                expenseService.add(expense);
+                showInfo("Expense added successfully.");
+            }
             clearExpenseForm();
             loadData();
         } catch (Exception exception) {
@@ -196,7 +210,7 @@ public class ExpenseBackController {
 
     private void configureFilters() {
         expenseCategoryComboBox.setItems(FXCollections.observableArrayList(
-                "Alimentation", "Transport", "Loyer", "Sante", "Education", "Loisirs", "Other"
+                "Food", "Transport", "Rent", "Health", "Education", "Leisure", "Other"
         ));
         if (expenseSortByComboBox != null) {
             expenseSortByComboBox.setItems(FXCollections.observableArrayList("Date", "Amount", "Category", "Id"));
@@ -217,16 +231,14 @@ public class ExpenseBackController {
         expenseIdColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getExpense().getId()));
         expenseDateColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(formatDate(cell.getValue().getExpense().getExpenseDate())));
         expenseAmountColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getExpense().getAmount()));
-        expenseCategoryColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(nullSafe(cell.getValue().getExpense().getCategory())));
+        expenseCategoryColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(localizeExpenseCategory(cell.getValue().getExpense().getCategory())));
         expenseDescriptionColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(nullSafe(cell.getValue().getExpense().getDescription())));
         expenseRevenueColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(cell.getValue().getRevenueLabel()));
         expenseActionColumn.setCellFactory(column -> new TableCell<>() {
-            private final Button editButton = createActionButton("Modify", "table-edit-button");
             private final Button deleteButton = new Button("Delete");
-            private final HBox actionBox = new HBox(8.0, editButton, deleteButton);
+            private final HBox actionBox = new HBox(8.0, deleteButton);
 
             {
-                editButton.setOnAction(event -> openExpenseEditDialog(getTableView().getItems().get(getIndex())));
                 deleteButton.setOnAction(event -> deleteExpense(getTableView().getItems().get(getIndex()).getExpense()));
                 deleteButton.getStyleClass().add("table-delete-button");
             }
@@ -237,10 +249,19 @@ public class ExpenseBackController {
                 setGraphic(empty ? null : actionBox);
             }
         });
+        expenseTable.setRowFactory(table -> {
+            TableRowWithExpense row = new TableRowWithExpense();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    startExpenseEdit(row.getItem());
+                }
+            });
+            return row;
+        });
     }
 
     private void configureFormDefaults() {
-        expenseCategoryComboBox.setValue("Alimentation");
+        expenseCategoryComboBox.setValue("Food");
         if (expenseSortByComboBox != null) {
             expenseSortByComboBox.setValue("Date");
         }
@@ -248,6 +269,9 @@ public class ExpenseBackController {
             expenseDirectionComboBox.setValue("Desc");
         }
         expenseDatePicker.setValue(LocalDate.now());
+        if (expenseSubmitButton != null) {
+            expenseSubmitButton.setText("Add Expense");
+        }
         feedbackLabel.setText("Expense interface ready.");
     }
 
@@ -302,7 +326,7 @@ public class ExpenseBackController {
             return Comparator.comparingDouble(row -> row.getExpense().getAmount());
         }
         if ("Category".equals(sortBy)) {
-            return Comparator.comparing(row -> nullSafe(row.getExpense().getCategory()), String.CASE_INSENSITIVE_ORDER);
+            return Comparator.comparing(row -> localizeExpenseCategory(row.getExpense().getCategory()), String.CASE_INSENSITIVE_ORDER);
         }
         if ("Id".equals(sortBy)) {
             return Comparator.comparingInt(row -> row.getExpense().getId());
@@ -318,44 +342,22 @@ public class ExpenseBackController {
         if (search.isBlank()) {
             return true;
         }
-        return nullSafe(row.getExpense().getCategory()).toLowerCase(Locale.ROOT).contains(search)
+        return localizeExpenseCategory(row.getExpense().getCategory()).toLowerCase(Locale.ROOT).contains(search)
                 || nullSafe(row.getExpense().getDescription()).toLowerCase(Locale.ROOT).contains(search)
                 || row.getRevenueLabel().toLowerCase(Locale.ROOT).contains(search);
     }
 
     private void deleteExpense(Expense expense) {
         try {
+            boolean wasEditingCurrentExpense = editingExpense != null && editingExpense.getId() == expense.getId();
             expenseService.delete(expense.getId());
+            if (wasEditingCurrentExpense) {
+                clearExpenseForm();
+            }
             showInfo("Expense deleted.");
             loadData();
         } catch (SQLException exception) {
             showError("Unable to delete expense: " + exception.getMessage());
-        }
-    }
-
-    private void openExpenseEditDialog(ExpenseRow row) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Expense/Revenue/update/expense-edit-view.fxml"));
-            Parent root = loader.load();
-
-            ExpenseEditController controller = loader.getController();
-            controller.setExpense(row.getExpense());
-            controller.setAvailableRevenues(new ArrayList<>(revenues));
-            controller.setOnSaved(() -> {
-                showInfo("Expense updated successfully.");
-                loadData();
-            });
-
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            if (feedbackLabel != null && feedbackLabel.getScene() != null) {
-                stage.initOwner(feedbackLabel.getScene().getWindow());
-            }
-            stage.setTitle("Modify Expense");
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
-        } catch (IOException exception) {
-            showError("Unable to open expense editor: " + exception.getMessage());
         }
     }
 
@@ -421,11 +423,71 @@ public class ExpenseBackController {
     }
 
     private void clearExpenseForm() {
+        editingExpense = null;
         expenseAmountField.clear();
         expenseDescriptionArea.clear();
         expenseDatePicker.setValue(LocalDate.now());
-        expenseCategoryComboBox.setValue("Alimentation");
+        expenseCategoryComboBox.setValue("Food");
         expenseRevenueComboBox.getSelectionModel().clearSelection();
+        if (expenseTable != null) {
+            expenseTable.getSelectionModel().clearSelection();
+        }
+        if (expenseSubmitButton != null) {
+            expenseSubmitButton.setText("Add Expense");
+        }
+    }
+
+    private void startExpenseEdit(ExpenseRow row) {
+        if (row == null || row.getExpense() == null) {
+            return;
+        }
+        editingExpense = row.getExpense();
+        expenseAmountField.setText(String.format(Locale.US, "%.2f", editingExpense.getAmount()));
+        expenseCategoryComboBox.setValue(localizeExpenseCategory(editingExpense.getCategory()));
+        expenseDatePicker.setValue(Objects.requireNonNullElse(editingExpense.getExpenseDate(), LocalDate.now()));
+        expenseDescriptionArea.setText(nullSafe(editingExpense.getDescription()));
+
+        Revenue selectedRevenue = revenues.stream()
+                .filter(revenue -> editingExpense.getRevenue() != null && revenue.getId() == editingExpense.getRevenue().getId())
+                .findFirst()
+                .orElse(row.getRevenue());
+        expenseRevenueComboBox.setValue(selectedRevenue);
+
+        if (expenseSubmitButton != null) {
+            expenseSubmitButton.setText("Update Expense");
+        }
+        showInfo("Expense loaded. Double-click another row to edit it, then click Update Expense.");
+    }
+
+    private String normalizeExpenseCategory(String value) {
+        if (value == null) {
+            return "";
+        }
+        return switch (value.trim().toLowerCase(Locale.ROOT)) {
+            case "alimentation", "food" -> "Food";
+            case "transport" -> "Transport";
+            case "loyer", "rent" -> "Rent";
+            case "sante", "santé", "health" -> "Health";
+            case "education", "éducation" -> "Education";
+            case "loisirs", "leisure" -> "Leisure";
+            default -> "Other";
+        };
+    }
+
+    private String localizeExpenseCategory(String value) {
+        return normalizeExpenseCategory(value);
+    }
+
+    private String localizeRevenueType(String value) {
+        if (value == null) {
+            return "";
+        }
+        return switch (value.trim().toUpperCase(Locale.ROOT)) {
+            case "FIXE", "FIXED" -> "FIXED";
+            case "BONUS" -> "BONUS";
+            case "FREELANCE" -> "FREELANCE";
+            default -> "OTHER";
+        };
     }
 
     private void showInfo(String message) {
@@ -471,15 +533,27 @@ public class ExpenseBackController {
             return expense;
         }
 
+        public Revenue getRevenue() {
+            return revenue;
+        }
+
         public String getRevenueLabel() {
             if (revenue == null) {
                 return "Revenue #" + (expense.getRevenue() != null ? expense.getRevenue().getId() : "-");
             }
-            return "Revenue #" + revenue.getId() + " - " + nullSafeStatic(revenue.getType());
+            return "Revenue #" + revenue.getId() + " - " + localizeRevenueTypeStatic(revenue.getType());
         }
 
-        private static String nullSafeStatic(String value) {
-            return value == null ? "" : value;
+        private static String localizeRevenueTypeStatic(String value) {
+            if (value == null) {
+                return "";
+            }
+            return switch (value.trim().toUpperCase(Locale.ROOT)) {
+                case "FIXE", "FIXED" -> "FIXED";
+                case "BONUS" -> "BONUS";
+                case "FREELANCE" -> "FREELANCE";
+                default -> "OTHER";
+            };
         }
     }
 
@@ -491,7 +565,22 @@ public class ExpenseBackController {
                 setText(null);
                 return;
             }
-            setText("Revenue #" + item.getId() + " - " + item.getType() + " - " + String.format(Locale.US, "%.2f TND", item.getAmount()));
+            setText("Revenue #" + item.getId() + " - " + localizeRevenueTypeStatic(item.getType()) + " - " + String.format(Locale.US, "%.2f TND", item.getAmount()));
         }
+
+        private static String localizeRevenueTypeStatic(String value) {
+            if (value == null) {
+                return "";
+            }
+            return switch (value.trim().toUpperCase(Locale.ROOT)) {
+                case "FIXE", "FIXED" -> "FIXED";
+                case "BONUS" -> "BONUS";
+                case "FREELANCE" -> "FREELANCE";
+                default -> "OTHER";
+            };
+        }
+    }
+
+    private static final class TableRowWithExpense extends javafx.scene.control.TableRow<ExpenseRow> {
     }
 }

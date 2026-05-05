@@ -5,6 +5,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tab?>
@@ -17,6 +18,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
+<?import java.lang.String?>
 
 <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="900.0" prefWidth="1400.0" styleClass="page-scroll" stylesheets="@../../../styles/RevenueExpenseFRONT/salary-expense.css" vbarPolicy="AS_NEEDED" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.ExpenseRevenueController.FRONT.SalaryExpenseController">
     <content>
@@ -37,7 +39,7 @@
                                     <children>
                                         <Button mnemonicParsing="false" onAction="#handleOpenHomeAction" styleClass="nav-button" text="Home" />
                                         <Button mnemonicParsing="false" onAction="#handleOpenAboutAction" styleClass="nav-button" text="About" />
-                                        <Button mnemonicParsing="false" onAction="#handleOpenServiceAction" styleClass="nav-button nav-button-active" text="Service" />
+                                        <Button mnemonicParsing="false" onAction="#handleOpenServiceAction" styleClass="nav-button" text="Service" />
                                         <Button mnemonicParsing="false" onAction="#handleOpenContactAction" styleClass="nav-button" text="Contact" />
                                     </children>
                                 </HBox>
@@ -50,8 +52,8 @@
                                                 <Label fx:id="profileNameLabel" styleClass="profile-name" text="amine" />
                                             </children>
                                         </HBox>
-                                        <Button mnemonicParsing="false" onAction="#handleOpenHomeAction" styleClass="header-button start-button" text="To Start" />
-                                        <Button mnemonicParsing="false" onAction="#handleLogoutAction" styleClass="header-button logout-button" text="Logout" />
+                                        <Button mnemonicParsing="false" onAction="#handleOpenHomeAction" styleClass="nav-button" text="To Start" />
+                                        <Button mnemonicParsing="false" onAction="#handleLogoutAction" styleClass="nav-button" text="Logout" />
                                     </children>
                                 </HBox>
                             </children>
@@ -71,7 +73,7 @@
                             <children>
                                 <Label styleClass="section-tag" text="DECIDES MODULE" />
                                 <Label styleClass="section-title" text="Income &amp; Expense Management" />
-                                <Label styleClass="section-subtitle" text="Manage income and expenses with tri and recherche." />
+                        <Label styleClass="section-subtitle" text="Manage income and expenses with sorting and search." />
                             </children>
                         </VBox>
 
@@ -84,7 +86,7 @@
                                                 <VBox spacing="8.0">
                                                     <children>
                                                         <Label styleClass="card-title" text="Total Income" />
-                                                        <Label styleClass="card-caption" text="Somme des revenus" />
+                                    <Label styleClass="card-caption" text="Sum of all income" />
                                                     </children>
                                                 </VBox>
                                                 <Region HBox.hgrow="ALWAYS" />
@@ -93,7 +95,7 @@
                                         </HBox>
                                         <Label fx:id="totalIncomeLabel" styleClass="amount-label" text="0.00 TND" />
                                         <Label styleClass="filter-caption" text="Month" />
-                                        <ComboBox prefWidth="120.0" styleClass="small-filter" />
+                                        <ComboBox fx:id="incomeMonthFilterComboBox" prefWidth="120.0" styleClass="small-filter" />
                                     </children>
                                 </VBox>
                                 <VBox prefWidth="250.0" styleClass="summary-card">
@@ -112,7 +114,7 @@
                                         </HBox>
                                         <Label fx:id="totalExpensesLabel" styleClass="amount-label" text="0.00 TND" />
                                         <Label styleClass="filter-caption" text="Month" />
-                                        <ComboBox prefWidth="120.0" styleClass="small-filter" />
+                                        <ComboBox fx:id="expenseMonthFilterComboBox" prefWidth="120.0" styleClass="small-filter" />
                                     </children>
                                 </VBox>
                                 <VBox prefWidth="250.0" styleClass="summary-card">
@@ -147,6 +149,7 @@
                                             </children>
                                         </HBox>
                                         <Label fx:id="lastTransactionLabel" styleClass="amount-label" text="--/--/----" />
+                                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleSendMonthlyReport" styleClass="action-button-secondary" text="Send Monthly Report" />
                                     </children>
                                 </VBox>
                             </children>
@@ -155,9 +158,141 @@
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                             <children>
                                 <Label fx:id="feedbackLabel" styleClass="feedback-pill" text="Ready." />
-                                <Button mnemonicParsing="false" onAction="#handleRefresh" styleClass="action-button-secondary" text="Refresh" />
+                                <Button mnemonicParsing="false" onAction="#handleShowAiAdvice" styleClass="action-button-secondary" text="AI Advice" />
                             </children>
                         </HBox>
+
+                        <VBox prefWidth="1180.0" spacing="12.0">
+                            <styleClass>
+                                <String fx:value="panel-card" />
+                                <String fx:value="currency-panel" />
+                            </styleClass>
+                            <children>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <VBox spacing="6.0">
+                                            <children>
+                                                <Label styleClass="panel-title" text="Currency Exchange" />
+                                                <Label styleClass="card-caption" text="Convert amounts using live exchange rates." wrapText="true" />
+                                            </children>
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="currencyResultLabel" styleClass="feedback-pill" text="Result will appear here." />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                    <children>
+                                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label styleClass="field-label" text="Amount" />
+                                                <TextField fx:id="currencyAmountField" promptText="100.00" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="6.0">
+                                            <children>
+                                                <Label styleClass="field-label" text="From" />
+                                                <ComboBox fx:id="fromCurrencyComboBox" prefWidth="150.0" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="6.0">
+                                            <children>
+                                                <Label styleClass="field-label" text="To" />
+                                                <ComboBox fx:id="toCurrencyComboBox" prefWidth="150.0" />
+                                            </children>
+                                        </VBox>
+                                        <Button mnemonicParsing="false" onAction="#handleConvertCurrency" styleClass="action-button-primary" text="Convert" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="10.0">
+                            <styleClass>
+                                <String fx:value="panel-card" />
+                                <String fx:value="ai-advice-panel" />
+                            </styleClass>
+                            <children>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <VBox spacing="6.0">
+                                            <children>
+                                                <Label styleClass="panel-title" text="AI Advice" />
+                                                <Label styleClass="card-caption" text="Quick guidance based on your finances." wrapText="true" />
+                                            </children>
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Button mnemonicParsing="false" onAction="#handleSaveAiAdvice" text="Save">
+                                            <styleClass>
+                                                <String fx:value="action-button-secondary" />
+                                                <String fx:value="compact-button" />
+                                            </styleClass>
+                                        </Button>
+                                        <Button mnemonicParsing="false" onAction="#handleShowAiAdvice" text="Refresh">
+                                            <styleClass>
+                                                <String fx:value="action-button-secondary" />
+                                                <String fx:value="compact-button" />
+                                            </styleClass>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label styleClass="filter-caption" text="Type" />
+                                        <Label fx:id="aiAdviceTypeLabel" text="Not generated">
+                                            <styleClass>
+                                                <String fx:value="advice-type-badge" />
+                                                <String fx:value="advice-type-neutral" />
+                                            </styleClass>
+                                        </Label>
+                                    </children>
+                                </HBox>
+                                <HBox spacing="14.0">
+                                    <children>
+                                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                            <styleClass>
+                                                <String fx:value="advice-card" />
+                                                <String fx:value="compact-advice-card" />
+                                            </styleClass>
+                                            <children>
+                                                <Label styleClass="field-label" text="Summary" />
+                                                <Label fx:id="aiAdviceSummaryLabel" styleClass="advice-body-label" text="Click &quot;AI Advice&quot; to generate a short summary." wrapText="true" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                            <styleClass>
+                                                <String fx:value="advice-card" />
+                                                <String fx:value="compact-advice-card" />
+                                            </styleClass>
+                                            <children>
+                                                <Label styleClass="field-label" text="Warning" />
+                                                <Label fx:id="aiAdviceWarningLabel" styleClass="advice-body-label" text="Your warning will appear here." wrapText="true" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                                <VBox spacing="6.0">
+                                    <styleClass>
+                                        <String fx:value="advice-card" />
+                                        <String fx:value="compact-advice-card" />
+                                    </styleClass>
+                                    <children>
+                                        <Label styleClass="field-label" text="Tips" />
+                                        <Label fx:id="aiAdviceTipsLabel" styleClass="advice-body-label" text="Three short tips will appear here." wrapText="true" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="6.0">
+                                    <children>
+                                        <Label styleClass="field-label" text="Saved Advice" />
+                                        <ListView fx:id="savedAdviceListView" prefHeight="120.0">
+                                            <styleClass>
+                                                <String fx:value="saved-advice-list" />
+                                                <String fx:value="compact-saved-advice-list" />
+                                            </styleClass>
+                                        </ListView>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
 
                         <TabPane prefWidth="1180.0" styleClass="module-tabs" tabClosingPolicy="UNAVAILABLE">
                             <tabs>
@@ -170,7 +305,7 @@
                                                         <Label styleClass="panel-title" text="Add an income" />
                                                         <GridPane hgap="10.0" vgap="12.0">
                                                             <children>
-                                                                <Label styleClass="field-label" text="Montant (TND)" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                            <Label styleClass="field-label" text="Amount (TND)" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                                                 <TextField fx:id="revenueAmountField" promptText="0" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                                                 <Label styleClass="field-label" text="Type" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                                                 <ComboBox fx:id="revenueTypeComboBox" prefWidth="320.0" GridPane.columnIndex="0" GridPane.rowIndex="3" />
@@ -180,34 +315,34 @@
                                                                 <TextArea fx:id="revenueDescriptionArea" prefHeight="120.0" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="7" />
                                                             </children>
                                                         </GridPane>
-                                                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleAddRevenue" styleClass="action-button-primary" text="Add" />
+                                                        <Button fx:id="revenueSubmitButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleAddRevenue" styleClass="action-button-primary" text="Add" />
                                                     </children>
                                                 </VBox>
 
                                                 <VBox prefWidth="790.0" styleClass="panel-card" HBox.hgrow="ALWAYS">
                                                     <children>
-                                                        <Label styleClass="panel-title" text="Historique des revenus" />
+                                    <Label styleClass="panel-title" text="Income History" />
                                                         <HBox spacing="10.0">
                                                             <children>
                                                                 <ComboBox fx:id="revenueSortByComboBox" prefWidth="140.0" />
                                                                 <ComboBox fx:id="revenueDirectionComboBox" prefWidth="100.0" />
-                                                                <TextField fx:id="revenueSearchField" promptText="Type ou description..." HBox.hgrow="ALWAYS" />
+                                        <TextField fx:id="revenueSearchField" promptText="Type or description..." HBox.hgrow="ALWAYS" />
                                                             </children>
                                                         </HBox>
                                                         <HBox spacing="10.0">
                                                             <children>
-                                                                <Button mnemonicParsing="false" styleClass="action-button-secondary" text="Revenue chart" />
+                                                                <Button mnemonicParsing="false" onAction="#handleShowRevenueChart" styleClass="action-button-secondary" text="Revenue chart" />
+                                                                <Button mnemonicParsing="false" onAction="#handleExportRevenuePdf" styleClass="danger-outline-button" text="Export Report" />
                                                             </children>
                                                         </HBox>
                                                         <Separator />
                                                         <TableView fx:id="revenueTable" prefHeight="520.0" styleClass="history-table" VBox.vgrow="ALWAYS">
                                                             <columns>
-                                                                <TableColumn fx:id="revenueIdColumn" prefWidth="70.0" text="#" />
                                                                 <TableColumn fx:id="revenueDateColumn" prefWidth="130.0" text="Date" />
-                                                                <TableColumn fx:id="revenueAmountColumn" prefWidth="130.0" text="Montant" />
+                                                <TableColumn fx:id="revenueAmountColumn" prefWidth="130.0" text="Amount" />
                                                                 <TableColumn fx:id="revenueTypeColumn" prefWidth="150.0" text="Type" />
                                                                 <TableColumn fx:id="revenueDescriptionColumn" prefWidth="250.0" text="Description" />
-                                                                <TableColumn fx:id="revenueActionColumn" prefWidth="180.0" text="Actions" />
+                                                                <TableColumn fx:id="revenueActionColumn" prefWidth="110.0" text="Actions" />
                                                             </columns>
                                                         </TableView>
                                                     </children>
@@ -225,7 +360,7 @@
                                                         <Label styleClass="panel-title" text="Add an expense" />
                                                         <GridPane hgap="10.0" vgap="12.0">
                                                             <children>
-                                                                <Label styleClass="field-label" text="Montant (TND)" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                            <Label styleClass="field-label" text="Amount (TND)" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                                                 <TextField fx:id="expenseAmountField" promptText="150.00" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                                                 <Label styleClass="field-label" text="Categorie" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                                                 <ComboBox fx:id="expenseCategoryComboBox" prefWidth="320.0" GridPane.columnIndex="0" GridPane.rowIndex="3" />
@@ -233,40 +368,77 @@
                                                                 <DatePicker fx:id="expenseDatePicker" prefWidth="320.0" GridPane.columnIndex="0" GridPane.rowIndex="5" />
                                                                 <Label styleClass="field-label" text="Description" GridPane.columnIndex="0" GridPane.rowIndex="6" />
                                                                 <TextArea fx:id="expenseDescriptionArea" prefHeight="100.0" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="7" />
-                                                                <Label styleClass="field-label" text="Revenu associe" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                                            <Label styleClass="field-label" text="Linked income" GridPane.columnIndex="0" GridPane.rowIndex="8" />
                                                                 <ComboBox fx:id="expenseRevenueComboBox" prefWidth="320.0" GridPane.columnIndex="0" GridPane.rowIndex="9" />
                                                             </children>
                                                         </GridPane>
-                                                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleAddExpense" styleClass="action-button-primary" text="Add" />
+                                                        <Button fx:id="expenseSubmitButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleAddExpense" styleClass="action-button-primary" text="Add" />
                                                     </children>
                                                 </VBox>
 
                                                 <VBox prefWidth="790.0" styleClass="panel-card" HBox.hgrow="ALWAYS">
                                                     <children>
-                                                        <Label styleClass="panel-title" text="Expense history" />
+                                                        <Label styleClass="panel-title" text="Expense History" />
+                                                        <VBox spacing="12.0" styleClass="prediction-panel">
+                                                            <children>
+                                                                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                                                    <children>
+                                                                        <Label styleClass="prediction-icon" text="EF" />
+                                                                        <VBox spacing="3.0" HBox.hgrow="ALWAYS">
+                                                                            <children>
+                                                                                <Label styleClass="prediction-eyebrow" text="Expense Forecast" />
+                                                                                <Label styleClass="prediction-title" text="Monthly spending outlook" />
+                                                                            </children>
+                                                                        </VBox>
+                                                                        <Label styleClass="prediction-live-badge" text="Live" />
+                                                                    </children>
+                                                                </HBox>
+                                                                <VBox spacing="8.0" styleClass="prediction-details-box">
+                                                                    <children>
+                                                                        <Label fx:id="expensePredictionLabel" maxWidth="1.7976931348623157E308" styleClass="prediction-info-label" text="Projected monthly expenses: 0.00 TND" wrapText="true" />
+                                                                        <HBox alignment="BOTTOM_LEFT" spacing="10.0" styleClass="prediction-budget-row">
+                                                                            <children>
+                                                                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                                                                    <children>
+                                                                                        <Label styleClass="field-label" text="Monthly budget (TND)" />
+                                                                                        <TextField fx:id="expenseBudgetField" onAction="#handleApplyExpenseBudget" promptText="2500.00" />
+                                                                                    </children>
+                                                                                </VBox>
+                                                                                <Button mnemonicParsing="false" onAction="#handleApplyExpenseBudget" text="Apply">
+                                                                                    <styleClass>
+                                                                                        <String fx:value="action-button-secondary" />
+                                                                                        <String fx:value="compact-button" />
+                                                                                    </styleClass>
+                                                                                </Button>
+                                                                            </children>
+                                                                        </HBox>
+                                                                        <Label fx:id="budgetAlertLabel" maxWidth="1.7976931348623157E308" styleClass="prediction-status-label" text="Budget status: forecast unavailable." wrapText="true" />
+                                                                    </children>
+                                                                </VBox>
+                                                            </children>
+                                                        </VBox>
                                                         <HBox spacing="10.0">
                                                             <children>
                                                                 <ComboBox fx:id="expenseSortByComboBox" prefWidth="140.0" />
                                                                 <ComboBox fx:id="expenseDirectionComboBox" prefWidth="100.0" />
-                                                                <TextField fx:id="expenseSearchField" promptText="Category ou description..." HBox.hgrow="ALWAYS" />
+                                        <TextField fx:id="expenseSearchField" promptText="Search by category or notes..." HBox.hgrow="ALWAYS" />
                                                             </children>
                                                         </HBox>
                                                         <HBox spacing="10.0">
                                                             <children>
-                                                                <Button mnemonicParsing="false" styleClass="action-button-secondary" text="Expense chart" />
-                                                                <Button mnemonicParsing="false" styleClass="danger-outline-button" text="Export PDF" />
+                                                                <Button mnemonicParsing="false" onAction="#handleShowExpenseChart" styleClass="action-button-secondary" text="Expense chart" />
+                                                                <Button mnemonicParsing="false" onAction="#handleExportExpensePdf" styleClass="danger-outline-button" text="Export Report" />
                                                             </children>
                                                         </HBox>
                                                         <Separator />
                                                         <TableView fx:id="expenseTable" prefHeight="520.0" styleClass="history-table" VBox.vgrow="ALWAYS">
                                                             <columns>
-                                                                <TableColumn fx:id="expenseIdColumn" prefWidth="70.0" text="#" />
                                                                 <TableColumn fx:id="expenseDateColumn" prefWidth="130.0" text="Date" />
-                                                                <TableColumn fx:id="expenseAmountColumn" prefWidth="120.0" text="Montant" />
+                                                <TableColumn fx:id="expenseAmountColumn" prefWidth="120.0" text="Amount" />
                                                                 <TableColumn fx:id="expenseCategoryColumn" prefWidth="150.0" text="Category" />
                                                                 <TableColumn fx:id="expenseDescriptionColumn" prefWidth="220.0" text="Description" />
-                                                                <TableColumn fx:id="expenseRevenueColumn" prefWidth="190.0" text="Linked Revenue" />
-                                                                <TableColumn fx:id="expenseActionColumn" prefWidth="180.0" text="Actions" />
+                                                                <TableColumn fx:id="expenseRevenueColumn" prefWidth="190.0" text="Funding Source" />
+                                                                <TableColumn fx:id="expenseActionColumn" prefWidth="110.0" text="Actions" />
                                                             </columns>
                                                         </TableView>
                                                     </children>
