@@ -26,6 +26,10 @@ public class Cours {
         this.urlMedia = urlMedia;
     }
 
+    public Cours() {
+
+    }
+
     public int getId() { return this.id; }
 
     public void setId(int id) { this.id = id; }
@@ -49,6 +53,22 @@ public class Cours {
     public String getUrlMedia() { return this.urlMedia; }
 
     public void setUrlMedia(String urlMedia) { this.urlMedia = urlMedia; }
+
+    public void validate() {
+        if (titre == null || titre.trim().isEmpty()) {
+            throw new IllegalArgumentException("Le titre ne peut pas être vide.");
+        }
+        String trimmedTitre = titre.trim();
+        if (!trimmedTitre.matches("^[a-zA-Z0-9\\sàâäéèêëîïôöùûüçÀÂÇÉÈÊÏÎÔÙÛÜÿ.-]+$")) {
+            throw new IllegalArgumentException("Le titre ne doit contenir que des lettres, chiffres, espaces et certains caractères autorisés (àâäéèêëîïôöùûüç.-).");
+        }
+        if (contenuTexte == null || contenuTexte.trim().length() < 30) {
+            throw new IllegalArgumentException("Le contenu texte doit contenir au minimum 30 caractères.");
+        }
+        if (typeMedia == null || !(typeMedia.equals("video") || typeMedia.equals("pdf") || typeMedia.equals("image"))) {
+            throw new IllegalArgumentException("Le type media doit être 'video', 'pdf' ou 'image' uniquement.");
+        }
+    }
 
     @Override
     public String toString() {

@@ -9,8 +9,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import pi.controllers.ExpenseRevenueController.FRONT.SalaryExpenseController;
+import pi.controllers.ImprevusCasreelController.ImprevusFrontController;
 import pi.entities.User;
 import pi.mains.Main;
+import pi.savings.ui.SavingsGoalsApp;
 
 import java.io.IOException;
 
@@ -59,6 +62,24 @@ public class ServiceController {
             openContact((Node) event.getSource());
         } catch (IOException e) {
             throw new RuntimeException("Impossible d'ouvrir la page Contact.", e);
+        }
+    }
+
+    @FXML
+    private void handleOpenSavingsGoals(MouseEvent event) {
+        try {
+            openSavingsGoals((Node) event.getSource());
+        } catch (Exception e) {
+            throw new RuntimeException("Impossible d'ouvrir l'interface Savings & Goals.", e);
+        }
+    }
+
+    @FXML
+    private void handleOpenUnexpectedRealCases(MouseEvent event) {
+        try {
+            openUnexpectedRealCases((Node) event.getSource());
+        } catch (IOException e) {
+            throw new RuntimeException("Impossible d'ouvrir l'interface Unexpected Events & Real Cases.", e);
         }
     }
 
@@ -145,16 +166,47 @@ public class ServiceController {
         stage.show();
     }
 
+    private void openSavingsGoals(Node source) throws Exception {
+        Stage stage = (Stage) source.getScene().getWindow();
+        Object userData = stage.getUserData();
+        stage.setUserData(userData);
+        new SavingsGoalsApp().start(stage);
+    }
+
     private void openRevenueExpense(Node source) throws IOException {
         Stage stage = (Stage) source.getScene().getWindow();
         Object userData = stage.getUserData();
 
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/Expense/Revenue/FRONT/salary-expense-view.fxml"));
         Parent root = loader.load();
+        SalaryExpenseController controller = loader.getController();
+        if (userData instanceof User user) {
+            controller.setUser(user);
+        }
 
         Scene scene = new Scene(root, 1460, 780);
         stage.setUserData(userData);
         stage.setTitle("Income & Expense Management");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    private void openUnexpectedRealCases(Node source) throws IOException {
+        Stage stage = (Stage) source.getScene().getWindow();
+        Object userData = stage.getUserData();
+
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/imprevus-view.fxml"));
+        Parent root = loader.load();
+        if (userData instanceof User user) {
+            Object controller = loader.getController();
+            if (controller instanceof ImprevusFrontController imprevusFrontController) {
+                imprevusFrontController.setUser(user);
+            }
+        }
+
+        Scene scene = new Scene(root, 1460, 900);
+        stage.setUserData(userData);
+        stage.setTitle("Unexpected Events & Real Cases");
         stage.setScene(scene);
         stage.show();
     }

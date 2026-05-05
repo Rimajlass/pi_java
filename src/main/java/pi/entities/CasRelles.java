@@ -23,6 +23,34 @@ public class CasRelles {
     private String justificatifFileName;
     private LocalDateTime updatedAt;
 
+    public CasRelles() {
+    }
+
+    public CasRelles(Imprevus imprevus, String titre, String description, String type, String categorie, double montant, String solution, LocalDate dateEffet, String justificatifFileName) {
+        this.imprevus = imprevus;
+        this.titre = titre;
+        this.description = description;
+        this.type = type;
+        this.categorie = categorie;
+        this.montant = montant;
+        this.solution = solution;
+        this.dateEffet = dateEffet;
+        this.justificatifFileName = justificatifFileName;
+    }
+
+    public CasRelles(int id, Imprevus imprevus, String titre, String description, String type, String categorie, double montant, String solution, LocalDate dateEffet, String justificatifFileName) {
+        this.id = id;
+        this.imprevus = imprevus;
+        this.titre = titre;
+        this.description = description;
+        this.type = type;
+        this.categorie = categorie;
+        this.montant = montant;
+        this.solution = solution;
+        this.dateEffet = dateEffet;
+        this.justificatifFileName = justificatifFileName;
+    }
+
     public CasRelles(User user, Imprevus imprevus, User confirmedBy, FinancialGoal financialGoal, String titre, String description, String type, String categorie, double montant, String solution, LocalDate dateEffet, String resultat, String raisonRefus, LocalDateTime confirmedAt, String justificatifFileName, LocalDateTime updatedAt) {
         this.user = user;
         this.imprevus = imprevus;

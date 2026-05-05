@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decide$ Analytics Export</title>
+  <style>
+    :root {
+      --bg: #eef3f8;
+      --surface: #ffffff;
+      --ink: #0f172a;
+      --muted: #475569;
+      --line: #d9e3ef;
+      --primary: #1d4ed8;
+      --primary-soft: #dbeafe;
+      --good: #15803d;
+      --good-soft: #dcfce7;
+      --bad: #b91c1c;
+      --bad-soft: #fee2e2;
+      --shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Inter", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    .sheet {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid #dbe5f1;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .top {
+      background: linear-gradient(120deg, #1e3a8a 0%, #1d4ed8 55%, #2563eb 100%);
+      color: #fff;
+      padding: 24px 26px;
+    }
+
+    .brand {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.15;
+      letter-spacing: 0;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      font-size: 14px;
+      opacity: 0.95;
+    }
+
+    .content {
+      padding: 20px 24px 24px;
+    }
+
+    .report-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      padding: 12px 14px;
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .kpi {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 11px 12px;
+      background: #fff;
+    }
+
+    .kpi .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .kpi .value {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .kpi.good {
+      background: linear-gradient(180deg, #ffffff 0%, #f5fff8 100%);
+      border-color: #bfe8cb;
+    }
+
+    .kpi.bad {
+      background: linear-gradient(180deg, #ffffff 0%, #fff8f8 100%);
+      border-color: #f6c3c3;
+    }
+
+    .kpi.good .value { color: var(--good); }
+    .kpi.bad .value { color: var(--bad); }
+    .kpi.primary .value { color: var(--primary); }
+
+    .section-title {
+      margin: 4px 0 10px;
+      font-size: 19px;
+      font-weight: 700;
+      color: #0b1f44;
+    }
+
+    .table-wrap {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead th {
+      text-align: left;
+      background: #edf4ff;
+      color: #1e3a8a;
+      font-weight: 700;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    tbody td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e9eff7;
+      color: #0f172a;
+      vertical-align: middle;
+    }
+
+    tbody tr:nth-child(even) td {
+      background: #fbfdff;
+    }
+
+    .amount {
+      font-weight: 600;
+    }
+
+    .badge {
+      display: inline-block;
+      min-width: 84px;
+      text-align: center;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      border: 1px solid transparent;
+    }
+
+    .expense {
+      color: var(--bad);
+      background: var(--bad-soft);
+      border-color: #fecaca;
+    }
+
+    .saving {
+      color: var(--good);
+      background: var(--good-soft);
+      border-color: #bbf7d0;
+    }
+  </style>
+</head>
+<body>
+  <main class="sheet">
+    <header class="top">
+      <h1 class="brand">Decide$ Analytics Export</h1>
+      <p class="subtitle">Rapport financier structuré</p>
+    </header>
+
+    <section class="content">
+      <div class="report-meta">
+        <span><strong>Generated:</strong> 2026-04-30</span>
+        <span><strong>Report:</strong> Decide$ Analytics Report</span>
+        <span><strong>User:</strong> tebbini</span>
+      </div>
+
+      <div class="kpi-grid">
+        <article class="kpi good">
+          <div class="label">Total Income</div>
+          <div class="value">701 fi400 TND</div>
+        </article>
+        <article class="kpi bad">
+          <div class="label">Total Expenses</div>
+          <div class="value">30 fi667 TND</div>
+        </article>
+        <article class="kpi good">
+          <div class="label">Net Savings</div>
+          <div class="value">670 fi733 TND</div>
+        </article>
+        <article class="kpi primary">
+          <div class="label">Savings Rate</div>
+          <div class="value">95,6%</div>
+        </article>
+      </div>
+
+      <h2 class="section-title">Recent Transactions</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 18%;">Date</th>
+              <th style="width: 18%;">Type</th>
+              <th style="width: 24%;">Amount</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>2027-02-09</td><td><span class="badge expense">EXPENSE</span></td><td class="amount">33,0 TND</td><td>-</td></tr>
+            <tr><td>2026-04-28</td><td><span class="badge saving">SAVING</span></td><td class="amount">700000,0 TND</td><td>-</td></tr>
+            <tr><td>2026-04-23</td><td><span class="badge expense">EXPENSE</span></td><td class="amount">100,0 TND</td><td>-</td></tr>
+            <tr><td>2026-04-22</td><td><span class="badge expense">EXPENSE</span></td><td class="amount">500,0 TND</td><td>-</td></tr>
+            <tr><td>2026-04-16</td><td><span class="badge saving">SAVING</span></td><td class="amount">1400,0 TND</td><td>-</td></tr>
+            <tr><td>2026-04-15</td><td><span class="badge expense">EXPENSE</span></td><td class="amount">15000,0 TND</td><td>-</td></tr>
+            <tr><td>2026-04-15</td><td><span class="badge expense">EXPENSE</span></td><td class="amount">15000,0 TND</td><td>-</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

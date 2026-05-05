@@ -15,15 +15,19 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.UUID;
 
 public class UserService {
 
     private final Connection cnx;
     private final PasswordService passwordService;
+    private final UserGeoLocationService userGeoLocationService;
 
     public UserService() {
         this.cnx = MyDatabase.getInstance().getCnx();
         this.passwordService = new PasswordService();
+        this.userGeoLocationService = new UserGeoLocationService();
     }
 
     public List<User> findForAdminIndex(String search, String role, String sortBy, String order) {
@@ -98,6 +102,43 @@ public class UserService {
             }
         } catch (SQLException e) {
             throw new RuntimeException("Erreur lors de la mise à jour du solde : " + e.getMessage(), e);
+        }
+    }
+
+    public void updateProfileImage(int userId, String imagePath) {
+        if (userId <= 0) {
+            throw new IllegalArgumentException("Identifiant utilisateur invalide.");
+        }
+
+        String sql = "UPDATE `user` SET image = ? WHERE id = ?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setString(1, blankToNull(imagePath));
+            ps.setInt(2, userId);
+            int n = ps.executeUpdate();
+            if (n == 0) {
+                throw new IllegalStateException("Utilisateur introuvable pour mise à jour de la photo.");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la mise à jour de la photo : " + e.getMessage(), e);
+        }
+    }
+
+    public void updateFaceIdCredential(int userId, String credentialId, boolean enabled) {
+        if (userId <= 0) {
+            throw new IllegalArgumentException("Identifiant utilisateur invalide.");
+        }
+
+        String sql = "UPDATE `user` SET face_id_credential_id = ?, face_id_enabled = ? WHERE id = ?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setString(1, blankToNull(credentialId));
+            ps.setBoolean(2, enabled && credentialId != null && !credentialId.isBlank());
+            ps.setInt(3, userId);
+            int n = ps.executeUpdate();
+            if (n == 0) {
+                throw new IllegalStateException("Utilisateur introuvable pour activation Face ID.");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la mise a jour Face ID : " + e.getMessage(), e);
         }
     }
 
@@ -259,6 +300,112 @@ public class UserService {
         return user;
     }
 
+    public User authenticateWithBiometric(String email, String credentialId) {
+        User user = findByEmail(email);
+        if (user == null) {
+            return null;
+        }
+        if (user.isBlocked()) {
+            throw new IllegalStateException("Ce compte est bloque.");
+        }
+        if (!user.isFaceIdEnabled()) {
+            throw new IllegalStateException("La connexion biométrique n'est pas active pour ce compte.");
+        }
+        String storedCredential = blankToNull(user.getFaceIdCredentialId());
+        String providedCredential = blankToNull(credentialId);
+        if (storedCredential == null || providedCredential == null) {
+            return null;
+        }
+        if (!storedCredential.equals(providedCredential)) {
+            return null;
+        }
+        return user;
+    }
+
+    public void refreshGeoLocationForUser(User user) {
+        if (user == null || user.getId() <= 0) {
+            return;
+        }
+
+        Optional<UserGeoLocationService.GeoLocationSnapshot> snapshot = userGeoLocationService.resolveCurrentLocation();
+        if (snapshot.isEmpty()) {
+            return;
+        }
+
+        UserGeoLocationService.GeoLocationSnapshot geo = snapshot.get();
+        String sql = """
+                UPDATE `user`
+                SET geo_country_code = ?, geo_country_name = ?, geo_region_name = ?, geo_city_name = ?,
+                    geo_detected_ip = ?, geo_vpn_suspected = ?, geo_last_checked_at = ?
+                WHERE id = ?
+                """;
+
+        LocalDateTime checkedAt = LocalDateTime.now();
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setString(1, blankToNull(geo.getCountryCode()));
+            ps.setString(2, blankToNull(geo.getCountryName()));
+            ps.setString(3, blankToNull(geo.getRegionName()));
+            ps.setString(4, blankToNull(geo.getCityName()));
+            ps.setString(5, blankToNull(geo.getIp()));
+            ps.setBoolean(6, geo.isVpnSuspected());
+            ps.setTimestamp(7, Timestamp.valueOf(checkedAt));
+            ps.setInt(8, user.getId());
+            ps.executeUpdate();
+
+            user.setGeoCountryCode(geo.getCountryCode());
+            user.setGeoCountryName(geo.getCountryName());
+            user.setGeoRegionName(geo.getRegionName());
+            user.setGeoCityName(geo.getCityName());
+            user.setGeoDetectedIp(geo.getIp());
+            user.setGeoVpnSuspected(geo.isVpnSuspected());
+            user.markGeoLastCheckedAt(checkedAt);
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la mise a jour de la geolocalisation: " + e.getMessage(), e);
+        }
+    }
+
+    public User findOrCreateSocialUser(String email, String fullName, String provider) {
+        String normalizedEmail = normalizeEmail(email);
+        if (normalizedEmail == null || normalizedEmail.isBlank()) {
+            throw new IllegalArgumentException("Email social invalide.");
+        }
+
+        User existing = findByEmail(normalizedEmail);
+        if (existing != null) {
+            if (existing.isBlocked()) {
+                throw new IllegalStateException("Ce compte est bloque.");
+            }
+            return existing;
+        }
+
+        User user = new User();
+        user.setNom(resolveDisplayName(fullName, normalizedEmail));
+        user.setEmail(normalizedEmail);
+        user.setRoles("[\"ROLE_SALARY\"]");
+        user.setDateInscription(LocalDate.now());
+        user.setSoldeTotal(0.0);
+        user.setFaceIdCredentialId(null);
+        user.setFaceIdEnabled(false);
+        user.setFacePlusToken(null);
+        user.setFacePlusEnabled(false);
+        user.setEmailVerified(true);
+        user.markEmailVerifiedAt(LocalDateTime.now());
+        user.setEmailVerificationToken(null);
+        user.setBlocked(false);
+        user.setBlockedReason(null);
+        user.markBlockedAt(null);
+        user.setGeoCountryCode(null);
+        user.setGeoCountryName(null);
+        user.setGeoRegionName(null);
+        user.setGeoCityName(null);
+        user.setGeoDetectedIp(null);
+        user.setGeoVpnSuspected(false);
+        user.markGeoLastCheckedAt(null);
+
+        String generatedPassword = "oauth-" + provider + "-" + UUID.randomUUID();
+        return create(user, generatedPassword);
+    }
+
     public boolean isEmailAvailable(String email) {
         return normalizeEmail(email) != null && findByEmail(email) == null;
     }
@@ -406,6 +553,17 @@ public class UserService {
             return null;
         }
         return email.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String resolveDisplayName(String fullName, String email) {
+        if (fullName != null && !fullName.isBlank()) {
+            return fullName.trim();
+        }
+        String localPart = email.split("@")[0].replace(".", " ").replace("_", " ").trim();
+        if (localPart.length() >= 2) {
+            return localPart;
+        }
+        return "Social User";
     }
 
     private String blankToNull(String value) {

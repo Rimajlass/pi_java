@@ -1,14 +1,19 @@
 package pi.controllers.UserTransactionController;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.ScaleTransition;
+import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
@@ -16,15 +21,19 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
+import javafx.util.Duration;
 import pi.entities.Transaction;
 import pi.entities.User;
 import pi.mains.Main;
@@ -32,10 +41,13 @@ import pi.services.UserTransactionService.TransactionService;
 import pi.services.UserTransactionService.UserService;
 import pi.tools.AdminNavigation;
 import pi.tools.FxmlResources;
+import pi.tools.TransactionDetailsDialog;
+import pi.tools.UiDialog;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -59,6 +71,33 @@ public class TransactionsManagementController {
     private Label kpiInvestmentLabel;
 
     @FXML
+    private VBox contentRoot;
+
+    @FXML
+    private VBox headerSection;
+
+    @FXML
+    private HBox kpiRow;
+
+    @FXML
+    private VBox kpiExpenseCard;
+
+    @FXML
+    private VBox kpiSavingCard;
+
+    @FXML
+    private VBox kpiInvestmentCard;
+
+    @FXML
+    private VBox filtersCard;
+
+    @FXML
+    private VBox createCard;
+
+    @FXML
+    private VBox tableCard;
+
+    @FXML
     private TextField filterUserField;
 
     @FXML
@@ -75,6 +114,12 @@ public class TransactionsManagementController {
 
     @FXML
     private ComboBox<String> filterOrderCombo;
+
+    @FXML
+    private Button resetFiltersButton;
+
+    @FXML
+    private Button applyFiltersButton;
 
     @FXML
     private ComboBox<User> formUserCombo;
@@ -95,6 +140,9 @@ public class TransactionsManagementController {
     private TextField formSourceField;
 
     @FXML
+    private Button addTransactionButton;
+
+    @FXML
     private TableView<Transaction> transactionTable;
 
     @FXML
@@ -108,20 +156,43 @@ public class TransactionsManagementController {
 
     @FXML
     public void initialize() {
-        filterTypeCombo.getItems().setAll("All types", "EXPENSE", "SAVING", "INVESTMENT");
-        filterTypeCombo.setValue("All types");
-        filterSortCombo.getItems().setAll("Sort by date", "Sort by user", "Sort by type", "Sort by amount", "Sort by description", "Sort by source", "Sort by ID");
-        filterSortCombo.setValue("Sort by date");
-        filterOrderCombo.getItems().setAll("DESC", "ASC");
-        filterOrderCombo.setValue("DESC");
+        try {
+            filterTypeCombo.getItems().setAll("All types", "EXPENSE", "SAVING", "INVESTMENT");
+            filterTypeCombo.setValue("All types");
+            filterSortCombo.getItems().setAll("Sort by date", "Sort by user", "Sort by type", "Sort by amount", "Sort by description", "Sort by source", "Sort by ID");
+            filterSortCombo.setValue("Sort by date");
+            filterOrderCombo.getItems().setAll("DESC", "ASC");
+            filterOrderCombo.setValue("DESC");
 
-        formTypeCombo.getItems().setAll("EXPENSE", "SAVING", "INVESTMENT");
-        formTypeCombo.setValue("EXPENSE");
+            formTypeCombo.getItems().setAll("EXPENSE", "SAVING", "INVESTMENT");
+            formTypeCombo.setValue("EXPENSE");
 
-        formDatePicker.setValue(LocalDate.now());
+            formDatePicker.setValue(LocalDate.now());
 
-        setupUserCombo();
-        buildTableColumns();
+            setupUserCombo();
+            wireButtonActions();
+            buildTableColumns();
+            reloadUsersCombo();
+            applyFiltersAndRefresh();
+            initializeVisualEnhancements();
+            Platform.runLater(this::playSectionIntroAnimations);
+        } catch (Exception e) {
+            safeFallbackState();
+            System.err.println("[TransactionsManagement] initialize failed: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void wireButtonActions() {
+        if (applyFiltersButton != null) {
+            applyFiltersButton.setOnAction(e -> handleApplyFilters());
+        }
+        if (resetFiltersButton != null) {
+            resetFiltersButton.setOnAction(e -> handleResetFilters());
+        }
+        if (addTransactionButton != null) {
+            addTransactionButton.setOnAction(e -> handleAddTransaction());
+        }
     }
 
     private void setupUserCombo() {
@@ -181,17 +252,53 @@ public class TransactionsManagementController {
                 return new SimpleStringProperty("-");
             }
             String name = u.getNom() != null && !u.getNom().isBlank() ? u.getNom() : u.getEmail();
-            return new SimpleStringProperty(name + " — " + u.getEmail());
+            return new SimpleStringProperty(name + " - " + u.getEmail());
         });
 
         TableColumn<Transaction, String> typeCol = new TableColumn<>("TYPE");
         typeCol.setPrefWidth(100);
         typeCol.setCellValueFactory(new PropertyValueFactory<>("type"));
+        typeCol.setCellFactory(col -> new TableCell<>() {
+            private final Label badge = new Label();
 
-        TableColumn<Transaction, String> amountCol = new TableColumn<>("AMOUNT");
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null || item.isBlank()) {
+                    setGraphic(null);
+                    return;
+                }
+                String type = item.toUpperCase(Locale.ROOT);
+                badge.setText(type);
+                badge.getStyleClass().setAll("tx-type-badge", mapTypeBadgeClass(type), mapBadgeClass(type));
+                setGraphic(badge);
+            }
+        });
+
+        TableColumn<Transaction, Transaction> amountCol = new TableColumn<>("AMOUNT");
         amountCol.setPrefWidth(100);
-        amountCol.setCellValueFactory(c -> new SimpleStringProperty(
-                moneyFormat.format(c.getValue().getMontant()) + " DT"));
+        amountCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
+        amountCol.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Transaction item, boolean empty) {
+                super.updateItem(item, empty);
+                getStyleClass().removeAll("tx-amount-cell", "tx-amount-expense", "tx-amount-saving", "tx-amount-investment", "tx-amount-revenue");
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    String type = item.getType() == null ? "" : item.getType().toUpperCase(Locale.ROOT);
+                    setText(moneyFormat.format(item.getMontant()) + " DT");
+                    getStyleClass().add("tx-amount-cell");
+                    switch (type) {
+                        case "EXPENSE" -> getStyleClass().add("tx-amount-expense");
+                        case "SAVING" -> getStyleClass().add("tx-amount-saving");
+                        case "INVESTMENT" -> getStyleClass().add("tx-amount-investment");
+                        case "REVENUE", "SALARY" -> getStyleClass().add("tx-amount-revenue");
+                        default -> { }
+                    }
+                }
+            }
+        });
 
         TableColumn<Transaction, String> dateCol = new TableColumn<>("DATE");
         dateCol.setPrefWidth(96);
@@ -221,6 +328,21 @@ public class TransactionsManagementController {
             double b = u != null ? u.getSoldeTotal() : 0;
             return new SimpleStringProperty(moneyFormat.format(b) + " DT");
         });
+        balanceCol.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    getStyleClass().remove("tx-balance-cell");
+                } else {
+                    setText(item);
+                    if (!getStyleClass().contains("tx-balance-cell")) {
+                        getStyleClass().add("tx-balance-cell");
+                    }
+                }
+            }
+        });
 
         TableColumn<Transaction, Void> actionsCol = new TableColumn<>("ACTIONS");
         actionsCol.setPrefWidth(160);
@@ -231,15 +353,17 @@ public class TransactionsManagementController {
 
             {
                 box.setAlignment(Pos.CENTER_LEFT);
-                viewBtn.getStyleClass().add("tx-mini-outline");
-                editBtn.getStyleClass().add("tx-mini-outline-secondary");
+                viewBtn.getStyleClass().addAll("tx-mini-view", "button-outline");
+                editBtn.getStyleClass().addAll("tx-mini-edit", "button-outline");
+                setupButtonHoverMotion(viewBtn, false);
+                setupButtonHoverMotion(editBtn, false);
                 viewBtn.setOnAction(e -> {
                     Transaction t = getTableView().getItems().get(getIndex());
                     if (t != null) {
                         showTransactionDetails(t);
                     }
                 });
-                editBtn.setOnAction(e -> showInfo("Edit", "L’édition détaillée sera branchée sur un formulaire (même logique que Symfony)."));
+                editBtn.setOnAction(e -> showInfo("Edit", "L'edition detaillee sera branchee sur un formulaire."));
             }
 
             @Override
@@ -252,6 +376,158 @@ public class TransactionsManagementController {
         transactionTable.getColumns().setAll(
                 numCol, userCol, typeCol, amountCol, dateCol, descCol, sourceCol, balanceCol, actionsCol
         );
+        transactionTable.setRowFactory(tv -> new TableRow<>() {
+            @Override
+            protected void updateItem(Transaction item, boolean empty) {
+                super.updateItem(item, empty);
+                getStyleClass().removeAll("tx-table-row-even", "tx-table-row-odd");
+                if (!empty && item != null) {
+                    getStyleClass().add(getIndex() % 2 == 0 ? "tx-table-row-even" : "tx-table-row-odd");
+                }
+            }
+        });
+    }
+
+    private void initializeVisualEnhancements() {
+        setupCardHoverMotion(kpiExpenseCard, Color.web("#FF6B6B"));
+        setupCardHoverMotion(kpiSavingCard, Color.web("#22C55E"));
+        setupCardHoverMotion(kpiInvestmentCard, Color.web("#8B5CF6"));
+        setupCardHoverMotion(filtersCard, Color.web("#3A8DFF"));
+        setupCardHoverMotion(createCard, Color.web("#3A8DFF"));
+        setupCardHoverMotion(tableCard, Color.web("#3A8DFF"));
+
+        setupButtonHoverMotion(resetFiltersButton, false);
+        setupButtonHoverMotion(applyFiltersButton, false);
+        setupButtonHoverMotion(addTransactionButton, true);
+
+        List<Node> focusNodes = new ArrayList<>();
+        focusNodes.add(filterUserField);
+        focusNodes.add(filterTypeCombo);
+        focusNodes.add(filterDateFrom);
+        focusNodes.add(filterDateTo);
+        focusNodes.add(filterSortCombo);
+        focusNodes.add(filterOrderCombo);
+        focusNodes.add(formUserCombo);
+        focusNodes.add(formTypeCombo);
+        focusNodes.add(formAmountField);
+        focusNodes.add(formDatePicker);
+        focusNodes.add(formDescriptionArea);
+        focusNodes.add(formSourceField);
+        focusNodes.forEach(this::setupFocusMotion);
+    }
+
+    private void playSectionIntroAnimations() {
+        animateEntrance(headerSection, 0);
+        animateEntrance(kpiRow, 70);
+        animateEntrance(filtersCard, 140);
+        animateEntrance(createCard, 210);
+        animateEntrance(tableCard, 280);
+    }
+
+    private void animateEntrance(Node node, int delayMs) {
+        if (node == null) {
+            return;
+        }
+        node.setOpacity(0);
+        node.setTranslateY(10);
+        FadeTransition fade = new FadeTransition(Duration.millis(320), node);
+        fade.setFromValue(0);
+        fade.setToValue(1);
+        fade.setDelay(Duration.millis(delayMs));
+
+        TranslateTransition slide = new TranslateTransition(Duration.millis(320), node);
+        slide.setFromY(10);
+        slide.setToY(0);
+        slide.setDelay(Duration.millis(delayMs));
+        new ParallelTransition(fade, slide).play();
+    }
+
+    private void setupCardHoverMotion(Node node, Color glowColor) {
+        if (node == null) {
+            return;
+        }
+        DropShadow shadow = new DropShadow(18, glowColor.deriveColor(0, 1, 1, 0.26));
+        shadow.setSpread(0.18);
+        node.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(140), node);
+            st.setToX(1.02);
+            st.setToY(1.02);
+            st.play();
+            node.setEffect(shadow);
+            node.setTranslateY(-1);
+        });
+        node.addEventHandler(MouseEvent.MOUSE_EXITED, e -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(140), node);
+            st.setToX(1);
+            st.setToY(1);
+            st.play();
+            node.setEffect(null);
+            node.setTranslateY(0);
+        });
+    }
+
+    private void setupButtonHoverMotion(Button button, boolean addGlow) {
+        if (button == null) {
+            return;
+        }
+        DropShadow glow = new DropShadow(20, Color.web("#3A8DFF66"));
+        glow.setSpread(0.2);
+        button.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(130), button);
+            st.setToX(1.03);
+            st.setToY(1.03);
+            st.play();
+            if (addGlow) {
+                button.setEffect(glow);
+            }
+        });
+        button.addEventHandler(MouseEvent.MOUSE_EXITED, e -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(130), button);
+            st.setToX(1);
+            st.setToY(1);
+            st.play();
+            if (addGlow) {
+                button.setEffect(null);
+            }
+        });
+    }
+
+    private void setupFocusMotion(Node node) {
+        if (node == null) {
+            return;
+        }
+        node.focusedProperty().addListener((obs, oldVal, focused) -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(120), node);
+            st.setToX(focused ? 1.01 : 1);
+            st.setToY(focused ? 1.01 : 1);
+            st.play();
+            if (focused) {
+                DropShadow focusGlow = new DropShadow(14, Color.web("#3A8DFF55"));
+                focusGlow.setSpread(0.16);
+                node.setEffect(focusGlow);
+            } else {
+                node.setEffect(null);
+            }
+        });
+    }
+
+    private String mapTypeBadgeClass(String type) {
+        return switch (type) {
+            case "EXPENSE" -> "tx-type-expense";
+            case "SAVING" -> "tx-type-saving";
+            case "INVESTMENT" -> "tx-type-investment";
+            case "REVENUE", "SALARY" -> "tx-type-revenue";
+            default -> "tx-type-default";
+        };
+    }
+
+    private String mapBadgeClass(String type) {
+        return switch (type) {
+            case "EXPENSE" -> "badge-expense";
+            case "SAVING" -> "badge-saving";
+            case "INVESTMENT" -> "badge-investment";
+            default -> "badge-default";
+        };
     }
 
     public void setContext(User adminUser) {
@@ -259,17 +535,26 @@ public class TransactionsManagementController {
             return;
         }
         this.currentUser = adminUser;
-        userLabel.setText(adminUser.getNom() != null && !adminUser.getNom().isBlank() ? adminUser.getNom() : adminUser.getEmail());
-        roleLabel.setText("Admin Panel");
+        if (userLabel != null) {
+            userLabel.setText(adminUser.getNom() != null && !adminUser.getNom().isBlank() ? adminUser.getNom() : adminUser.getEmail());
+        }
+        if (roleLabel != null) {
+            roleLabel.setText("Admin Panel");
+        }
         reloadUsersCombo();
         applyFiltersAndRefresh();
     }
 
     private void reloadUsersCombo() {
-        List<User> users = userService.findForAdminIndex("", "", "nom", "ASC");
-        formUserCombo.setItems(FXCollections.observableArrayList(users));
-        if (!users.isEmpty()) {
-            formUserCombo.getSelectionModel().selectFirst();
+        try {
+            List<User> users = userService.findForAdminIndex("", "", "nom", "ASC");
+            formUserCombo.setItems(FXCollections.observableArrayList(users));
+            if (!users.isEmpty()) {
+                formUserCombo.getSelectionModel().selectFirst();
+            }
+        } catch (Exception e) {
+            formUserCombo.setItems(FXCollections.observableArrayList());
+            System.err.println("[TransactionsManagement] reloadUsersCombo failed: " + e.getMessage());
         }
     }
 
@@ -279,7 +564,12 @@ public class TransactionsManagementController {
             return;
         }
         try {
-            AdminNavigation.showUsersManagement((Stage) userLabel.getScene().getWindow(), currentUser);
+            Stage stage = resolveCurrentStage();
+            if (stage == null) {
+                showError("Navigation", "Fenetre introuvable.");
+                return;
+            }
+            AdminNavigation.showUsersManagement(stage, currentUser);
         } catch (Exception e) {
             showError("Navigation", e.getMessage() != null ? e.getMessage() : String.valueOf(e));
         }
@@ -330,12 +620,12 @@ public class TransactionsManagementController {
     private void handleAddTransaction() {
         User u = formUserCombo.getSelectionModel().getSelectedItem();
         if (u == null) {
-            showError("Transaction", "Sélectionnez un utilisateur.");
+            showError("Transaction", "Selectionnez un utilisateur.");
             return;
         }
         String type = formTypeCombo.getValue();
         if (type == null) {
-            showError("Transaction", "Sélectionnez un type.");
+            showError("Transaction", "Selectionnez un type.");
             return;
         }
         double amount;
@@ -356,7 +646,7 @@ public class TransactionsManagementController {
             return;
         }
         if (d.isAfter(LocalDate.now())) {
-            showError("Transaction", "La date ne peut pas être dans le futur.");
+            showError("Transaction", "La date ne peut pas etre dans le futur.");
             return;
         }
         String desc = formDescriptionArea.getText() == null ? "" : formDescriptionArea.getText().trim();
@@ -379,7 +669,7 @@ public class TransactionsManagementController {
                     desc,
                     src
             );
-            showInfo("Transaction", "Transaction ajoutée.");
+            showInfo("Transaction", "Transaction ajoutee.");
             formAmountField.setText("0.00");
             formDescriptionArea.clear();
             formSourceField.clear();
@@ -392,37 +682,58 @@ public class TransactionsManagementController {
     }
 
     private void applyFiltersAndRefresh() {
-        String typeFilter = filterTypeCombo.getValue();
-        if (typeFilter == null || "All types".equals(typeFilter)) {
-            typeFilter = null;
-        } else {
-            typeFilter = typeFilter.toUpperCase(Locale.ROOT);
-        }
-        LocalDate from = filterDateFrom.getValue();
-        LocalDate to = filterDateTo.getValue();
-        if (from != null && to != null && from.isAfter(to)) {
-            showError("Filtres", "Date from doit etre inferieure ou egale a Date to.");
-            return;
-        }
-        String userNom = filterUserField.getText() == null ? "" : filterUserField.getText().trim();
-        if (userNom.length() > 80) {
-            showError("Filtres", "Nom utilisateur trop long (max 80).");
-            return;
-        }
-        if (userNom.isEmpty()) {
-            userNom = null;
-        }
-        String sortBy = mapTxSort(filterSortCombo.getValue());
-        String order = "ASC".equalsIgnoreCase(filterOrderCombo.getValue()) ? "ASC" : "DESC";
+        try {
+            String typeFilter = filterTypeCombo.getValue();
+            if (typeFilter == null || "All types".equals(typeFilter)) {
+                typeFilter = null;
+            } else {
+                typeFilter = typeFilter.toUpperCase(Locale.ROOT);
+            }
+            LocalDate from = filterDateFrom.getValue();
+            LocalDate to = filterDateTo.getValue();
+            if (from != null && to != null && from.isAfter(to)) {
+                showError("Filtres", "Date from doit etre inferieure ou egale a Date to.");
+                return;
+            }
+            String userNom = filterUserField.getText() == null ? "" : filterUserField.getText().trim();
+            if (userNom.length() > 80) {
+                showError("Filtres", "Nom utilisateur trop long (max 80).");
+                return;
+            }
+            if (userNom.isEmpty()) {
+                userNom = null;
+            }
+            String sortBy = mapTxSort(filterSortCombo.getValue());
+            String order = "ASC".equalsIgnoreCase(filterOrderCombo.getValue()) ? "ASC" : "DESC";
 
-        Map<String, Integer> kpi = transactionService.countGroupedByType(typeFilter, from, to, userNom);
-        kpiExpenseLabel.setText(String.valueOf(kpi.getOrDefault("EXPENSE", 0)));
-        kpiSavingLabel.setText(String.valueOf(kpi.getOrDefault("SAVING", 0)));
-        kpiInvestmentLabel.setText(String.valueOf(kpi.getOrDefault("INVESTMENT", 0)));
+            Map<String, Integer> kpi = transactionService.countGroupedByType(typeFilter, from, to, userNom);
+            kpiExpenseLabel.setText(String.valueOf(kpi.getOrDefault("EXPENSE", 0)));
+            kpiSavingLabel.setText(String.valueOf(kpi.getOrDefault("SAVING", 0)));
+            kpiInvestmentLabel.setText(String.valueOf(kpi.getOrDefault("INVESTMENT", 0)));
 
-        List<Transaction> rows = transactionService.findAllForAdmin(typeFilter, from, to, userNom, sortBy, order);
-        transactionTable.setItems(FXCollections.observableArrayList(rows));
-        transactionTable.refresh();
+            List<Transaction> rows = transactionService.findAllForAdmin(typeFilter, from, to, userNom, sortBy, order);
+            transactionTable.setItems(FXCollections.observableArrayList(rows));
+            transactionTable.refresh();
+        } catch (Exception e) {
+            safeFallbackState();
+            System.err.println("[TransactionsManagement] applyFiltersAndRefresh failed: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void safeFallbackState() {
+        if (kpiExpenseLabel != null) {
+            kpiExpenseLabel.setText("0");
+        }
+        if (kpiSavingLabel != null) {
+            kpiSavingLabel.setText("0");
+        }
+        if (kpiInvestmentLabel != null) {
+            kpiInvestmentLabel.setText("0");
+        }
+        if (transactionTable != null) {
+            transactionTable.setItems(FXCollections.observableArrayList());
+        }
     }
 
     private String mapTxSort(String displaySort) {
@@ -441,20 +752,21 @@ public class TransactionsManagementController {
     }
 
     private void showTransactionDetails(Transaction t) {
-        User u = t.getUser();
-        String uline = u == null ? "-" : (u.getNom() != null ? u.getNom() : u.getEmail()) + " / " + (u != null ? u.getEmail() : "");
-        String msg = "Type: " + t.getType()
-                + "\nMontant: " + moneyFormat.format(t.getMontant()) + " DT"
-                + "\nDate: " + (t.getDate() != null ? t.getDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "-")
-                + "\nUtilisateur: " + uline
-                + "\nDescription: " + (t.getDescription() != null ? t.getDescription() : "-")
-                + "\nSource: " + (t.getModuleSource() != null ? t.getModuleSource() : "-");
-        showInfo("Transaction #" + t.getId(), msg);
+        Stage stage = resolveCurrentStage();
+        if (stage == null) {
+            showError("Transaction", "Fenetre introuvable.");
+            return;
+        }
+        TransactionDetailsDialog.show(stage, t);
     }
 
     private void openRevenueBackOffice() {
         try {
-            Stage stage = (Stage) userLabel.getScene().getWindow();
+            Stage stage = resolveCurrentStage();
+            if (stage == null) {
+                showError("Navigation error", "Unable to resolve current window.");
+                return;
+            }
             Parent root = FXMLLoader.load(Main.class.getResource("/Expense/Revenue/BACK/revenue-back-view.fxml"));
             stage.setTitle("Revenue Back Office");
             stage.setScene(new Scene(root, 1400, 900));
@@ -466,7 +778,11 @@ public class TransactionsManagementController {
 
     private void openExpenseBackOffice() {
         try {
-            Stage stage = (Stage) userLabel.getScene().getWindow();
+            Stage stage = resolveCurrentStage();
+            if (stage == null) {
+                showError("Navigation error", "Unable to resolve current window.");
+                return;
+            }
             Parent root = FXMLLoader.load(Main.class.getResource("/Expense/Revenue/BACK/expense-back-view.fxml"));
             stage.setTitle("Expense Back Office");
             stage.setScene(new Scene(root, 1400, 900));
@@ -477,19 +793,21 @@ public class TransactionsManagementController {
     }
 
     private void showInfo(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+        Stage stage = resolveCurrentStage();
+        if (stage != null) {
+            UiDialog.show(stage, UiDialog.Type.SUCCESS, title, title, content);
+        } else {
+            System.err.println("[TransactionsManagement] showInfo skipped (stage unresolved): " + title + " / " + content);
+        }
     }
 
     private void showError(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+        Stage stage = resolveCurrentStage();
+        if (stage != null) {
+            UiDialog.show(stage, UiDialog.Type.ERROR, title, title, content);
+        } else {
+            System.err.println("[TransactionsManagement] showError skipped (stage unresolved): " + title + " / " + content);
+        }
     }
 
     @FXML
@@ -498,7 +816,10 @@ public class TransactionsManagementController {
             FXMLLoader loader = FxmlResources.load(Main.class, "/pi/mains/login-view.fxml");
             Parent root = (Parent) loader.getRoot();
 
-            Stage stage = (Stage) userLabel.getScene().getWindow();
+            Stage stage = resolveCurrentStage();
+            if (stage == null) {
+                throw new IllegalStateException("Fenetre introuvable.");
+            }
             Scene scene = new Scene(root, 1460, 780);
             FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/login.css");
 
@@ -510,4 +831,37 @@ public class TransactionsManagementController {
             throw new RuntimeException("Impossible de revenir vers la page login.", e);
         }
     }
+
+    private Stage resolveCurrentStage() {
+        Stage fromControls = resolveStageFromControls(
+                contentRoot, transactionTable, addTransactionButton, applyFiltersButton, resetFiltersButton,
+                filterUserField, formAmountField, formSourceField, formDescriptionArea, formUserCombo, formTypeCombo
+        );
+        if (fromControls != null) {
+            return fromControls;
+        }
+        if (contentRoot != null && contentRoot.getScene() != null && contentRoot.getScene().getWindow() instanceof Stage stage) {
+            return stage;
+        }
+        if (transactionTable != null && transactionTable.getScene() != null && transactionTable.getScene().getWindow() instanceof Stage stage) {
+            return stage;
+        }
+        if (userLabel != null && userLabel.getScene() != null && userLabel.getScene().getWindow() instanceof Stage stage) {
+            return stage;
+        }
+        return null;
+    }
+
+    private Stage resolveStageFromControls(Node... nodes) {
+        if (nodes == null) {
+            return null;
+        }
+        for (Node node : nodes) {
+            if (node != null && node.getScene() != null && node.getScene().getWindow() instanceof Stage stage) {
+                return stage;
+            }
+        }
+        return null;
+    }
 }
+

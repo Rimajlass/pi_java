@@ -38,7 +38,10 @@ public final class FxmlResources {
         if (css == null) {
             return;
         }
-        scene.getStylesheets().add(safeFileUrl(css).toExternalForm());
+        String cssUrl = safeFileUrl(css).toExternalForm();
+        if (!scene.getStylesheets().contains(cssUrl)) {
+            scene.getStylesheets().add(cssUrl);
+        }
     }
 
     private static String directoryPrefix(String classpathFxml) {

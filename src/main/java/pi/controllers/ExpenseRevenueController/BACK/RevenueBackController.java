@@ -28,6 +28,8 @@ import pi.entities.Revenue;
 import pi.entities.User;
 import pi.mains.Main;
 import pi.services.RevenueExpenseService.RevenueService;
+import pi.services.UserTransactionService.TransactionService;
+import pi.tools.ThemeManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -76,6 +78,7 @@ public class RevenueBackController {
     private VBox menuList;
 
     private final RevenueService revenueService = new RevenueService();
+    private final TransactionService transactionService = new TransactionService();
     private final ObservableList<Revenue> revenues = FXCollections.observableArrayList();
     private final User currentUser = createCurrentUser();
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -93,13 +96,24 @@ public class RevenueBackController {
         try {
             Revenue revenue = new Revenue();
             revenue.setUser(currentUser);
-            revenue.setAmount(parseAmount(revenueAmountField.getText(), "Revenue amount"));
+            double amount = parseAmount(revenueAmountField.getText(), "Revenue amount");
+            revenue.setAmount(amount);
             revenue.setType(requireValue(revenueTypeComboBox.getValue(), "Revenue type"));
-            revenue.setReceivedAt(Objects.requireNonNullElse(revenueDatePicker.getValue(), LocalDate.now()));
-            revenue.setDescription(normalizeText(revenueDescriptionArea.getText()));
+            LocalDate txDate = Objects.requireNonNullElse(revenueDatePicker.getValue(), LocalDate.now());
+            revenue.setReceivedAt(txDate);
+            String description = normalizeText(revenueDescriptionArea.getText());
+            revenue.setDescription(description);
             revenue.setCreatedAt(LocalDateTime.now());
 
             revenueService.add(revenue);
+            transactionService.insertTransactionForUser(
+                    currentUser.getId(),
+                    "SAVING",
+                    amount,
+                    txDate,
+                    description,
+                    "revenue-back-office"
+            );
             showInfo("Revenue added successfully.");
             clearRevenueForm();
             loadData();
@@ -149,6 +163,8 @@ public class RevenueBackController {
                 openWindow("/pi/mains/admin-backend-view.fxml", "Admin Backend");
             } else if ("Transactions".equalsIgnoreCase(key)) {
                 openWindow("/pi/mains/transactions-management-view.fxml", "Transactions Management");
+            } else if ("Unexpected Events".equalsIgnoreCase(key) || "Real Cases".equalsIgnoreCase(key)) {
+                openWindow("/back-office-view.fxml", "Unexpected Events & Real Cases");
             } else if ("Expenses".equalsIgnoreCase(key)) {
                 handleOpenExpenseInterface();
             }
@@ -165,7 +181,15 @@ public class RevenueBackController {
             Parent root = FXMLLoader.load(Main.class.getResource(resource));
             Stage stage = new Stage();
             stage.setTitle(title);
-            stage.setScene(new Scene(root, 1460, 900));
+            Scene scene = new Scene(root, 1460, 900);
+            if (resource != null && resource.contains("/pi/mains/transactions-management-view.fxml")) {
+                scene.getStylesheets().add(Main.class.getResource("/pi/styles/admin-backend.css").toExternalForm());
+                scene.getStylesheets().add(Main.class.getResource("/pi/styles/user-show.css").toExternalForm());
+                scene.getStylesheets().add(Main.class.getResource("/pi/styles/edit-user.css").toExternalForm());
+                scene.getStylesheets().add(Main.class.getResource("/pi/styles/transactions-management.css").toExternalForm());
+                ThemeManager.registerScene(scene);
+            }
+            stage.setScene(scene);
             if (feedbackLabel != null && feedbackLabel.getScene() != null) {
                 stage.initOwner(feedbackLabel.getScene().getWindow());
             }

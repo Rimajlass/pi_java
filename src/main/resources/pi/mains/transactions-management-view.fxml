@@ -6,7 +6,6 @@
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
@@ -15,179 +14,125 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Polyline?>
 
-<AnchorPane prefHeight="780.0" prefWidth="1460.0" styleClass="admin-root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.UserTransactionController.TransactionsManagementController">
+<AnchorPane minHeight="700.0" minWidth="1180.0" prefHeight="780.0" prefWidth="1460.0" styleClass="admin-root tx-root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.UserTransactionController.TransactionsManagementController">
     <children>
-        <VBox prefWidth="230.0" styleClass="side-nav" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <AnchorPane styleClass="content-wrapper" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
-                <VBox spacing="4.0" styleClass="brand-wrap">
-                    <children>
-                        <HBox alignment="CENTER_LEFT" spacing="8.0">
-                            <children>
-                                <Label styleClass="brand-label" text="Decide$" />
-                            </children>
-                        </HBox>
-                    </children>
-                </VBox>
-
-                <VBox fx:id="menuList" spacing="5.0" styleClass="menu-list">
-                    <children>
-                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
-                            <children>
-                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F465;" /></children></StackPane>
-                                <Label styleClass="menu-text" text="Users" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-active menu-row-nav">
-                            <children>
-                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x21C4;" /></children></StackPane>
-                                <Label styleClass="menu-text" text="Transactions" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
-                            <children>
-                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F393;" /></children></StackPane>
-                                <Label styleClass="menu-text" text="Course &amp; Quiz" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
-                            <children>
-                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x26A0;" /></children></StackPane>
-                                <Label styleClass="menu-text" text="Unexpected Events" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
-                            <children>
-                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4CB;" /></children></StackPane>
-                                <Label styleClass="menu-text" text="Real Cases" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
-                            <children>
-                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4B0;" /></children></StackPane>
-                                <Label styleClass="menu-text" text="Revenues" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
-                            <children>
-                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4B3;" /></children></StackPane>
-                                <Label styleClass="menu-text" text="Expenses" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
-                            <children>
-                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4CA;" /></children></StackPane>
-                                <Label styleClass="menu-text" text="Reports" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
-                            <children>
-                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4C8;" /></children></StackPane>
-                                <Label styleClass="menu-text" text="Investments" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
-                            <children>
-                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F3AF;" /></children></StackPane>
-                                <Label styleClass="menu-text" text="Objectives" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
-                            <children>
-                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4AC;" /></children></StackPane>
-                                <Label styleClass="menu-text" text="Reclamations" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
-                            <children>
-                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F3C1;" /></children></StackPane>
-                                <Label styleClass="menu-text" text="Goals" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
-                            <children>
-                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x25D4;" /></children></StackPane>
-                                <Label styleClass="menu-text" text="Statistics" />
-                            </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
-                            <children>
-                                <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F916;" /></children></StackPane>
-                                <Label styleClass="menu-text" text="AI Quiz Generator" />
-                            </children>
-                        </HBox>
-                    </children>
-                </VBox>
-
-                <Region VBox.vgrow="ALWAYS" />
-                <Button mnemonicParsing="false" onAction="#handleLogout" styleClass="logout-button" text="Deconnexion" />
-                <Separator styleClass="side-separator" />
-                <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="profile-box">
-                    <children>
-                        <StackPane styleClass="profile-avatar">
-                            <children>
-                                <Label styleClass="profile-avatar-text" text="&#x1F6E1;" />
-                            </children>
-                        </StackPane>
-                        <VBox spacing="1.0">
-                            <children>
-                                <Label fx:id="userLabel" styleClass="profile-name" text="Admin" />
-                                <Label fx:id="roleLabel" styleClass="profile-role" text="Admin Panel" />
-                            </children>
-                        </VBox>
-                    </children>
-                    <padding>
-                        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
-                    </padding>
-                </HBox>
-            </children>
-            <padding>
-                <Insets bottom="16.0" left="12.0" right="12.0" top="20.0" />
-            </padding>
-        </VBox>
-
-        <AnchorPane styleClass="content-wrapper" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="230.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-            <children>
-                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="content-scroll" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" styleClass="content-scroll" vbarPolicy="AS_NEEDED" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <content>
-                        <VBox spacing="12.0" styleClass="content-root">
+                        <VBox fx:id="contentRoot" spacing="10.0" styleClass="content-root tx-content-root">
                             <children>
-                                <VBox spacing="4.0">
+                                <VBox fx:id="headerSection" spacing="4.0" styleClass="tx-header-section">
                                     <children>
-                                        <Label styleClass="admin-title" text="Transactions Management" />
-                                        <Label styleClass="admin-subtitle" text="Track, filter, and create transactions in a structured workspace." />
+                                        <Label styleClass="admin-title tx-title" text="Transactions Management" />
+                                        <Label styleClass="admin-subtitle tx-subtitle" text="Track, filter, and create transactions in a structured workspace." />
                                         <Label styleClass="tx-chip" text="BACKEND WORKSPACE" />
                                     </children>
                                 </VBox>
 
-                                <HBox spacing="10.0" styleClass="tx-mgmt-kpi-row">
+                                <HBox fx:id="kpiRow" spacing="10.0" styleClass="tx-mgmt-kpi-row">
                                     <children>
-                                        <VBox spacing="4.0" styleClass="tx-mgmt-kpi tx-mgmt-kpi-expense" HBox.hgrow="ALWAYS">
+                                        <VBox fx:id="kpiExpenseCard" spacing="6.0" styleClass="tx-mgmt-kpi tx-stat-card stat-card tx-mgmt-kpi-expense tx-hover-card" HBox.hgrow="ALWAYS">
                                             <children>
-                                                <Label styleClass="tx-mgmt-kpi-label" text="EXPENSES" />
-                                                <Label fx:id="kpiExpenseLabel" styleClass="tx-mgmt-kpi-value" text="0" />
+                                                <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="tx-kpi-body">
+                                                    <children>
+                                                        <HBox alignment="CENTER_LEFT" spacing="10.0" HBox.hgrow="ALWAYS">
+                                                            <children>
+                                                                <StackPane styleClass="tx-kpi-icon tx-kpi-icon-expense">
+                                                                    <children>
+                                                                        <Label styleClass="tx-kpi-icon-text" text="&#x2198;" />
+                                                                    </children>
+                                                                </StackPane>
+                                                                <VBox alignment="CENTER_LEFT" spacing="2.0" HBox.hgrow="ALWAYS">
+                                                                    <children>
+                                                                        <Label styleClass="tx-mgmt-kpi-label" text="EXPENSES" />
+                                                                        <Label fx:id="kpiExpenseLabel" styleClass="tx-mgmt-kpi-value" text="0" />
+                                                                        <Label styleClass="tx-mgmt-kpi-subtext" text="Total expenses" />
+                                                                    </children>
+                                                                </VBox>
+                                                            </children>
+                                                        </HBox>
+                                                        <StackPane styleClass="tx-kpi-spark tx-kpi-spark-expense">
+                                                            <children>
+                                                                <Polyline points="4.0,22.0,14.0,22.0,24.0,16.0,34.0,18.0,44.0,10.0,54.0,12.0,64.0,9.0" styleClass="tx-kpi-line tx-kpi-line-expense" />
+                                                                <Circle radius="2.4" styleClass="tx-kpi-spark-dot tx-kpi-spark-dot-expense" translateX="30.0" translateY="-7.0" />
+                                                            </children>
+                                                        </StackPane>
+                                                    </children>
+                                                </HBox>
                                             </children>
                                         </VBox>
-                                        <VBox spacing="4.0" styleClass="tx-mgmt-kpi tx-mgmt-kpi-saving" HBox.hgrow="ALWAYS">
+                                        <VBox fx:id="kpiSavingCard" spacing="6.0" styleClass="tx-mgmt-kpi tx-stat-card stat-card tx-mgmt-kpi-saving tx-hover-card" HBox.hgrow="ALWAYS">
                                             <children>
-                                                <Label styleClass="tx-mgmt-kpi-label" text="SAVINGS" />
-                                                <Label fx:id="kpiSavingLabel" styleClass="tx-mgmt-kpi-value" text="0" />
+                                                <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="tx-kpi-body">
+                                                    <children>
+                                                        <HBox alignment="CENTER_LEFT" spacing="10.0" HBox.hgrow="ALWAYS">
+                                                            <children>
+                                                                <StackPane styleClass="tx-kpi-icon tx-kpi-icon-saving">
+                                                                    <children>
+                                                                        <Label styleClass="tx-kpi-icon-text" text="&#x2197;" />
+                                                                    </children>
+                                                                </StackPane>
+                                                                <VBox alignment="CENTER_LEFT" spacing="2.0" HBox.hgrow="ALWAYS">
+                                                                    <children>
+                                                                        <Label styleClass="tx-mgmt-kpi-label" text="SAVINGS" />
+                                                                        <Label fx:id="kpiSavingLabel" styleClass="tx-mgmt-kpi-value" text="0" />
+                                                                        <Label styleClass="tx-mgmt-kpi-subtext" text="Total savings" />
+                                                                    </children>
+                                                                </VBox>
+                                                            </children>
+                                                        </HBox>
+                                                        <StackPane styleClass="tx-kpi-spark tx-kpi-spark-saving">
+                                                            <children>
+                                                                <Polyline points="4.0,21.0,14.0,21.0,24.0,15.0,34.0,10.0,44.0,14.0,54.0,12.0,64.0,7.0" styleClass="tx-kpi-line tx-kpi-line-saving" />
+                                                                <Circle radius="2.4" styleClass="tx-kpi-spark-dot tx-kpi-spark-dot-saving" translateX="30.0" translateY="-9.0" />
+                                                            </children>
+                                                        </StackPane>
+                                                    </children>
+                                                </HBox>
                                             </children>
                                         </VBox>
-                                        <VBox spacing="4.0" styleClass="tx-mgmt-kpi tx-mgmt-kpi-investment" HBox.hgrow="ALWAYS">
+                                        <VBox fx:id="kpiInvestmentCard" spacing="6.0" styleClass="tx-mgmt-kpi tx-stat-card stat-card tx-mgmt-kpi-investment tx-hover-card" HBox.hgrow="ALWAYS">
                                             <children>
-                                                <Label styleClass="tx-mgmt-kpi-label" text="INVESTMENTS" />
-                                                <Label fx:id="kpiInvestmentLabel" styleClass="tx-mgmt-kpi-value" text="0" />
+                                                <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="tx-kpi-body">
+                                                    <children>
+                                                        <HBox alignment="CENTER_LEFT" spacing="10.0" HBox.hgrow="ALWAYS">
+                                                            <children>
+                                                                <StackPane styleClass="tx-kpi-icon tx-kpi-icon-investment">
+                                                                    <children>
+                                                                        <Label styleClass="tx-kpi-icon-text" text="&#x25C8;" />
+                                                                    </children>
+                                                                </StackPane>
+                                                                <VBox alignment="CENTER_LEFT" spacing="2.0" HBox.hgrow="ALWAYS">
+                                                                    <children>
+                                                                        <Label styleClass="tx-mgmt-kpi-label" text="INVESTMENTS" />
+                                                                        <Label fx:id="kpiInvestmentLabel" styleClass="tx-mgmt-kpi-value" text="0" />
+                                                                        <Label styleClass="tx-mgmt-kpi-subtext" text="Total investments" />
+                                                                    </children>
+                                                                </VBox>
+                                                            </children>
+                                                        </HBox>
+                                                        <StackPane styleClass="tx-kpi-spark tx-kpi-spark-investment">
+                                                            <children>
+                                                                <Polyline points="4.0,22.0,14.0,21.0,24.0,14.0,34.0,11.0,44.0,17.0,54.0,15.0,64.0,4.0" styleClass="tx-kpi-line tx-kpi-line-investment" />
+                                                                <Circle radius="2.4" styleClass="tx-kpi-spark-dot tx-kpi-spark-dot-investment" translateX="30.0" translateY="-12.0" />
+                                                            </children>
+                                                        </StackPane>
+                                                    </children>
+                                                </HBox>
                                             </children>
                                         </VBox>
                                     </children>
                                 </HBox>
 
-                                <VBox spacing="10.0" styleClass="card">
+                                <VBox fx:id="filtersCard" spacing="10.0" styleClass="card tx-card tx-hover-card">
                                     <children>
                                         <HBox alignment="CENTER_LEFT" spacing="8.0">
                                             <children>
-                                                <StackPane styleClass="tx-section-icon">
+                                                <StackPane styleClass="tx-section-icon tx-section-icon-filter">
                                                     <children>
                                                         <Label styleClass="tx-section-icon-text" text="F" />
                                                     </children>
@@ -200,55 +145,55 @@
                                                 <VBox spacing="4.0" HBox.hgrow="ALWAYS">
                                                     <children>
                                                         <Label styleClass="field-label" text="User name" />
-                                                        <TextField fx:id="filterUserField" promptText="User name" styleClass="filter-field" />
+                                                        <TextField fx:id="filterUserField" promptText="User name" styleClass="filter-field input-field tx-focus-field" />
                                                     </children>
                                                 </VBox>
                                                 <VBox spacing="4.0" prefWidth="160.0">
                                                     <children>
                                                         <Label styleClass="field-label" text="Type" />
-                                                        <ComboBox fx:id="filterTypeCombo" prefWidth="160.0" styleClass="filter-field" />
+                                                        <ComboBox fx:id="filterTypeCombo" prefWidth="160.0" styleClass="filter-field input-field tx-focus-field" />
                                                     </children>
                                                 </VBox>
                                                 <VBox spacing="4.0">
                                                     <children>
                                                         <Label styleClass="field-label" text="Date from" />
-                                                        <DatePicker fx:id="filterDateFrom" styleClass="filter-field" />
+                                                        <DatePicker fx:id="filterDateFrom" styleClass="filter-field input-field tx-focus-field" />
                                                     </children>
                                                 </VBox>
                                                 <VBox spacing="4.0">
                                                     <children>
                                                         <Label styleClass="field-label" text="Date to" />
-                                                        <DatePicker fx:id="filterDateTo" styleClass="filter-field" />
+                                                        <DatePicker fx:id="filterDateTo" styleClass="filter-field input-field tx-focus-field" />
                                                     </children>
                                                 </VBox>
                                                 <VBox spacing="4.0" prefWidth="170.0">
                                                     <children>
                                                         <Label styleClass="field-label" text="Sort by" />
-                                                        <ComboBox fx:id="filterSortCombo" prefWidth="170.0" styleClass="filter-field" />
+                                                        <ComboBox fx:id="filterSortCombo" prefWidth="170.0" styleClass="filter-field input-field tx-focus-field" />
                                                     </children>
                                                 </VBox>
                                                 <VBox spacing="4.0" prefWidth="120.0">
                                                     <children>
                                                         <Label styleClass="field-label" text="Order" />
-                                                        <ComboBox fx:id="filterOrderCombo" prefWidth="120.0" styleClass="filter-field" />
+                                                        <ComboBox fx:id="filterOrderCombo" prefWidth="120.0" styleClass="filter-field input-field tx-focus-field" />
                                                     </children>
                                                 </VBox>
                                             </children>
                                         </HBox>
                                         <HBox alignment="CENTER_RIGHT" spacing="8.0">
                                             <children>
-                                                <Button mnemonicParsing="false" onAction="#handleResetFilters" styleClass="reset-button" text="Reset" />
-                                                <Button mnemonicParsing="false" onAction="#handleApplyFilters" styleClass="apply-button tx-primary-cta" text="Filter" />
+                                                <Button fx:id="resetFiltersButton" mnemonicParsing="false" onAction="#handleResetFilters" styleClass="reset-button button-outline tx-ghost-cta" text="Reset" />
+                                                <Button fx:id="applyFiltersButton" mnemonicParsing="false" onAction="#handleApplyFilters" styleClass="apply-button button-primary tx-primary-cta" text="&#x1F50E; Filter" />
                                             </children>
                                         </HBox>
                                     </children>
                                 </VBox>
 
-                                <VBox spacing="10.0" styleClass="card">
+                                <VBox fx:id="createCard" spacing="10.0" styleClass="card tx-card tx-hover-card">
                                     <children>
                                         <HBox alignment="CENTER_LEFT" spacing="8.0">
                                             <children>
-                                                <StackPane styleClass="tx-section-icon">
+                                                <StackPane styleClass="tx-section-icon tx-section-icon-create">
                                                     <children>
                                                         <Label styleClass="tx-section-icon-text" text="+" />
                                                     </children>
@@ -259,7 +204,7 @@
                                         <VBox spacing="8.0">
                                             <children>
                                                 <Label styleClass="field-label" text="User" />
-                                                <ComboBox fx:id="formUserCombo" maxWidth="1.7976931348623157E308" styleClass="filter-field" />
+                                                <ComboBox fx:id="formUserCombo" maxWidth="1.7976931348623157E308" styleClass="filter-field input-field tx-focus-field" />
                                             </children>
                                         </VBox>
                                         <HBox spacing="10.0">
@@ -267,13 +212,13 @@
                                                 <VBox spacing="4.0" HBox.hgrow="ALWAYS">
                                                     <children>
                                                         <Label styleClass="field-label" text="Type" />
-                                                        <ComboBox fx:id="formTypeCombo" maxWidth="1.7976931348623157E308" styleClass="filter-field" />
+                                                        <ComboBox fx:id="formTypeCombo" maxWidth="1.7976931348623157E308" styleClass="filter-field input-field tx-focus-field" />
                                                     </children>
                                                 </VBox>
                                                 <VBox spacing="4.0" HBox.hgrow="ALWAYS">
                                                     <children>
                                                         <Label styleClass="field-label" text="Amount" />
-                                                        <TextField fx:id="formAmountField" styleClass="filter-field" text="0.00" />
+                                                        <TextField fx:id="formAmountField" styleClass="filter-field input-field tx-focus-field" text="0.00" />
                                                     </children>
                                                 </VBox>
                                             </children>
@@ -283,13 +228,13 @@
                                                 <VBox spacing="4.0" HBox.hgrow="ALWAYS">
                                                     <children>
                                                         <Label styleClass="field-label" text="Date" />
-                                                        <DatePicker fx:id="formDatePicker" maxWidth="1.7976931348623157E308" styleClass="filter-field" />
+                                                        <DatePicker fx:id="formDatePicker" maxWidth="1.7976931348623157E308" styleClass="filter-field input-field tx-focus-field" />
                                                     </children>
                                                 </VBox>
                                                 <VBox spacing="4.0" HBox.hgrow="ALWAYS">
                                                     <children>
                                                         <Label styleClass="field-label" text="Description" />
-                                                        <TextArea fx:id="formDescriptionArea" prefRowCount="2" styleClass="filter-field" wrapText="true" />
+                                                        <TextArea fx:id="formDescriptionArea" prefRowCount="2" styleClass="filter-field input-field tx-focus-field" wrapText="true" />
                                                     </children>
                                                 </VBox>
                                             </children>
@@ -297,22 +242,22 @@
                                         <VBox spacing="4.0">
                                             <children>
                                                 <Label styleClass="field-label" text="Source" />
-                                                <TextField fx:id="formSourceField" styleClass="filter-field" />
+                                                <TextField fx:id="formSourceField" styleClass="filter-field input-field tx-focus-field" />
                                             </children>
                                         </VBox>
                                         <HBox alignment="CENTER_RIGHT">
                                             <children>
-                                                <Button mnemonicParsing="false" onAction="#handleAddTransaction" styleClass="apply-button tx-primary-cta" text="Add Transaction" />
+                                                <Button fx:id="addTransactionButton" mnemonicParsing="false" onAction="#handleAddTransaction" styleClass="apply-button button-primary tx-primary-cta tx-add-cta" text="Add Transaction" />
                                             </children>
                                         </HBox>
                                     </children>
                                 </VBox>
 
-                                <VBox spacing="10.0" styleClass="card">
+                                <VBox fx:id="tableCard" spacing="10.0" styleClass="card tx-card tx-hover-card">
                                     <children>
                                         <HBox alignment="CENTER_LEFT" spacing="8.0">
                                             <children>
-                                                <StackPane styleClass="tx-section-icon">
+                                                <StackPane styleClass="tx-section-icon tx-section-icon-table">
                                                     <children>
                                                         <Label styleClass="tx-section-icon-text" text="T" />
                                                     </children>
@@ -320,7 +265,7 @@
                                                 <Label styleClass="card-title" text="Transactions List" />
                                             </children>
                                         </HBox>
-                                        <TableView fx:id="transactionTable" minHeight="320.0" prefHeight="400.0" styleClass="tx-mgmt-table" VBox.vgrow="ALWAYS" />
+                                        <TableView fx:id="transactionTable" minHeight="320.0" prefHeight="400.0" styleClass="tx-mgmt-table table-modern table-view" VBox.vgrow="ALWAYS" />
                                     </children>
                                 </VBox>
                             </children>

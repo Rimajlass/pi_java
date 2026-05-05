@@ -147,7 +147,7 @@
                                             </graphic>
                                         </Button>
 
-                                        <VBox spacing="10.0" prefWidth="430.0" styleClass="service-card">
+                                        <VBox spacing="10.0" prefWidth="430.0" styleClass="service-card" onMouseClicked="#handleOpenUnexpectedRealCases">
                                             <children>
                                                 <Label text="Unexpected events &amp; real cases" styleClass="service-title" />
                                                 <Label text="Prepare for emergency costs with clear and proactive planning."
@@ -173,7 +173,10 @@
 
                                 <VBox spacing="26.0" prefWidth="460.0">
                                     <children>
-                                        <VBox spacing="10.0" prefWidth="430.0" styleClass="service-card">
+                                        <VBox spacing="10.0"
+                                              prefWidth="430.0"
+                                              styleClass="service-card"
+                                              onMouseClicked="#handleOpenSavingsGoals">
                                             <children>
                                                 <Label text="Epargne &amp; Goal" styleClass="service-title" />
                                                 <Label text="Build dedicated savings plans for major life objectives."

@@ -13,6 +13,7 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,7 +54,8 @@ public class TransactionService {
                 ORDER BY t.date DESC, t.id DESC
                 """;
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        Connection currentCnx = MyDatabase.getInstance().getCnx();
+        try (PreparedStatement ps = currentCnx.prepareStatement(sql)) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -64,7 +66,81 @@ public class TransactionService {
             throw new RuntimeException("Erreur lors du chargement des transactions : " + e.getMessage(), e);
         }
 
+        if (transactions.isEmpty()) {
+            return findByUserIdFromRevenueExpense(userId);
+        }
+
         return transactions;
+    }
+
+    private List<Transaction> findByUserIdFromRevenueExpense(int userId) {
+        List<Transaction> rows = new ArrayList<>();
+        User user = userService.findById(userId);
+        if (user == null) {
+            return rows;
+        }
+
+        String revenueSql = """
+                SELECT id, amount, received_at, description
+                FROM revenue
+                WHERE user_id = ?
+                """;
+
+        String expenseSql = """
+                SELECT id, amount, expense_date, description
+                FROM expense
+                WHERE user_id = ?
+                """;
+
+        Connection currentCnx = MyDatabase.getInstance().getCnx();
+
+        try (PreparedStatement psRevenue = currentCnx.prepareStatement(revenueSql)) {
+            psRevenue.setInt(1, userId);
+            try (ResultSet rs = psRevenue.executeQuery()) {
+                while (rs.next()) {
+                    Date d = rs.getDate("received_at");
+                    rows.add(new Transaction(
+                            rs.getInt("id"),
+                            user,
+                            null,
+                            "SAVING",
+                            rs.getDouble("amount"),
+                            d != null ? d.toLocalDate() : null,
+                            rs.getString("description"),
+                            "revenue"
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur chargement revenue user: " + e.getMessage(), e);
+        }
+
+        try (PreparedStatement psExpense = currentCnx.prepareStatement(expenseSql)) {
+            psExpense.setInt(1, userId);
+            try (ResultSet rs = psExpense.executeQuery()) {
+                while (rs.next()) {
+                    Date d = rs.getDate("expense_date");
+                    rows.add(new Transaction(
+                            rs.getInt("id"),
+                            user,
+                            null,
+                            "EXPENSE",
+                            rs.getDouble("amount"),
+                            d != null ? d.toLocalDate() : null,
+                            rs.getString("description"),
+                            "expense"
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur chargement expense user: " + e.getMessage(), e);
+        }
+
+        rows.sort(
+                Comparator.comparing(Transaction::getDate, Comparator.nullsLast(Comparator.reverseOrder()))
+                        .thenComparing(Transaction::getId, Comparator.reverseOrder())
+        );
+        return rows;
     }
 
     /**

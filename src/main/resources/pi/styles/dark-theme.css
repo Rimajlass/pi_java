@@ -1,0 +1,100 @@
+/* Global dark theme overlay */
+
+.root {
+    -fx-font-family: "Segoe UI";
+    -fx-accent: #4f7bff;
+    -fx-base: #101d30;
+    -fx-background: #0b1728;
+    -fx-control-inner-background: #142742;
+    -fx-control-inner-background-alt: #12233b;
+    -fx-color: #142742;
+    -fx-focus-color: #4f7bff;
+    -fx-faint-focus-color: rgba(79, 123, 255, 0.18);
+    -fx-selection-bar: #4f7bff;
+    -fx-selection-bar-non-focused: #3256a8;
+    -fx-text-background-color: #eaf2ff;
+    -fx-text-inner-color: #eaf2ff;
+    -fx-highlight-fill: #4f7bff;
+    -fx-highlight-text-fill: #ffffff;
+    -fx-prompt-text-fill: #8ea0b8;
+    -app-surface-1: rgba(13, 28, 46, 0.78);
+    -app-surface-2: rgba(10, 20, 35, 0.72);
+    -app-border-subtle: rgba(117, 164, 225, 0.28);
+    -app-border-strong: rgba(154, 196, 255, 0.36);
+    -app-border-row: rgba(139, 170, 214, 0.11);
+    -app-row-hover: rgba(68, 143, 232, 0.16);
+    -app-text-primary: #f5f7ff;
+    -app-text-secondary: #a9b4c7;
+    -app-text: -app-text-primary;
+    -app-text-muted: #dce6f2;
+    -app-bg-input: -fx-control-inner-background;
+    -app-insight: #c5d7f0;
+    -app-accent-strong: #7fc5ff;
+    -app-good: #58d88a;
+    -app-bad: #ff7f90;
+    -app-danger-surface: rgba(77, 22, 34, 0.42);
+    -app-danger-border: rgba(235, 98, 123, 0.30);
+    -app-danger-title: #ff8ca1;
+    -app-chart-grid: rgba(121, 154, 201, 0.22);
+    -app-scroll-thumb: rgba(113, 155, 212, 0.46);
+    -app-scroll-thumb-hover: rgba(134, 184, 247, 0.62);
+    -app-scroll-track: rgba(11, 24, 41, 0.52);
+}
+
+.label {
+    -fx-text-fill: #eaf2ff;
+}
+
+.button {
+    -fx-background-color: rgba(21, 38, 62, 0.94);
+    -fx-border-color: rgba(111, 157, 222, 0.26);
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-text-fill: #eaf2ff;
+}
+
+.button:hover {
+    -fx-background-color: rgba(32, 54, 85, 0.95);
+}
+
+.text-input,
+.text-area,
+.combo-box-base,
+.choice-box,
+.spinner,
+.date-picker,
+.list-view,
+.tree-view,
+.table-view,
+.tree-table-view {
+    -fx-background-color: #142742;
+    -fx-control-inner-background: #142742;
+    -fx-text-fill: #eaf2ff;
+    -fx-prompt-text-fill: #8ea0b8;
+}
+
+.admin-root {
+    -fx-accent: #4f7bff;
+}
+
+.utility-icon-btn {
+    -fx-background-color: rgba(18, 34, 57, 0.92);
+    -fx-border-color: rgba(109, 155, 219, 0.24);
+    -fx-text-fill: #d7e7fb;
+}
+
+.sidebar-theme-toggle {
+    -fx-background-color: rgba(18, 34, 57, 0.92);
+    -fx-border-color: rgba(109, 155, 219, 0.24);
+    -fx-text-fill: #d7e7fb;
+}
+
+.header-button {
+    -fx-background-color: #0f1c2e;
+    -fx-text-fill: #eaf2ff;
+}
+
+.primary-button {
+    -fx-background-color: linear-gradient(to right, #3a8dff 0%, #4f6fff 100%);
+    -fx-text-fill: #ffffff;
+}

@@ -1,0 +1,13 @@
+# Copy this file to `mail.properties` and fill your real credentials.
+# SMTP configuration for forgot-password email sending.
+
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_AUTH=true
+SMTP_STARTTLS=true
+
+SMTP_USERNAME=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+SMTP_FROM=your-email@gmail.com
+
+APP_BASE_URL=https://app.example.com/reset-password

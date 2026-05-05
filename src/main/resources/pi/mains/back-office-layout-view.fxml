@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane minHeight="700.0" minWidth="1180.0" prefHeight="780.0" prefWidth="1460.0" styleClass="admin-root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.UserTransactionController.BackOfficeLayoutController">
+    <children>
+        <BorderPane maxWidth="272.0" minWidth="272.0" prefWidth="272.0" styleClass="side-nav sidebar" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <top>
+                <VBox spacing="4.0" styleClass="brand-wrap">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                            <children>
+                                <Label styleClass="brand-label" text="Decide$" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <ToggleButton fx:id="themeToggleButton" mnemonicParsing="false" onAction="#handleToggleTheme" styleClass="utility-icon-btn sidebar-theme-toggle" text="&#x263D;" />
+                            </children>
+                        </HBox>
+                        <Label styleClass="brand-subtitle" text="Finance Admin Workspace" />
+                    </children>
+                    <padding>
+                        <Insets bottom="12.0" left="14.0" right="14.0" top="20.0" />
+                    </padding>
+                </VBox>
+            </top>
+            <center>
+                <VBox styleClass="nav-shell">
+                    <children>
+                        <VBox fx:id="menuList" spacing="6.0" styleClass="menu-list">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleUsersMenuClick" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                    <children>
+                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F465;" /></children></StackPane>
+                                        <Label styleClass="menu-text" text="Users" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleTransactionsMenuClick" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                    <children>
+                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x21C4;" /></children></StackPane>
+                                        <Label styleClass="menu-text" text="Transactions" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                    <children>
+                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F393;" /></children></StackPane>
+                                        <Label styleClass="menu-text" text="Course &amp; Quiz" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                    <children>
+                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x26A0;" /></children></StackPane>
+                                        <Label styleClass="menu-text" text="Unexpected Events" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                    <children>
+                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4CB;" /></children></StackPane>
+                                        <Label styleClass="menu-text" text="Real Cases" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                    <children>
+                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4B0;" /></children></StackPane>
+                                        <Label styleClass="menu-text" text="Revenues" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                    <children>
+                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4B3;" /></children></StackPane>
+                                        <Label styleClass="menu-text" text="Expenses" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                    <children>
+                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4CA;" /></children></StackPane>
+                                        <Label styleClass="menu-text" text="Reports" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                    <children>
+                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4C8;" /></children></StackPane>
+                                        <Label styleClass="menu-text" text="Investments" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                    <children>
+                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F3AF;" /></children></StackPane>
+                                        <Label styleClass="menu-text" text="Objectives" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                    <children>
+                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4AC;" /></children></StackPane>
+                                        <Label styleClass="menu-text" text="Reclamations" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                    <children>
+                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4B5;" /></children></StackPane>
+                                        <Label styleClass="menu-text" text="Savings" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                    <children>
+                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F3C1;" /></children></StackPane>
+                                        <Label styleClass="menu-text" text="Goals" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                    <children>
+                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x25D4;" /></children></StackPane>
+                                        <Label styleClass="menu-text" text="Statistics" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                    <children>
+                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F916;" /></children></StackPane>
+                                        <Label styleClass="menu-text" text="AI Quiz Generator" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                        <Region VBox.vgrow="ALWAYS" />
+                    </children>
+                    <padding>
+                        <Insets bottom="8.0" left="10.0" right="10.0" top="6.0" />
+                    </padding>
+                </VBox>
+            </center>
+            <bottom>
+                <VBox spacing="10.0" styleClass="sidebar-footer">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="profile-box">
+                            <children>
+                                <StackPane styleClass="profile-avatar">
+                                    <children>
+                                        <Label styleClass="profile-avatar-text" text="A" />
+                                    </children>
+                                </StackPane>
+                                <VBox spacing="1.0">
+                                    <children>
+                                        <Label fx:id="userNameLabel" styleClass="profile-name" text="admin" />
+                                        <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                            <children>
+                                                <Region styleClass="online-dot" />
+                                                <Label fx:id="roleStatusLabel" styleClass="profile-role" text="Online" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                            <padding>
+                                <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+                            </padding>
+                        </HBox>
+                        <Button mnemonicParsing="false" onAction="#handleLogout" styleClass="logout-button" text="Log out" />
+                    </children>
+                    <padding>
+                        <Insets bottom="14.0" left="10.0" right="10.0" top="8.0" />
+                    </padding>
+                </VBox>
+            </bottom>
+        </BorderPane>
+
+        <AnchorPane fx:id="contentHost" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="272.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+    </children>
+</AnchorPane>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true"
+            hbarPolicy="NEVER"
+            vbarPolicy="AS_NEEDED"
+            pannable="true"
+            styleClass="page-scroll"
+            stylesheets="@../styles/learning-dashboard.css"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pi.controllers.CoursQuizController.CoursController">
+
+    <content>
+        <VBox spacing="24.0" styleClass="page-shell">
+            <padding>
+                <Insets top="20.0" right="28.0" bottom="28.0" left="28.0"/>
+            </padding>
+
+            <StackPane styleClass="hero-card">
+                <Label text="Gestion des cours" styleClass="hero-title-centered"/>
+            </StackPane>
+
+            <VBox spacing="18.0" styleClass="content-card">
+                    <HBox alignment="CENTER_LEFT">
+                        <VBox spacing="4.0">
+                            <Label text="Creer ou modifier un cours" styleClass="section-title"/>
+                            <Label text="Renseignez chaque information dans un formulaire plus clair et plus aere." styleClass="section-subtitle"/>
+                        </VBox>
+                    </HBox>
+
+                    <GridPane hgap="18.0" vgap="16.0">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="50.0" hgrow="ALWAYS"/>
+                            <ColumnConstraints percentWidth="50.0" hgrow="ALWAYS"/>
+                        </columnConstraints>
+
+                        <VBox spacing="6.0" visible="false" managed="false" GridPane.rowIndex="0" GridPane.columnIndex="0">
+                            <Label text="ID" styleClass="field-label"/>
+                            <TextField fx:id="idField" editable="false" promptText="Genere automatiquement" styleClass="text-input"/>
+                        </VBox>
+
+                        <VBox spacing="6.0" GridPane.rowIndex="1" GridPane.columnIndex="0">
+                            <Label text="Titre" styleClass="field-label"/>
+                            <TextField fx:id="titreField" promptText="Titre du cours" styleClass="text-input"/>
+                        </VBox>
+
+                        <VBox spacing="6.0" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                            <Label text="Type media" styleClass="field-label"/>
+                            <TextField fx:id="typeMediaField" promptText="video / pdf / image" styleClass="text-input"/>
+                        </VBox>
+
+                        <VBox spacing="6.0" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2">
+                            <Label text="Url media" styleClass="field-label"/>
+                            <TextField fx:id="urlMediaField" promptText="https://..." styleClass="text-input"/>
+                        </VBox>
+
+                        <VBox spacing="6.0" GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.columnSpan="2">
+                            <Label text="Contenu texte" styleClass="field-label"/>
+                            <TextArea fx:id="contenuField" promptText="Contenu du cours..." wrapText="true" prefRowCount="11" styleClass="text-area-input"/>
+                        </VBox>
+
+                        <VBox spacing="6.0" GridPane.rowIndex="4" GridPane.columnIndex="0">
+                            <Label text="Cree par (User ID)" styleClass="field-label"/>
+                            <TextField fx:id="userIdField" promptText="Ex: 1" styleClass="text-input"/>
+                        </VBox>
+                    </GridPane>
+
+                    <HBox spacing="12.0">
+                        <Button text="Enregistrer" onAction="#ajouterCours" styleClass="action-button" style="-fx-background-color: linear-gradient(to right, #0a4f7a, #178bb5); -fx-text-fill: white;"/>
+                        <Button text="Annuler" onAction="#viderFormulaire" styleClass="action-button" style="-fx-background-color: #ef5f73; -fx-text-fill: white;"/>
+                        <Button text="Modifier" onAction="#modifierCours" styleClass="action-button" style="-fx-background-color: linear-gradient(to right, #0a4f7a, #178bb5); -fx-text-fill: white;"/>
+                        <Button text="Supprimer" onAction="#supprimerCours" styleClass="action-button" style="-fx-background-color: #ef5f73; -fx-text-fill: white;"/>
+                        <Button text="Actualiser" onAction="#actualiserTable" styleClass="action-button" style="-fx-background-color: #14a36f; -fx-text-fill: white;"/>
+                    </HBox>
+            </VBox>
+
+            <VBox spacing="16.0" styleClass="content-card">
+                <HBox alignment="CENTER_LEFT">
+                    <VBox spacing="4.0">
+                        <Label text="Liste des cours" styleClass="section-title"/>
+                        <Label text="Retrouvez les contenus existants avec une recherche mieux integree." styleClass="section-subtitle"/>
+                    </VBox>
+                </HBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <TextField fx:id="searchField" promptText="Rechercher par titre ou contenu..." styleClass="text-input search-input"/>
+                    <Button text="Rechercher" onAction="#rechercherCours" styleClass="action-button" style="-fx-background-color: linear-gradient(to right, #0a4f7a, #178bb5); -fx-text-fill: white;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Actualiser liste" onAction="#actualiserTable" styleClass="action-button" style="-fx-background-color: #14a36f; -fx-text-fill: white;"/>
+                </HBox>
+
+                <TableView fx:id="coursTable" prefHeight="320.0" styleClass="premium-table">
+                    <columns>
+                        <TableColumn fx:id="idColumn" prefWidth="90.0" text="ID" />
+                        <TableColumn fx:id="userIdColumn" prefWidth="120.0" text="User ID" />
+                        <TableColumn fx:id="titreColumn" prefWidth="320.0" text="Titre" />
+                        <TableColumn fx:id="typeMediaColumn" prefWidth="180.0" text="Type media" />
+                    </columns>
+                </TableView>
+            </VBox>
+        </VBox>
+    </content>
+</ScrollPane>

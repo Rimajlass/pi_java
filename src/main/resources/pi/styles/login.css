@@ -48,6 +48,7 @@
     -fx-font-family: "Segoe UI";
     -fx-font-size: 52px;
     -fx-font-weight: 800;
+    -fx-effect: dropshadow(gaussian, rgba(67, 190, 255, 0.32), 18, 0.18, 0, 0);
 }
 
 .hero-line {
@@ -133,6 +134,12 @@
     -fx-highlight-fill: #34b4ff;
 }
 
+.login-field:focused {
+    -fx-border-color: rgba(83, 184, 255, 0.80);
+    -fx-background-color: rgba(36, 49, 76, 0.98);
+    -fx-effect: dropshadow(gaussian, rgba(52, 180, 255, 0.30), 14, 0.22, 0, 0);
+}
+
 .remember-box {
     -fx-text-fill: #d9e8fa;
     -fx-font-size: 12px;
@@ -156,6 +163,11 @@
     -fx-text-fill: white;
     -fx-font-size: 16px;
     -fx-font-weight: 800;
+    -fx-effect: dropshadow(gaussian, rgba(66, 193, 255, 0.24), 14, 0.20, 0, 3);
+}
+
+.sign-in-button:hover {
+    -fx-background-color: linear-gradient(to right, #2da8e4, #5ccdff);
 }
 
 .oauth-google,
@@ -176,6 +188,14 @@
     -fx-text-fill: #ffffff;
 }
 
+.oauth-google:hover {
+    -fx-background-color: #f3f7ff;
+}
+
+.oauth-facebook:hover {
+    -fx-background-color: #2f82f5;
+}
+
 .divider-text {
     -fx-text-fill: rgba(210, 225, 247, 0.56);
     -fx-font-size: 11px;
@@ -194,6 +214,11 @@
     -fx-font-size: 12px;
     -fx-font-weight: 700;
     -fx-padding: 0 14 0 14;
+}
+
+.biometric-button:hover {
+    -fx-background-color: rgba(29, 77, 132, 0.66);
+    -fx-border-color: rgba(126, 196, 255, 0.44);
 }
 
 .footer-box {

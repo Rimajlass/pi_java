@@ -47,7 +47,7 @@
                                         <HBox alignment="CENTER" spacing="10.0" styleClass="profile-pill">
                                             <children>
                                                 <Label styleClass="profile-icon" text="U" />
-                                                <Label styleClass="profile-name" text="amine" />
+                                                <Label fx:id="profileNameLabel" styleClass="profile-name" text="amine" />
                                             </children>
                                         </HBox>
                                         <Button mnemonicParsing="false" onAction="#handleOpenHomeAction" styleClass="header-button start-button" text="To Start" />

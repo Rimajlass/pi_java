@@ -1,0 +1,51 @@
+.root {
+    -fx-font-family: "Segoe UI";
+}
+
+.front-root {
+    -fx-background-color:
+        radial-gradient(center 15% 12%, radius 35%, rgba(0,191,229,0.16), transparent),
+        radial-gradient(center 88% 6%, radius 28%, rgba(35,117,246,0.10), transparent),
+        linear-gradient(to bottom, #f7fbff, #edf4fb);
+}
+
+.front-card {
+    -fx-background-color: rgba(255,255,255,0.94);
+    -fx-background-radius: 30;
+    -fx-border-color: rgba(8,26,58,0.08);
+    -fx-border-radius: 30;
+    -fx-padding: 30;
+    -fx-effect: dropshadow(gaussian, rgba(11,28,63,0.12), 32, 0.14, 0, 8);
+}
+
+.front-title {
+    -fx-text-fill: #163255;
+    -fx-font-family: "Georgia";
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+}
+
+.front-subtitle {
+    -fx-text-fill: #7589a0;
+    -fx-font-size: 15px;
+}
+
+.front-primary-btn {
+    -fx-background-color: linear-gradient(to right, #2375f6, #27b9ea);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 16;
+    -fx-padding: 12 22 12 22;
+    -fx-min-width: 220;
+}
+
+.front-secondary-btn {
+    -fx-background-color: white;
+    -fx-text-fill: #2375f6;
+    -fx-font-weight: bold;
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(35,117,246,0.24);
+    -fx-border-radius: 16;
+    -fx-padding: 12 22 12 22;
+    -fx-min-width: 220;
+}
