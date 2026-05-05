@@ -324,12 +324,18 @@ public class SalaryExpenseController {
             TextArea descriptionArea
     ) {
         try {
+            ensureConnectedUser();
+            double amount = parseAmount(amountField.getText(), "Revenue amount");
+            String type = normalizeRevenueType(requireValue(typeComboBox.getValue(), "Revenue type"));
+            LocalDate txDate = Objects.requireNonNullElse(datePicker.getValue(), LocalDate.now());
+            String description = normalizeText(descriptionArea.getText());
+
             Revenue revenue = editingRevenue != null ? editingRevenue : new Revenue();
             revenue.setUser(currentUser);
-            revenue.setAmount(parseAmount(amountField.getText(), "Revenue amount"));
-            revenue.setType(normalizeRevenueType(requireValue(typeComboBox.getValue(), "Revenue type")));
-            revenue.setReceivedAt(Objects.requireNonNullElse(datePicker.getValue(), LocalDate.now()));
-            revenue.setDescription(normalizeText(descriptionArea.getText()));
+            revenue.setAmount(amount);
+            revenue.setType(type);
+            revenue.setReceivedAt(txDate);
+            revenue.setDescription(description);
             revenue.setCreatedAt(editingRevenue != null && editingRevenue.getCreatedAt() != null ? editingRevenue.getCreatedAt() : LocalDateTime.now());
 
             boolean updating = editingRevenue != null;
@@ -338,30 +344,16 @@ public class SalaryExpenseController {
                 showInfo("Revenue updated successfully.");
             } else {
                 revenueService.add(revenue);
+                transactionService.insertTransactionForUser(
+                        currentUser.getId(),
+                        "SAVING",
+                        amount,
+                        txDate,
+                        description,
+                        "salary-expense-front"
+                );
                 showInfo(buildRevenueSuccessMessage(revenue));
             }
-            ensureConnectedUser();
-            Revenue revenue = new Revenue();
-            revenue.setUser(currentUser);
-            double amount = parseAmount(amountField.getText(), "Revenue amount");
-            revenue.setAmount(amount);
-            revenue.setType(requireValue(typeComboBox.getValue(), "Revenue type"));
-            LocalDate txDate = Objects.requireNonNullElse(datePicker.getValue(), LocalDate.now());
-            revenue.setReceivedAt(txDate);
-            String description = normalizeText(descriptionArea.getText());
-            revenue.setDescription(description);
-            revenue.setCreatedAt(LocalDateTime.now());
-
-            revenueService.add(revenue);
-            transactionService.insertTransactionForUser(
-                    currentUser.getId(),
-                    "SAVING",
-                    amount,
-                    txDate,
-                    description,
-                    "salary-expense-front"
-            );
-            showInfo("Revenue added successfully.");
             clearRevenueForms();
             loadData();
         } catch (Exception exception) {
@@ -422,6 +414,7 @@ public class SalaryExpenseController {
             validateExpenseAgainstRevenue(expenseAmount, linkedRevenue);
             LocalDate txDate = Objects.requireNonNullElse(expenseDatePicker.getValue(), LocalDate.now());
             String description = normalizeText(expenseDescriptionArea.getText());
+            String category = normalizeExpenseCategory(requireValue(expenseCategoryComboBox.getValue(), "Expense category"));
 
             boolean updating = editingExpense != null;
             Expense expense;
@@ -430,9 +423,9 @@ public class SalaryExpenseController {
                 expense.setRevenue(linkedRevenue);
                 expense.setUser(currentUser);
                 expense.setAmount(expenseAmount);
-                expense.setCategory(normalizeExpenseCategory(requireValue(expenseCategoryComboBox.getValue(), "Expense category")));
-                expense.setExpenseDate(Objects.requireNonNullElse(expenseDatePicker.getValue(), LocalDate.now()));
-                expense.setDescription(normalizeText(expenseDescriptionArea.getText()));
+                expense.setCategory(category);
+                expense.setExpenseDate(txDate);
+                expense.setDescription(description);
                 expenseService.update(expense);
                 showInfo("Expense updated successfully.");
             } else {
@@ -440,32 +433,21 @@ public class SalaryExpenseController {
                         linkedRevenue,
                         currentUser,
                         expenseAmount,
-                        normalizeExpenseCategory(requireValue(expenseCategoryComboBox.getValue(), "Expense category")),
-                        Objects.requireNonNullElse(expenseDatePicker.getValue(), LocalDate.now()),
-                        normalizeText(expenseDescriptionArea.getText())
+                        category,
+                        txDate,
+                        description
                 );
                 expenseService.add(expense);
+                transactionService.insertTransactionForUser(
+                        currentUser.getId(),
+                        "EXPENSE",
+                        expenseAmount,
+                        txDate,
+                        description,
+                        "salary-expense-front"
+                );
                 showInfo(buildExpenseSuccessMessage(expense));
             }
-            Expense expense = new Expense(
-                    linkedRevenue,
-                    currentUser,
-                    expenseAmount,
-                    requireValue(expenseCategoryComboBox.getValue(), "Expense category"),
-                    txDate,
-                    description
-            );
-
-            expenseService.add(expense);
-            transactionService.insertTransactionForUser(
-                    currentUser.getId(),
-                    "EXPENSE",
-                    expenseAmount,
-                    txDate,
-                    description,
-                    "salary-expense-front"
-            );
-            showInfo("Expense added successfully.");
             clearExpenseForm();
             loadData();
         } catch (Exception exception) {
@@ -2199,6 +2181,8 @@ public class SalaryExpenseController {
         private int getExpenseCount() {
             return expenseCount;
         }
+    }
+
     private void attachUserFromStageIfAvailable() {
         if (feedbackLabel == null) {
             return;

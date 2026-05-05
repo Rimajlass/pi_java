@@ -95,12 +95,17 @@ public class RevenueBackController {
     @FXML
     private void handleAddRevenue() {
         try {
+            double amount = parseAmount(revenueAmountField.getText(), "Revenue amount");
+            String type = normalizeRevenueType(requireValue(revenueTypeComboBox.getValue(), "Revenue type"));
+            LocalDate txDate = Objects.requireNonNullElse(revenueDatePicker.getValue(), LocalDate.now());
+            String description = normalizeText(revenueDescriptionArea.getText());
+
             Revenue revenue = editingRevenue != null ? editingRevenue : new Revenue();
             revenue.setUser(currentUser);
-            revenue.setAmount(parseAmount(revenueAmountField.getText(), "Revenue amount"));
-            revenue.setType(normalizeRevenueType(requireValue(revenueTypeComboBox.getValue(), "Revenue type")));
-            revenue.setReceivedAt(Objects.requireNonNullElse(revenueDatePicker.getValue(), LocalDate.now()));
-            revenue.setDescription(normalizeText(revenueDescriptionArea.getText()));
+            revenue.setAmount(amount);
+            revenue.setType(type);
+            revenue.setReceivedAt(txDate);
+            revenue.setDescription(description);
             revenue.setCreatedAt(editingRevenue != null && editingRevenue.getCreatedAt() != null ? editingRevenue.getCreatedAt() : LocalDateTime.now());
 
             boolean updating = editingRevenue != null;
@@ -109,27 +114,16 @@ public class RevenueBackController {
                 showInfo("Revenue updated successfully.");
             } else {
                 revenueService.add(revenue);
+                transactionService.insertTransactionForUser(
+                        currentUser.getId(),
+                        "SAVING",
+                        amount,
+                        txDate,
+                        description,
+                        "revenue-back-office"
+                );
                 showInfo("Revenue added successfully.");
             }
-            double amount = parseAmount(revenueAmountField.getText(), "Revenue amount");
-            revenue.setAmount(amount);
-            revenue.setType(requireValue(revenueTypeComboBox.getValue(), "Revenue type"));
-            LocalDate txDate = Objects.requireNonNullElse(revenueDatePicker.getValue(), LocalDate.now());
-            revenue.setReceivedAt(txDate);
-            String description = normalizeText(revenueDescriptionArea.getText());
-            revenue.setDescription(description);
-            revenue.setCreatedAt(LocalDateTime.now());
-
-            revenueService.add(revenue);
-            transactionService.insertTransactionForUser(
-                    currentUser.getId(),
-                    "SAVING",
-                    amount,
-                    txDate,
-                    description,
-                    "revenue-back-office"
-            );
-            showInfo("Revenue added successfully.");
             clearRevenueForm();
             loadData();
         } catch (Exception exception) {

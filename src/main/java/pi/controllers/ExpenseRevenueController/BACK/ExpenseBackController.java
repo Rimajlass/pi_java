@@ -112,6 +112,7 @@ public class ExpenseBackController {
             validateExpenseAgainstRevenue(expenseAmount, linkedRevenue);
             LocalDate txDate = Objects.requireNonNullElse(expenseDatePicker.getValue(), LocalDate.now());
             String description = normalizeText(expenseDescriptionArea.getText());
+            String category = normalizeExpenseCategory(requireValue(expenseCategoryComboBox.getValue(), "Expense category"));
 
             boolean updating = editingExpense != null;
             Expense expense;
@@ -120,9 +121,9 @@ public class ExpenseBackController {
                 expense.setRevenue(linkedRevenue);
                 expense.setUser(currentUser);
                 expense.setAmount(expenseAmount);
-                expense.setCategory(normalizeExpenseCategory(requireValue(expenseCategoryComboBox.getValue(), "Expense category")));
-                expense.setExpenseDate(Objects.requireNonNullElse(expenseDatePicker.getValue(), LocalDate.now()));
-                expense.setDescription(normalizeText(expenseDescriptionArea.getText()));
+                expense.setCategory(category);
+                expense.setExpenseDate(txDate);
+                expense.setDescription(description);
                 expenseService.update(expense);
                 showInfo("Expense updated successfully.");
             } else {
@@ -130,32 +131,21 @@ public class ExpenseBackController {
                         linkedRevenue,
                         currentUser,
                         expenseAmount,
-                        normalizeExpenseCategory(requireValue(expenseCategoryComboBox.getValue(), "Expense category")),
-                        Objects.requireNonNullElse(expenseDatePicker.getValue(), LocalDate.now()),
-                        normalizeText(expenseDescriptionArea.getText())
+                        category,
+                        txDate,
+                        description
                 );
                 expenseService.add(expense);
+                transactionService.insertTransactionForUser(
+                        currentUser.getId(),
+                        "EXPENSE",
+                        expenseAmount,
+                        txDate,
+                        description,
+                        "expense-back-office"
+                );
                 showInfo("Expense added successfully.");
             }
-            Expense expense = new Expense(
-                    linkedRevenue,
-                    currentUser,
-                    expenseAmount,
-                    requireValue(expenseCategoryComboBox.getValue(), "Expense category"),
-                    txDate,
-                    description
-            );
-
-            expenseService.add(expense);
-            transactionService.insertTransactionForUser(
-                    currentUser.getId(),
-                    "EXPENSE",
-                    expenseAmount,
-                    txDate,
-                    description,
-                    "expense-back-office"
-            );
-            showInfo("Expense added successfully.");
             clearExpenseForm();
             loadData();
         } catch (Exception exception) {

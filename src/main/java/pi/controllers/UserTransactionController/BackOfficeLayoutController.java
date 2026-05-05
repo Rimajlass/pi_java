@@ -17,6 +17,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import pi.controllers.ExpenseRevenueController.BACK.AdminRevenueExpenseBackOfficeFactory;
 import pi.entities.User;
 import pi.mains.Main;
 import pi.tools.FxmlResources;
@@ -89,6 +90,28 @@ public class BackOfficeLayoutController {
         activateMenuByKey("Transactions");
         if (!handleCoreNavigation("Transactions")) {
             menuSelectionHandler.accept("Transactions");
+        }
+    }
+
+    @FXML
+    private void handleRevenuesMenuClick(MouseEvent event) {
+        if (event != null) {
+            event.consume();
+        }
+        activateMenuByKey("Revenues");
+        if (!loadRevenueWorkspaceDirect()) {
+            menuSelectionHandler.accept("Revenues");
+        }
+    }
+
+    @FXML
+    private void handleExpensesMenuClick(MouseEvent event) {
+        if (event != null) {
+            event.consume();
+        }
+        activateMenuByKey("Expenses");
+        if (!loadExpenseWorkspaceDirect()) {
+            menuSelectionHandler.accept("Expenses");
         }
     }
 
@@ -275,6 +298,8 @@ public class BackOfficeLayoutController {
                 }
                 yield false;
             }
+            case "revenues" -> loadRevenueWorkspaceDirect();
+            case "expenses" -> loadExpenseWorkspaceDirect();
             default -> false;
         };
     }
@@ -304,6 +329,34 @@ public class BackOfficeLayoutController {
                     ensureStyles("/pi/styles/transactions-management.css");
                 }
         );
+    }
+
+    private boolean loadRevenueWorkspaceDirect() {
+        try {
+            setContent(AdminRevenueExpenseBackOfficeFactory.buildRevenueWorkspace());
+            if (contentHost.getScene().getWindow() instanceof Stage stage) {
+                stage.setTitle("Revenues | Decide$");
+            }
+            return true;
+        } catch (Exception e) {
+            System.err.println("[BackOfficeLayout] Failed to load revenue workspace");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean loadExpenseWorkspaceDirect() {
+        try {
+            setContent(AdminRevenueExpenseBackOfficeFactory.buildExpenseWorkspace());
+            if (contentHost.getScene().getWindow() instanceof Stage stage) {
+                stage.setTitle("Expenses | Decide$");
+            }
+            return true;
+        } catch (Exception e) {
+            System.err.println("[BackOfficeLayout] Failed to load expense workspace");
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private <T> boolean loadContentFromFxml(String fxmlPath, Class<T> controllerClass, Consumer<T> initializer) {
