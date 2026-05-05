@@ -1,0 +1,575 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Arc?>
+
+<AnchorPane fx:id="analyticsRoot"
+            prefHeight="900.0"
+            prefWidth="1460.0"
+            styleClass="analytics-root light-mode-dashboard"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pi.controllers.UserTransactionController.AnalyticsController">
+
+    <children>
+        <BorderPane AnchorPane.topAnchor="0.0"
+                    AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0">
+
+            <!-- SIDEBAR -->
+            <left>
+                <VBox prefWidth="250.0" minWidth="250.0" maxWidth="250.0" styleClass="sidebar">
+                    <padding>
+                        <Insets top="28" right="20" bottom="24" left="20"/>
+                    </padding>
+
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="10" styleClass="sidebar-brand-wrap">
+                            <children>
+                                <Label text="D" styleClass="sidebar-logo"/>
+                                <Label text="Decide$" styleClass="sidebar-brand"/>
+                            </children>
+                        </HBox>
+
+                        <VBox fx:id="sidebarMenu" spacing="8" styleClass="sidebar-menu">
+                            <children>
+                                <Button text="My Profile"
+                                        onAction="#handleGoProfile"
+                                        styleClass="sidebar-item"/>
+
+                                <Button text="Dashboard"
+                                        onAction="#handleGoDashboard"
+                                        styleClass="sidebar-item"/>
+
+                                <Button text="Transactions"
+                                        styleClass="sidebar-item"/>
+
+                                <Button text="Analytics"
+                                        styleClass="sidebar-item sidebar-item-active"/>
+
+                                <Button text="AI Insights"
+                                        styleClass="sidebar-item"/>
+
+                                <Button text="Converter"
+                                        styleClass="sidebar-item"/>
+
+                                <Button text="Settings"
+                                        styleClass="sidebar-item"/>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="12" styleClass="premium-card">
+                            <children>
+                                <Label text="Go Premium" styleClass="premium-title"/>
+                                <Label text="Unlock advanced analytics and exclusive features."
+                                       wrapText="true"
+                                       styleClass="premium-text"/>
+                                <Button text="Upgrade Now" styleClass="premium-button"/>
+                            </children>
+                        </VBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="10" styleClass="dark-mode-row">
+                            <children>
+                                <Label text="Dark Mode" styleClass="dark-mode-label"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <StackPane styleClass="toggle-shell">
+                                    <children>
+                                        <Region styleClass="toggle-knob"/>
+                                    </children>
+                                </StackPane>
+                            </children>
+                        </HBox>
+
+                        <Region VBox.vgrow="ALWAYS"/>
+
+                        <Label text="© 2026 Decide$&#10;All rights reserved" styleClass="sidebar-copy"/>
+                    </children>
+                </VBox>
+            </left>
+
+            <!-- CONTENT -->
+            <center>
+                <ScrollPane fitToWidth="true"
+                            hbarPolicy="NEVER"
+                            vbarPolicy="AS_NEEDED"
+                            styleClass="analytics-scroll">
+
+                    <content>
+                        <VBox spacing="22" styleClass="analytics-shell">
+                            <padding>
+                                <Insets top="28" right="36" bottom="36" left="36"/>
+                            </padding>
+
+                            <children>
+
+                                <!-- HEADER -->
+                                <HBox alignment="CENTER_LEFT" styleClass="analytics-header">
+                                    <children>
+                                        <VBox spacing="6">
+                                            <children>
+                                                <Label text="Analytics" styleClass="analytics-page-title"/>
+                                                <Label text="Track your financial performance and discover powerful insights."
+                                                       styleClass="analytics-page-subtitle"/>
+                                            </children>
+                                        </VBox>
+
+                                        <Region HBox.hgrow="ALWAYS"/>
+
+                                        <HBox spacing="12" alignment="CENTER_RIGHT">
+                                            <children>
+                                                <ComboBox prefWidth="220"
+                                                          promptText="May 1 - May 31, 2026"
+                                                          styleClass="period-picker"/>
+                                                <MenuButton text="Export" styleClass="export-btn">
+                                                    <items>
+                                                        <MenuItem text="Export CSV" onAction="#handleExportCsv"/>
+                                                        <MenuItem text="Export PDF" onAction="#handleExportPdf"/>
+                                                    </items>
+                                                </MenuButton>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </HBox>
+
+                                <!-- KPI ROW -->
+                                <HBox spacing="18" styleClass="kpi-row">
+                                    <children>
+
+                                        <HBox spacing="14" alignment="CENTER_LEFT"
+                                              styleClass="analytics-card kpi-card"
+                                              HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label text="◫" styleClass="kpi-icon kpi-icon-blue"/>
+                                                <VBox spacing="7">
+                                                    <children>
+                                                        <Label text="Total Income" styleClass="stat-title"/>
+                                                        <Label fx:id="kpiIncomeValueLabel"
+                                                               text="701 400 TND"
+                                                               styleClass="stat-value"/>
+                                                        <HBox spacing="8">
+                                                            <children>
+                                                                <Label fx:id="kpiIncomeDeltaLabel"
+                                                                       text="+0.0%"
+                                                                       styleClass="badge-positive"/>
+                                                                <Label text="vs previous period"
+                                                                       styleClass="stat-sub"/>
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </VBox>
+                                                <Region HBox.hgrow="ALWAYS"/>
+                                                <Label text="⌁" styleClass="sparkline-text sparkline-blue"/>
+                                            </children>
+                                        </HBox>
+
+                                        <HBox spacing="14" alignment="CENTER_LEFT"
+                                              styleClass="analytics-card kpi-card"
+                                              HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label text="◍" styleClass="kpi-icon kpi-icon-red"/>
+                                                <VBox spacing="7">
+                                                    <children>
+                                                        <Label text="Total Expenses" styleClass="stat-title"/>
+                                                        <Label fx:id="kpiExpenseValueLabel"
+                                                               text="30 667 TND"
+                                                               styleClass="stat-value"/>
+                                                        <HBox spacing="8">
+                                                            <children>
+                                                                <Label fx:id="kpiExpenseDeltaLabel"
+                                                                       text="+89900.0%"
+                                                                       styleClass="badge-negative"/>
+                                                                <Label text="vs previous period"
+                                                                       styleClass="stat-sub"/>
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </VBox>
+                                                <Region HBox.hgrow="ALWAYS"/>
+                                                <Label text="⌁" styleClass="sparkline-text sparkline-red"/>
+                                            </children>
+                                        </HBox>
+
+                                        <HBox spacing="14" alignment="CENTER_LEFT"
+                                              styleClass="analytics-card kpi-card"
+                                              HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label text="↗" styleClass="kpi-icon kpi-icon-green"/>
+                                                <VBox spacing="7">
+                                                    <children>
+                                                        <Label text="Net Savings" styleClass="stat-title"/>
+                                                        <Label fx:id="kpiNetValueLabel"
+                                                               text="670 733 TND"
+                                                               styleClass="stat-value"/>
+                                                        <HBox spacing="8">
+                                                            <children>
+                                                                <Label fx:id="kpiNetDeltaLabel"
+                                                                       text="+1973041.2%"
+                                                                       styleClass="badge-positive"/>
+                                                                <Label text="vs previous period"
+                                                                       styleClass="stat-sub"/>
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </VBox>
+                                                <Region HBox.hgrow="ALWAYS"/>
+                                                <Label text="⌁" styleClass="sparkline-text sparkline-green"/>
+                                            </children>
+                                        </HBox>
+
+                                        <HBox spacing="14" alignment="CENTER_LEFT"
+                                              styleClass="analytics-card kpi-card"
+                                              HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label text="Pct" styleClass="kpi-icon kpi-icon-purple"/>
+                                                <VBox spacing="7">
+                                                    <children>
+                                                        <Label text="Savings Rate" styleClass="stat-title"/>
+                                                        <Label fx:id="kpiRateValueLabel"
+                                                               text="95,6%"
+                                                               styleClass="stat-value"/>
+                                                        <HBox spacing="8">
+                                                            <children>
+                                                                <Label fx:id="kpiRateDeltaLabel"
+                                                                       text="+0.0%"
+                                                                       styleClass="badge-positive"/>
+                                                                <Label text="vs previous period"
+                                                                       styleClass="stat-sub"/>
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </VBox>
+                                                <Region HBox.hgrow="ALWAYS"/>
+                                                <StackPane styleClass="rate-circle">
+                                                    <children>
+                                                        <ProgressBar progress="0.956"
+                                                                     styleClass="rate-progress"/>
+                                                    </children>
+                                                </StackPane>
+                                            </children>
+                                        </HBox>
+
+                                    </children>
+                                </HBox>
+
+                                <!-- MAIN CHART ROW -->
+                                <HBox spacing="18" styleClass="main-chart-row">
+                                    <children>
+
+                                        <VBox spacing="14"
+                                              styleClass="analytics-card chart-card income-expense-card"
+                                              HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <children>
+                                                        <Label text="Income vs Expenses" styleClass="card-title"/>
+                                                        <Region HBox.hgrow="ALWAYS"/>
+                                                        <ComboBox prefWidth="90"
+                                                                  promptText="Daily"
+                                                                  styleClass="chart-select"/>
+                                                    </children>
+                                                </HBox>
+
+                                                <BarChart fx:id="incomeExpenseChart"
+                                                          legendVisible="true"
+                                                          categoryGap="14"
+                                                          barGap="4"
+                                                          animated="false"
+                                                          prefHeight="285"
+                                                          maxHeight="285"
+                                                          styleClass="saas-chart bar-saas"
+                                                          VBox.vgrow="ALWAYS">
+                                                    <xAxis>
+                                                        <CategoryAxis tickLabelRotation="0.0"/>
+                                                    </xAxis>
+                                                    <yAxis>
+                                                        <NumberAxis upperBound="10000"
+                                                                    tickUnit="2000"
+                                                                    autoRanging="false"/>
+                                                    </yAxis>
+                                                </BarChart>
+                                            </children>
+                                        </VBox>
+
+                                        <HBox spacing="18"
+                                              styleClass="analytics-card chart-card pie-card"
+                                              prefWidth="650"
+                                              minWidth="650"
+                                              maxWidth="650">
+                                            <children>
+                                                <VBox spacing="14" HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <HBox alignment="CENTER_LEFT">
+                                                            <children>
+                                                                <Label text="Expenses by Category"
+                                                                       styleClass="card-title"/>
+                                                                <Region HBox.hgrow="ALWAYS"/>
+                                                                <ComboBox prefWidth="120"
+                                                                          promptText="This Month"
+                                                                          styleClass="chart-select"/>
+                                                            </children>
+                                                        </HBox>
+
+                                                        <HBox spacing="20" alignment="CENTER_LEFT">
+                                                            <children>
+                                                                <StackPane styleClass="donut-wrap">
+                                                                    <children>
+                                                                        <PieChart fx:id="expensesPieChart"
+                                                                                  labelsVisible="false"
+                                                                                  legendVisible="false"
+                                                                                  clockwise="true"
+                                                                                  styleClass="donut-saas"/>
+                                                                        <Region styleClass="donut-hole"/>
+                                                                        <VBox alignment="CENTER"
+                                                                              spacing="3"
+                                                                              styleClass="donut-center">
+                                                                            <children>
+                                                                                <Label fx:id="donutTotalValueLabel"
+                                                                                       text="30 667"
+                                                                                       styleClass="donut-total-value"/>
+                                                                                <Label text="TND"
+                                                                                       styleClass="donut-currency"/>
+                                                                                <Label text="Total"
+                                                                                       styleClass="donut-total-label"/>
+                                                                            </children>
+                                                                        </VBox>
+                                                                    </children>
+                                                                </StackPane>
+
+                                                                <VBox spacing="14"
+                                                                      styleClass="category-legend"
+                                                                      HBox.hgrow="ALWAYS">
+                                                                    <children>
+                                                                        <HBox spacing="10" alignment="CENTER_LEFT">
+                                                                            <Label styleClass="legend-dot legend-blue"/>
+                                                                            <Label text="Housing" styleClass="legend-text"/>
+                                                                            <Region HBox.hgrow="ALWAYS"/>
+                                                                            <Label text="1,280 TND" styleClass="legend-value"/>
+                                                                            <Label text="30.1%" styleClass="legend-percent"/>
+                                                                        </HBox>
+
+                                                                        <HBox spacing="10" alignment="CENTER_LEFT">
+                                                                            <Label styleClass="legend-dot legend-green"/>
+                                                                            <Label text="Food &amp; Dining" styleClass="legend-text"/>
+                                                                            <Region HBox.hgrow="ALWAYS"/>
+                                                                            <Label text="960 TND" styleClass="legend-value"/>
+                                                                            <Label text="22.6%" styleClass="legend-percent"/>
+                                                                        </HBox>
+
+                                                                        <HBox spacing="10" alignment="CENTER_LEFT">
+                                                                            <Label styleClass="legend-dot legend-red"/>
+                                                                            <Label text="Transport" styleClass="legend-text"/>
+                                                                            <Region HBox.hgrow="ALWAYS"/>
+                                                                            <Label text="680 TND" styleClass="legend-value"/>
+                                                                            <Label text="16.0%" styleClass="legend-percent"/>
+                                                                        </HBox>
+
+                                                                        <HBox spacing="10" alignment="CENTER_LEFT">
+                                                                            <Label styleClass="legend-dot legend-orange"/>
+                                                                            <Label text="Shopping" styleClass="legend-text"/>
+                                                                            <Region HBox.hgrow="ALWAYS"/>
+                                                                            <Label text="540 TND" styleClass="legend-value"/>
+                                                                            <Label text="12.7%" styleClass="legend-percent"/>
+                                                                        </HBox>
+
+                                                                        <HBox spacing="10" alignment="CENTER_LEFT">
+                                                                            <Label styleClass="legend-dot legend-purple"/>
+                                                                            <Label text="Entertainment" styleClass="legend-text"/>
+                                                                            <Region HBox.hgrow="ALWAYS"/>
+                                                                            <Label text="390 TND" styleClass="legend-value"/>
+                                                                            <Label text="9.2%" styleClass="legend-percent"/>
+                                                                        </HBox>
+
+                                                                        <HBox spacing="10" alignment="CENTER_LEFT">
+                                                                            <Label styleClass="legend-dot legend-gray"/>
+                                                                            <Label text="Others" styleClass="legend-text"/>
+                                                                            <Region HBox.hgrow="ALWAYS"/>
+                                                                            <Label text="400 TND" styleClass="legend-value"/>
+                                                                            <Label text="9.4%" styleClass="legend-percent"/>
+                                                                        </HBox>
+                                                                    </children>
+                                                                </VBox>
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+
+                                    </children>
+                                </HBox>
+
+                                <!-- BOTTOM ROW -->
+                                <HBox spacing="18" styleClass="bottom-row">
+                                    <children>
+
+                                        <VBox spacing="14"
+                                              styleClass="analytics-card chart-card bottom-card"
+                                              HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <children>
+                                                        <Label text="Spending Trend" styleClass="card-title"/>
+                                                        <Region HBox.hgrow="ALWAYS"/>
+                                                        <ComboBox prefWidth="120"
+                                                                  promptText="This Month"
+                                                                  styleClass="chart-select"/>
+                                                    </children>
+                                                </HBox>
+
+                                                <LineChart fx:id="spendingTrendChart"
+                                                           createSymbols="false"
+                                                           legendVisible="false"
+                                                           animated="false"
+                                                           prefHeight="210"
+                                                           maxHeight="210"
+                                                           styleClass="saas-chart line-saas"
+                                                           VBox.vgrow="ALWAYS">
+                                                    <xAxis>
+                                                        <CategoryAxis tickLabelRotation="0.0"/>
+                                                    </xAxis>
+                                                    <yAxis>
+                                                        <NumberAxis upperBound="5000"
+                                                                    tickUnit="1000"
+                                                                    autoRanging="false"/>
+                                                    </yAxis>
+                                                </LineChart>
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="16"
+                                              styleClass="analytics-card chart-card bottom-card merchants-card"
+                                              HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <children>
+                                                        <Label text="Top Merchants" styleClass="card-title"/>
+                                                        <Region HBox.hgrow="ALWAYS"/>
+                                                        <ComboBox prefWidth="120"
+                                                                  promptText="This Month"
+                                                                  styleClass="chart-select"/>
+                                                    </children>
+                                                </HBox>
+
+                                                <VBox spacing="14">
+                                                    <children>
+                                                        <HBox spacing="12" alignment="CENTER_LEFT">
+                                                            <Label fx:id="merchant1NameLabel" text="Unknown" styleClass="merchant-name"/>
+                                                            <Region HBox.hgrow="ALWAYS"/>
+                                                            <ProgressBar fx:id="merchant1Bar" progress="0.95" styleClass="merchant-bar"/>
+                                                            <Label fx:id="merchant1ValueLabel" text="30 633 TND" styleClass="merchant-value"/>
+                                                        </HBox>
+
+                                                        <HBox spacing="12" alignment="CENTER_LEFT">
+                                                            <Label fx:id="merchant2NameLabel" text="Lunch" styleClass="merchant-name"/>
+                                                            <Region HBox.hgrow="ALWAYS"/>
+                                                            <ProgressBar fx:id="merchant2Bar" progress="0.12" styleClass="merchant-bar"/>
+                                                            <Label fx:id="merchant2ValueLabel" text="34 TND" styleClass="merchant-value"/>
+                                                        </HBox>
+
+                                                        <HBox spacing="12" alignment="CENTER_LEFT">
+                                                            <Label fx:id="merchant3NameLabel" text="-" styleClass="merchant-name"/>
+                                                            <Region HBox.hgrow="ALWAYS"/>
+                                                            <ProgressBar fx:id="merchant3Bar" progress="0.0" styleClass="merchant-bar"/>
+                                                            <Label fx:id="merchant3ValueLabel" text="0 TND" styleClass="merchant-value"/>
+                                                        </HBox>
+
+                                                        <HBox spacing="12" alignment="CENTER_LEFT">
+                                                            <Label fx:id="merchant4NameLabel" text="-" styleClass="merchant-name"/>
+                                                            <Region HBox.hgrow="ALWAYS"/>
+                                                            <ProgressBar fx:id="merchant4Bar" progress="0.0" styleClass="merchant-bar"/>
+                                                            <Label fx:id="merchant4ValueLabel" text="0 TND" styleClass="merchant-value"/>
+                                                        </HBox>
+
+                                                        <HBox spacing="12" alignment="CENTER_LEFT">
+                                                            <Label fx:id="merchant5NameLabel" text="-" styleClass="merchant-name"/>
+                                                            <Region HBox.hgrow="ALWAYS"/>
+                                                            <ProgressBar fx:id="merchant5Bar" progress="0.0" styleClass="merchant-bar"/>
+                                                            <Label fx:id="merchant5ValueLabel" text="0 TND" styleClass="merchant-value"/>
+                                                        </HBox>
+                                                    </children>
+                                                </VBox>
+
+                                                <Label text="View all merchants" styleClass="link-label"/>
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="18"
+                                              styleClass="analytics-card chart-card bottom-card health-card"
+                                              HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label text="Financial Health Score" styleClass="card-title"/>
+
+                                                <StackPane styleClass="health-gauge-wrap">
+                                                    <children>
+                                                        <Arc startAngle="180" length="-60" type="OPEN" styleClass="gauge-arc gauge-red"/>
+                                                        <Arc startAngle="120" length="-60" type="OPEN" styleClass="gauge-arc gauge-orange"/>
+                                                        <Arc startAngle="60" length="-60" type="OPEN" styleClass="gauge-arc gauge-yellow"/>
+                                                        <Arc startAngle="0" length="-60" type="OPEN" styleClass="gauge-arc gauge-green"/>
+                                                        <VBox alignment="CENTER" spacing="2" translateY="16">
+                                                            <children>
+                                                                <Label fx:id="healthScoreLabel"
+                                                                       text="100"
+                                                                       styleClass="health-score"/>
+                                                                <Label text="/100" styleClass="health-score-sub"/>
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </StackPane>
+
+                                                <HBox alignment="CENTER" spacing="220" styleClass="gauge-scale-row">
+                                                    <children>
+                                                        <Label text="0" styleClass="gauge-minmax"/>
+                                                        <Label text="100" styleClass="gauge-minmax"/>
+                                                    </children>
+                                                </HBox>
+
+                                                <HBox alignment="CENTER" spacing="8">
+                                                    <children>
+                                                        <Label text="●" styleClass="good-dot"/>
+                                                        <Label text="Good" styleClass="health-status"/>
+                                                    </children>
+                                                </HBox>
+
+                                                <HBox spacing="12"
+                                                      alignment="CENTER_LEFT"
+                                                      styleClass="health-ai-msg">
+                                                    <children>
+                                                        <Label text="✦" styleClass="ai-icon"/>
+                                                        <Label text="You're on the right track! Keep saving and reducing unnecessary expenses."
+                                                               wrapText="true"
+                                                               styleClass="ai-msg-text"/>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+
+                                    </children>
+                                </HBox>
+
+                            </children>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </center>
+        </BorderPane>
+    </children>
+</AnchorPane>

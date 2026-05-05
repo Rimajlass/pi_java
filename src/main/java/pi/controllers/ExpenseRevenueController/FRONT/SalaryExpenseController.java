@@ -33,6 +33,7 @@ import pi.entities.User;
 import pi.mains.Main;
 import pi.services.RevenueExpenseService.ExpenseService;
 import pi.services.RevenueExpenseService.RevenueService;
+import pi.services.UserTransactionService.TransactionService;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -151,6 +152,7 @@ public class SalaryExpenseController {
 
     private final RevenueService revenueService = new RevenueService();
     private final ExpenseService expenseService = new ExpenseService();
+    private final TransactionService transactionService = new TransactionService();
     private final ObservableList<Revenue> revenues = FXCollections.observableArrayList();
     private final ObservableList<ExpenseRow> expenses = FXCollections.observableArrayList();
     private final User currentUser = createCurrentUser();
@@ -159,6 +161,7 @@ public class SalaryExpenseController {
 
     @FXML
     public void initialize() {
+        attachUserFromStageIfAvailable();
         configureFilters();
         configureRevenueTable();
         configureExpenseTable();
@@ -205,15 +208,27 @@ public class SalaryExpenseController {
             TextArea descriptionArea
     ) {
         try {
+            ensureConnectedUser();
             Revenue revenue = new Revenue();
             revenue.setUser(currentUser);
-            revenue.setAmount(parseAmount(amountField.getText(), "Revenue amount"));
+            double amount = parseAmount(amountField.getText(), "Revenue amount");
+            revenue.setAmount(amount);
             revenue.setType(requireValue(typeComboBox.getValue(), "Revenue type"));
-            revenue.setReceivedAt(Objects.requireNonNullElse(datePicker.getValue(), LocalDate.now()));
-            revenue.setDescription(normalizeText(descriptionArea.getText()));
+            LocalDate txDate = Objects.requireNonNullElse(datePicker.getValue(), LocalDate.now());
+            revenue.setReceivedAt(txDate);
+            String description = normalizeText(descriptionArea.getText());
+            revenue.setDescription(description);
             revenue.setCreatedAt(LocalDateTime.now());
 
             revenueService.add(revenue);
+            transactionService.insertTransactionForUser(
+                    currentUser.getId(),
+                    "SAVING",
+                    amount,
+                    txDate,
+                    description,
+                    "salary-expense-front"
+            );
             showInfo("Revenue added successfully.");
             clearRevenueForms();
             loadData();
@@ -225,6 +240,7 @@ public class SalaryExpenseController {
     @FXML
     private void handleAddExpense() {
         try {
+            ensureConnectedUser();
             Revenue linkedRevenue = expenseRevenueComboBox.getValue();
             if (linkedRevenue == null || linkedRevenue.getId() <= 0) {
                 throw new IllegalArgumentException("Select an associated revenue before adding an expense.");
@@ -232,17 +248,27 @@ public class SalaryExpenseController {
 
             double expenseAmount = parseAmount(expenseAmountField.getText(), "Expense amount");
             validateExpenseAgainstRevenue(expenseAmount, linkedRevenue);
+            LocalDate txDate = Objects.requireNonNullElse(expenseDatePicker.getValue(), LocalDate.now());
+            String description = normalizeText(expenseDescriptionArea.getText());
 
             Expense expense = new Expense(
                     linkedRevenue,
                     currentUser,
                     expenseAmount,
                     requireValue(expenseCategoryComboBox.getValue(), "Expense category"),
-                    Objects.requireNonNullElse(expenseDatePicker.getValue(), LocalDate.now()),
-                    normalizeText(expenseDescriptionArea.getText())
+                    txDate,
+                    description
             );
 
             expenseService.add(expense);
+            transactionService.insertTransactionForUser(
+                    currentUser.getId(),
+                    "EXPENSE",
+                    expenseAmount,
+                    txDate,
+                    description,
+                    "salary-expense-front"
+            );
             showInfo("Expense added successfully.");
             clearExpenseForm();
             loadData();
@@ -851,8 +877,33 @@ public class SalaryExpenseController {
 
     private User createCurrentUser() {
         User user = new User();
-        user.setId(1);
+        user.setId(0);
         return user;
+    }
+
+    private void attachUserFromStageIfAvailable() {
+        if (feedbackLabel == null) {
+            return;
+        }
+        feedbackLabel.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null && newScene.getWindow() instanceof Stage stage && stage.getUserData() instanceof User user) {
+                setUser(user);
+            }
+        });
+    }
+
+    private void ensureConnectedUser() {
+        if (currentUser.getId() > 0) {
+            return;
+        }
+        if (feedbackLabel != null && feedbackLabel.getScene() != null
+                && feedbackLabel.getScene().getWindow() instanceof Stage stage
+                && stage.getUserData() instanceof User user
+                && user.getId() > 0) {
+            setUser(user);
+            return;
+        }
+        throw new IllegalStateException("No connected user found. Please login again.");
     }
 
     public static class ExpenseRow {

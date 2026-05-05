@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="900.0" prefWidth="1460.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.UserTransactionController.DecideDashboardController">
+    <children>
+        <BorderPane prefHeight="900.0" prefWidth="1460.0" styleClass="app-root" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <left>
+                <VBox prefWidth="250.0" minWidth="250.0" maxWidth="250.0" styleClass="sidebar">
+                    <padding>
+                        <Insets bottom="20.0" left="18.0" right="18.0" top="18.0" />
+                    </padding>
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="sidebar-brand-wrap">
+                            <children>
+                                <Label styleClass="sidebar-logo" text="D" />
+                                <Label styleClass="sidebar-brand" text="Decide$" />
+                            </children>
+                        </HBox>
+
+                        <VBox spacing="8.0" styleClass="sidebar-menu">
+                            <children>
+                                <Button fx:id="myProfileButton" mnemonicParsing="false" styleClass="sidebar-item" text="My Profile" />
+                                <Button fx:id="dashboardButton" mnemonicParsing="false" styleClass="sidebar-item sidebar-item-active" text="Dashboard" />
+                                <Button fx:id="transactionsButton" mnemonicParsing="false" styleClass="sidebar-item" text="Transactions" />
+                                <Button fx:id="analyticsButton" mnemonicParsing="false" styleClass="sidebar-item" text="Analytics" />
+                                <Button fx:id="aiInsightsButton" mnemonicParsing="false" styleClass="sidebar-item" text="AI Insights" />
+                                <Button fx:id="converterNavButton" mnemonicParsing="false" styleClass="sidebar-item" text="Converter" />
+                                <Button fx:id="settingsButton" mnemonicParsing="false" styleClass="sidebar-item" text="Settings" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="10.0" styleClass="premium-card">
+                            <children>
+                                <Label styleClass="premium-title" text="Go Premium" />
+                                <Label styleClass="premium-text" text="Unlock advanced analytics and exclusive features." wrapText="true" />
+                                <Button mnemonicParsing="false" styleClass="premium-button" text="Upgrade Now" />
+                            </children>
+                        </VBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="dark-mode-row">
+                            <children>
+                                <Label styleClass="dark-mode-label" text="Dark Mode" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <StackPane styleClass="toggle-shell">
+                                    <children>
+                                        <Region styleClass="toggle-knob" />
+                                    </children>
+                                </StackPane>
+                            </children>
+                        </HBox>
+
+                        <Region VBox.vgrow="ALWAYS" />
+                        <Label styleClass="sidebar-copy" text="&#169; 2026 Decide$&#10;All rights reserved" />
+                    </children>
+                </VBox>
+            </left>
+
+            <center>
+                <VBox spacing="20.0" styleClass="content-area">
+                    <padding>
+                        <Insets bottom="20.0" left="22.0" right="22.0" top="22.0" />
+                    </padding>
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                            <children>
+                                <VBox spacing="4.0">
+                                    <children>
+                                        <Label styleClass="title-main" text="Finance Dashboard" />
+                                        <Label styleClass="subtitle-main" text="Modern insights, smart tracking, and instant conversion." />
+                                    </children>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Button fx:id="notificationsButton" mnemonicParsing="false" styleClass="top-btn" text="Notifications" />
+                                <Button fx:id="backButton" mnemonicParsing="false" styleClass="top-btn" text="Back" />
+                                <Button fx:id="logoutButton" mnemonicParsing="false" styleClass="top-btn danger" text="Logout" />
+                            </children>
+                        </HBox>
+
+                        <HBox spacing="16.0">
+                            <children>
+                                <VBox fx:id="profileCard" spacing="12.0" styleClass="card profile-card" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="14.0">
+                                            <children>
+                                                <Label fx:id="avatarLabel" styleClass="avatar-circle" text="D" />
+                                                <VBox spacing="2.0" HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label fx:id="nameLabel" styleClass="profile-name" text="Decide User" />
+                                                        <Label fx:id="emailLabel" styleClass="profile-email" text="user@decide.app" />
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <VBox fx:id="balanceCard" spacing="10.0" styleClass="card balance-card" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT">
+                                            <children>
+                                                <Label styleClass="balance-title" text="Live Balance" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <ComboBox fx:id="balanceCurrencyCombo" prefWidth="110.0" styleClass="combo-modern" />
+                                            </children>
+                                        </HBox>
+                                        <Label fx:id="balanceValueLabel" styleClass="balance-value" text="12,450.00" />
+                                        <Label fx:id="balanceRateLabel" styleClass="balance-rate" text="1 USD = 0.92 EUR" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <HBox spacing="16.0" VBox.vgrow="ALWAYS">
+                            <children>
+                                <VBox fx:id="transactionsCard" spacing="10.0" styleClass="card section-card" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT">
+                                            <children>
+                                                <Label styleClass="section-title" text="Recent Transactions" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <Button fx:id="refreshTransactionsButton" mnemonicParsing="false" styleClass="outline-btn" text="Refresh" />
+                                            </children>
+                                        </HBox>
+                                        <TableView fx:id="transactionsTable" prefHeight="350.0" styleClass="table-modern" VBox.vgrow="ALWAYS">
+                                            <columns>
+                                                <TableColumn fx:id="typeColumn" prefWidth="120.0" text="TYPE" />
+                                                <TableColumn fx:id="amountColumn" prefWidth="120.0" text="AMOUNT" />
+                                                <TableColumn fx:id="dateColumn" prefWidth="150.0" text="DATE" />
+                                                <TableColumn fx:id="descriptionColumn" prefWidth="280.0" text="DESCRIPTION" />
+                                            </columns>
+                                        </TableView>
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="16.0" prefWidth="360.0">
+                                    <children>
+                                        <VBox fx:id="insightsCard" spacing="10.0" styleClass="card section-card">
+                                            <children>
+                                                <Label styleClass="section-title" text="AI Insights" />
+                                                <Label fx:id="aiInsight1Label" styleClass="insight-item" text="Spending dropped by 12% this month." wrapText="true" />
+                                                <Label fx:id="aiInsight2Label" styleClass="insight-item" text="You can save ~300 TND by reducing subscriptions." wrapText="true" />
+                                                <Label fx:id="aiInsight3Label" styleClass="insight-item" text="Salary stability score improved to 78/100." wrapText="true" />
+                                            </children>
+                                        </VBox>
+
+                                        <VBox fx:id="converterCard" spacing="10.0" styleClass="card section-card">
+                                            <children>
+                                                <Label styleClass="section-title" text="Converter" />
+                                                <TextField fx:id="amountInputField" promptText="Amount" styleClass="input-modern" text="100" />
+                                                <HBox spacing="8.0">
+                                                    <children>
+                                                        <ComboBox fx:id="fromCurrencyCombo" prefWidth="150.0" styleClass="combo-modern" HBox.hgrow="ALWAYS" />
+                                                        <ComboBox fx:id="toCurrencyCombo" prefWidth="150.0" styleClass="combo-modern" HBox.hgrow="ALWAYS" />
+                                                    </children>
+                                                </HBox>
+                                                <Button fx:id="convertButton" mnemonicParsing="false" onAction="#handleConvert" styleClass="gradient-btn" text="Convert" />
+                                                <Label fx:id="conversionResultLabel" styleClass="converter-result" text="100 USD = 92 EUR" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </center>
+        </BorderPane>
+    </children>
+</AnchorPane>
