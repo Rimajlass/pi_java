@@ -879,7 +879,6 @@ public class LoginController {
             socialAuthReady = false;
             googleButton.setDisable(true);
             facebookButton.setDisable(true);
-            showError("Configuration OAuth manquante au demarrage: " + e.getMessage());
         }
     }
 

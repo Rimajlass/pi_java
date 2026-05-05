@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pi.controllers.ImprevusCasreelController.ImprevusStatsController"
+            stylesheets="@styles/imprevus.css">
+
+    <top>
+        <HBox spacing="16" alignment="CENTER_LEFT" styleClass="stats-header">
+            <Button text="← Back" onAction="#handleBack" styleClass="light-button"/>
+            <Label text="Dashboard Statistiques"
+                   styleClass="stats-title"/>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    styleClass="page-scroll">
+
+            <VBox spacing="24" styleClass="stats-root">
+
+                <HBox spacing="16">
+                    <VBox fx:id="totalCard" styleClass="stats-card stats-card-blue"/>
+                    <VBox fx:id="budgetCard" styleClass="stats-card stats-card-green"/>
+                    <VBox fx:id="monthSafetyCard" styleClass="stats-card stats-card-purple"/>
+                    <VBox fx:id="occurrenceCard" styleClass="stats-card stats-card-red"/>
+                </HBox>
+
+                <HBox spacing="20">
+                    <PieChart fx:id="typePieChart"
+                              title="Types des cas"
+                              prefWidth="430"
+                              prefHeight="320"/>
+
+                    <PieChart fx:id="paymentPieChart"
+                              title="Modes de paiement"
+                              prefWidth="430"
+                              prefHeight="320"/>
+                </HBox>
+
+                <HBox spacing="20">
+                    <PieChart fx:id="statusPieChart"
+                              title="Statuts des cas"
+                              prefWidth="430"
+                              prefHeight="320"/>
+
+                    <PieChart fx:id="monthlyRiskPieChart"
+                              title="Safety / Risque du mois"
+                              prefWidth="430"
+                              prefHeight="320"/>
+                </HBox>
+
+                <BarChart fx:id="budgetBarChart"
+                          title="Budget : Gains vs Dépenses"
+                          prefHeight="340">
+                    <xAxis>
+                        <CategoryAxis label="Budget"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Montant DT"/>
+                    </yAxis>
+                </BarChart>
+
+                <BarChart fx:id="caseTypeBarChart"
+                          title="Nombre de cas par type"
+                          prefHeight="340">
+                    <xAxis>
+                        <CategoryAxis label="Type"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Nombre"/>
+                    </yAxis>
+                </BarChart>
+
+                <BarChart fx:id="monthlyOccurrenceBarChart"
+                          title="Occurrences des cas brusques ce mois"
+                          prefHeight="340">
+                    <xAxis>
+                        <CategoryAxis label="Catégorie"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Occurrences"/>
+                    </yAxis>
+                </BarChart>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

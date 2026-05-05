@@ -40,7 +40,6 @@ build/
 
 ### Local secrets ###
 .env
-# Local SMTP secrets
-mail.properties
-.env
 .env.local
+mail.properties
+config.properties

@@ -3,19 +3,21 @@ module Pidev3A47 {
     requires javafx.fxml;
     requires javafx.swing;
     requires javafx.web;
-    requires jakarta.mail;
-    requires java.sql;
-    requires java.prefs;
-    requires java.net.http;
-    requires java.desktop;
-    requires jdk.httpserver;
+    requires com.fasterxml.jackson.databind;
     requires com.google.gson;
     requires com.google.zxing;
-    requires webcam.capture;
+    requires jakarta.mail;
+    requires java.desktop;
+    requires java.net.http;
+    requires java.prefs;
+    requires java.sql;
+    requires jdk.httpserver;
+    requires jdk.jsobject;
     requires mysql.connector.j;
     requires okhttp3;
     requires org.apache.pdfbox;
-    requires com.fasterxml.jackson.databind;
+    requires vosk;
+    requires webcam.capture;
 
     exports pi.mains;
     exports pi.savings.ui;
@@ -23,6 +25,7 @@ module Pidev3A47 {
     exports pi.services.CurrencyService;
     exports pi.services.RevenueExpenseService;
     exports pi.tools;
+    exports pi.assistant;
 
     opens pi.mains to javafx.fxml;
     opens pi.controllers.UserTransactionController to javafx.fxml;
