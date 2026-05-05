@@ -66,6 +66,15 @@ public class ServiceController {
     }
 
     @FXML
+    private void handleOpenServiceAction(ActionEvent event) {
+        try {
+            openService((Node) event.getSource());
+        } catch (IOException e) {
+            throw new RuntimeException("Impossible d'ouvrir la page Services.", e);
+        }
+    }
+
+    @FXML
     private void handleOpenSavingsGoals(MouseEvent event) {
         try {
             openSavingsGoals((Node) event.getSource());
@@ -162,6 +171,24 @@ public class ServiceController {
         Scene scene = new Scene(root, 1460, 780);
         scene.getStylesheets().add(Main.class.getResource("/pi/styles/contact.css").toExternalForm());
         stage.setTitle("Contact");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    private void openService(Node source) throws IOException {
+        Stage stage = (Stage) source.getScene().getWindow();
+        Object userData = stage.getUserData();
+
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/pi/mains/service-view.fxml"));
+        Parent root = loader.load();
+        ServiceController controller = loader.getController();
+        if (userData instanceof User user) {
+            controller.setUser(user);
+        }
+
+        Scene scene = new Scene(root, 1460, 780);
+        scene.getStylesheets().add(Main.class.getResource("/pi/styles/service.css").toExternalForm());
+        stage.setTitle("Services");
         stage.setScene(scene);
         stage.show();
     }

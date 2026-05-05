@@ -50,9 +50,15 @@
 .nav-button,
 .nav-button-active {
     -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-border-radius: 999px;
+    -fx-background-radius: 999px;
     -fx-font-size: 14px;
     -fx-font-weight: 700;
     -fx-cursor: hand;
+    -fx-padding: 8 14 8 14;
 }
 
 .nav-button {
@@ -64,12 +70,12 @@
 }
 
 .nav-button-active {
-    -fx-text-fill: #34ddff;
+    -fx-text-fill: rgba(240, 246, 255, 0.86);
     -fx-opacity: 1.0;
 }
 
 .nav-button-active .text {
-    -fx-fill: #34ddff;
+    -fx-fill: rgba(240, 246, 255, 0.86);
 }
 
 .nav-button-active:disabled {
@@ -77,7 +83,7 @@
 }
 
 .nav-button-active:disabled .text {
-    -fx-fill: #34ddff;
+    -fx-fill: rgba(240, 246, 255, 0.86);
 }
 
 .profile-pill {
@@ -108,23 +114,70 @@
 }
 
 .header-button {
+    -fx-min-height: 34px;
+    -fx-pref-height: 34px;
+    -fx-background-color: rgba(255, 255, 255, 0.11);
+    -fx-background-insets: 0;
+    -fx-border-color: rgba(255, 255, 255, 0.24);
+    -fx-border-width: 1px;
     -fx-background-radius: 999px;
     -fx-border-radius: 999px;
     -fx-font-size: 13px;
-    -fx-font-weight: 700;
-    -fx-padding: 9 16 9 16;
+    -fx-font-weight: 800;
+    -fx-text-fill: #ffffff;
+    -fx-padding: 8 16 8 16;
     -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.16), 12, 0.14, 0, 4);
 }
 
 .start-button {
-    -fx-background-color: #1cd5ff;
-    -fx-text-fill: #04213b;
+    -fx-background-color: linear-gradient(to bottom, rgba(255, 255, 255, 0.20), rgba(255, 255, 255, 0.08));
+    -fx-border-color: rgba(255, 255, 255, 0.32);
+    -fx-text-fill: #ffffff;
 }
 
 .logout-button {
-    -fx-background-color: rgba(0, 0, 0, 0.18);
-    -fx-border-color: rgba(255, 77, 109, 0.8);
-    -fx-text-fill: #ff5f7b;
+    -fx-background-color: linear-gradient(to bottom, rgba(255, 106, 128, 0.30), rgba(194, 42, 65, 0.24));
+    -fx-border-color: rgba(255, 170, 184, 0.36);
+    -fx-text-fill: #fff5f7;
+}
+
+.nav-button:hover,
+.nav-button:focused,
+.nav-button:pressed,
+.nav-button-active:hover,
+.nav-button-active:focused,
+.nav-button-active:pressed,
+.nav-button-active:disabled,
+.header-button:hover,
+.header-button:focused,
+.header-button:pressed {
+    -fx-background-radius: 999px;
+    -fx-text-fill: #ffffff;
+}
+
+.start-button:hover,
+.start-button:focused {
+    -fx-background-color: linear-gradient(to bottom, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.13));
+    -fx-border-color: rgba(255, 255, 255, 0.48);
+}
+
+.logout-button:hover,
+.logout-button:focused {
+    -fx-background-color: linear-gradient(to bottom, rgba(255, 115, 135, 0.42), rgba(207, 45, 71, 0.34));
+    -fx-border-color: rgba(255, 188, 199, 0.58);
+}
+
+.header-button:pressed {
+    -fx-translate-y: 1px;
+    -fx-opacity: 0.94;
+}
+
+.nav-button-active:disabled .text,
+.nav-button-active:hover .text,
+.nav-button-active:focused .text,
+.nav-button-active:pressed .text {
+    -fx-fill: #ffffff;
 }
 
 .service-hero-content {

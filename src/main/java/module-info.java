@@ -13,10 +13,14 @@ module Pidev3A47 {
     requires com.google.zxing;
     requires webcam.capture;
     requires mysql.connector.j;
+    requires okhttp3;
+    requires org.apache.pdfbox;
+    requires com.fasterxml.jackson.databind;
 
     exports pi.mains;
     exports pi.savings.ui;
     exports pi.entities;
+    exports pi.services.CurrencyService;
     exports pi.services.RevenueExpenseService;
     exports pi.tools;
 
