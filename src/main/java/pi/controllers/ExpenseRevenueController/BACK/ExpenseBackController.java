@@ -28,6 +28,8 @@ import pi.entities.User;
 import pi.mains.Main;
 import pi.services.RevenueExpenseService.ExpenseService;
 import pi.services.RevenueExpenseService.RevenueService;
+import pi.services.UserTransactionService.TransactionService;
+import pi.tools.ThemeManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -83,6 +85,7 @@ public class ExpenseBackController {
 
     private final RevenueService revenueService = new RevenueService();
     private final ExpenseService expenseService = new ExpenseService();
+    private final TransactionService transactionService = new TransactionService();
     private final ObservableList<Revenue> revenues = FXCollections.observableArrayList();
     private final ObservableList<ExpenseRow> expenses = FXCollections.observableArrayList();
     private final User currentUser = createCurrentUser();
@@ -107,6 +110,8 @@ public class ExpenseBackController {
 
             double expenseAmount = parseAmount(expenseAmountField.getText(), "Expense amount");
             validateExpenseAgainstRevenue(expenseAmount, linkedRevenue);
+            LocalDate txDate = Objects.requireNonNullElse(expenseDatePicker.getValue(), LocalDate.now());
+            String description = normalizeText(expenseDescriptionArea.getText());
 
             boolean updating = editingExpense != null;
             Expense expense;
@@ -132,6 +137,25 @@ public class ExpenseBackController {
                 expenseService.add(expense);
                 showInfo("Expense added successfully.");
             }
+            Expense expense = new Expense(
+                    linkedRevenue,
+                    currentUser,
+                    expenseAmount,
+                    requireValue(expenseCategoryComboBox.getValue(), "Expense category"),
+                    txDate,
+                    description
+            );
+
+            expenseService.add(expense);
+            transactionService.insertTransactionForUser(
+                    currentUser.getId(),
+                    "EXPENSE",
+                    expenseAmount,
+                    txDate,
+                    description,
+                    "expense-back-office"
+            );
+            showInfo("Expense added successfully.");
             clearExpenseForm();
             loadData();
         } catch (Exception exception) {
@@ -198,7 +222,15 @@ public class ExpenseBackController {
             Parent root = FXMLLoader.load(Main.class.getResource(resource));
             Stage stage = new Stage();
             stage.setTitle(title);
-            stage.setScene(new Scene(root, 1460, 900));
+            Scene scene = new Scene(root, 1460, 900);
+            if (resource != null && resource.contains("/pi/mains/transactions-management-view.fxml")) {
+                scene.getStylesheets().add(Main.class.getResource("/pi/styles/admin-backend.css").toExternalForm());
+                scene.getStylesheets().add(Main.class.getResource("/pi/styles/user-show.css").toExternalForm());
+                scene.getStylesheets().add(Main.class.getResource("/pi/styles/edit-user.css").toExternalForm());
+                scene.getStylesheets().add(Main.class.getResource("/pi/styles/transactions-management.css").toExternalForm());
+                ThemeManager.registerScene(scene);
+            }
+            stage.setScene(scene);
             if (feedbackLabel != null && feedbackLabel.getScene() != null) {
                 stage.initOwner(feedbackLabel.getScene().getWindow());
             }

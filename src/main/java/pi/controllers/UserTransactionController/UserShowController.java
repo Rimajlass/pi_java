@@ -8,23 +8,33 @@ import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import pi.entities.User;
 import pi.mains.Main;
 import pi.services.UserTransactionService.TransactionService;
+import pi.tools.AdminNavigation;
 import pi.tools.FxmlResources;
+import pi.tools.UiDialog;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 public class UserShowController {
 
@@ -77,12 +87,17 @@ public class UserShowController {
     @FXML private Label btcPriceLabel;
     @FXML private Label ethPriceLabel;
     @FXML private Label usdtPriceLabel;
+    @FXML private ImageView profileImageView;
+    @FXML private Label profilePlaceholderLabel;
+    @FXML private Button changePhotoButton;
 
     private final UserController userController = new UserController();
     private final DecimalFormat moneyFormat = new DecimalFormat("#,##0.00");
     private final DecimalFormat usdFormat = new DecimalFormat("#,##0.00");
     private final DecimalFormat usd4Format = new DecimalFormat("#,##0.0000");
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
+    private static final Set<String> SUPPORTED_IMAGE_EXTENSIONS = Set.of("png", "jpg", "jpeg");
+    private static final Path PROFILE_IMAGES_DIR = Path.of(System.getProperty("user.home"), ".decide-profile-images");
 
     private User adminUser;
     private User viewedUser;
@@ -99,29 +114,13 @@ public class UserShowController {
             trendChart.setLegendVisible(true);
             trendChart.setAnimated(false);
         }
+        configureProfileImageView();
     }
 
     @FXML
     private void handleBackToList() {
-        try {
-            FXMLLoader loader = FxmlResources.load(Main.class, "/pi/mains/admin-backend-view.fxml");
-            Parent root = (Parent) loader.getRoot();
-
-            AdminBackendController controller = loader.getController();
-            if (adminUser != null) {
-                controller.setUser(adminUser);
-            }
-
-            Stage stage = (Stage) pageTitleLabel.getScene().getWindow();
-            Scene scene = new Scene(root, 1460, 780);
-            FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/admin-backend.css");
-
-            stage.setTitle("Admin Backend");
-            stage.setScene(scene);
-            stage.show();
-        } catch (Exception e) {
-            showError("Navigation error", "Unable to return to user list: " + e.getMessage());
-        }
+        Stage stage = (Stage) pageTitleLabel.getScene().getWindow();
+        AdminNavigation.showUsersManagement(stage, adminUser);
     }
 
     @FXML
@@ -158,27 +157,11 @@ public class UserShowController {
 
     @FXML
     private void handleEditUser() {
-        if (viewedUser == null) {
+        if (viewedUser == null || pageTitleLabel == null || pageTitleLabel.getScene() == null) {
             return;
         }
-        try {
-            FXMLLoader loader = FxmlResources.load(Main.class, "/pi/mains/edit-user-view.fxml");
-            Parent root = (Parent) loader.getRoot();
-            EditUserController editController = loader.getController();
-
-            Stage stage = (Stage) pageTitleLabel.getScene().getWindow();
-            Scene scene = new Scene(root, 1460, 780);
-            FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/user-show.css");
-            FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/edit-user.css");
-
-            stage.setTitle("Edit utilisateur");
-            stage.setScene(scene);
-            stage.show();
-
-            editController.setContext(adminUser, viewedUser);
-        } catch (Exception e) {
-            showError("Navigation error", "Unable to open edit form: " + e.getMessage());
-        }
+        Stage stage = (Stage) pageTitleLabel.getScene().getWindow();
+        AdminNavigation.showUserEdit(stage, adminUser, viewedUser);
     }
 
     @FXML
@@ -186,12 +169,14 @@ public class UserShowController {
         if (viewedUser == null) {
             return;
         }
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Delete user");
-        confirm.setHeaderText("Delete user #" + viewedUser.getId() + " ?");
-        confirm.setContentText("This action is permanent.");
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.isEmpty() || result.get() != ButtonType.OK) {
+        Stage stage = resolveStage();
+        boolean confirmed = UiDialog.showConfirm(
+                stage,
+                "Delete user",
+                "Delete user #" + viewedUser.getId() + " ?",
+                "This action is permanent."
+        );
+        if (!confirmed) {
             return;
         }
 
@@ -203,6 +188,48 @@ public class UserShowController {
         }
     }
 
+    @FXML
+    private void handleChangePhoto() {
+        if (viewedUser == null) {
+            return;
+        }
+        Stage stage = resolveStage();
+        if (stage == null) {
+            return;
+        }
+
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Choisir une photo de profil");
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg")
+        );
+
+        File selectedFile = chooser.showOpenDialog(stage);
+        if (selectedFile == null) {
+            return;
+        }
+
+        String extension = resolveExtension(selectedFile.getName());
+        if (!SUPPORTED_IMAGE_EXTENSIONS.contains(extension)) {
+            showError("Photo", "Format non supporté. Utilisez PNG, JPG ou JPEG.");
+            return;
+        }
+
+        try {
+            Files.createDirectories(PROFILE_IMAGES_DIR);
+            String targetName = "user-" + viewedUser.getId() + "-" + UUID.randomUUID() + "." + extension;
+            Path targetPath = PROFILE_IMAGES_DIR.resolve(targetName);
+            Files.copy(selectedFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+            userController.updateProfileImage(viewedUser.getId(), targetPath.toString());
+            viewedUser.setImage(targetPath.toString());
+            applyProfileImage(viewedUser);
+            showInfo("Photo", "Photo de profil mise à jour.");
+        } catch (Exception e) {
+            showError("Photo", "Impossible de sauvegarder la photo: " + e.getMessage());
+        }
+    }
+
     private void loadDashboard() {
         if (viewedUser == null) {
             return;
@@ -211,8 +238,11 @@ public class UserShowController {
         try {
             TransactionService.UserDashboardStats stats = userController.showDetails(viewedUser.getId());
             User user = stats.user();
+            this.viewedUser = user;
 
-            sidebarNameLabel.setText(valueOrDash(adminUser != null ? adminUser.getNom() : user.getNom()));
+            if (sidebarNameLabel != null) {
+                sidebarNameLabel.setText(valueOrDash(adminUser != null ? adminUser.getNom() : user.getNom()));
+            }
             pageTitleLabel.setText("User Profile #" + user.getId());
             pageSubtitleLabel.setText("Detailed account information and role overview");
 
@@ -222,6 +252,7 @@ public class UserShowController {
             nameLabel.setText(name);
             emailLabel.setText(email);
             balanceLabel.setText(balance);
+            applyProfileImage(user);
 
             idValueLabel.setText(String.valueOf(user.getId()));
             nameDetailsValueLabel.setText(name);
@@ -264,6 +295,84 @@ public class UserShowController {
         } catch (Exception e) {
             showError("Load error", "Unable to load user profile: " + e.getMessage());
         }
+    }
+
+    private void configureProfileImageView() {
+        if (profileImageView == null) {
+            return;
+        }
+        profileImageView.setPreserveRatio(true);
+        profileImageView.setSmooth(true);
+        profileImageView.setCache(true);
+
+        Circle clip = new Circle(46, 46, 46);
+        profileImageView.setClip(clip);
+    }
+
+    private void applyProfileImage(User user) {
+        if (profileImageView == null || profilePlaceholderLabel == null || user == null) {
+            return;
+        }
+
+        profilePlaceholderLabel.setText(resolveInitial(user.getNom()));
+
+        Image image = loadUserImage(user.getImage());
+        if (image == null) {
+            profileImageView.setImage(null);
+            profileImageView.setVisible(false);
+            profileImageView.setManaged(false);
+            profilePlaceholderLabel.setVisible(true);
+            profilePlaceholderLabel.setManaged(true);
+            return;
+        }
+
+        profileImageView.setImage(image);
+        profileImageView.setVisible(true);
+        profileImageView.setManaged(true);
+        profilePlaceholderLabel.setVisible(false);
+        profilePlaceholderLabel.setManaged(false);
+    }
+
+    private Image loadUserImage(String imageRef) {
+        if (imageRef == null || imageRef.isBlank()) {
+            return null;
+        }
+
+        try {
+            Path imagePath = Path.of(imageRef);
+            if (Files.exists(imagePath)) {
+                return new Image(imagePath.toUri().toString(), 92, 92, true, true, false);
+            }
+        } catch (Exception ignored) {
+            // Not a local path, fallback to URI handling below.
+        }
+
+        try {
+            if (imageRef.startsWith("/") && Main.class.getResource(imageRef) != null) {
+                return new Image(Main.class.getResource(imageRef).toExternalForm(), 92, 92, true, true, false);
+            }
+            return new Image(imageRef, 92, 92, true, true, false);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String resolveInitial(String name) {
+        if (name == null || name.isBlank()) {
+            return "U";
+        }
+        return name.substring(0, 1).toUpperCase(Locale.ROOT);
+    }
+
+    private String resolveExtension(String filename) {
+        if (filename == null) {
+            return "";
+        }
+        int dotIndex = filename.lastIndexOf('.');
+        if (dotIndex < 0 || dotIndex == filename.length() - 1) {
+            return "";
+        }
+        return filename.substring(dotIndex + 1).toLowerCase(Locale.ROOT);
     }
 
     private void renderCharts(TransactionService.UserDashboardStats stats) {
@@ -427,18 +536,17 @@ public class UserShowController {
     }
 
     private void showInfo(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+        UiDialog.info(resolveStage(), title, content);
     }
 
     private void showError(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+        UiDialog.error(resolveStage(), title, content);
+    }
+
+    private Stage resolveStage() {
+        if (pageTitleLabel != null && pageTitleLabel.getScene() != null && pageTitleLabel.getScene().getWindow() instanceof Stage stage) {
+            return stage;
+        }
+        return null;
     }
 }

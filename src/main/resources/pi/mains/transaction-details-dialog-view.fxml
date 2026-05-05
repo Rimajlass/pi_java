@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="overlayRoot" styleClass="tx-detail-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.tools.TransactionDetailsDialogController">
+    <children>
+        <VBox fx:id="modalCard" maxWidth="560.0" minWidth="520.0" spacing="14.0" styleClass="tx-detail-card">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <Label styleClass="tx-detail-icon" text="T" />
+                        <Label fx:id="titleLabel" styleClass="tx-detail-title" text="Transaction #0" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button fx:id="closeButton" mnemonicParsing="false" styleClass="tx-detail-close" text="&#x2715;" />
+                    </children>
+                </HBox>
+
+                <Label styleClass="tx-detail-subtitle" text="Transaction details" />
+
+                <VBox spacing="8.0" styleClass="tx-detail-content">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="tx-detail-row">
+                            <children>
+                                <Label styleClass="tx-detail-label" text="Type" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="typeBadge" styleClass="tx-detail-badge tx-detail-badge-default" text="-" />
+                            </children>
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="tx-detail-row">
+                            <children>
+                                <Label styleClass="tx-detail-label" text="Montant" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="amountValueLabel" styleClass="tx-detail-amount" text="-" />
+                            </children>
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="tx-detail-row">
+                            <children>
+                                <Label styleClass="tx-detail-label" text="Date" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="dateValueLabel" styleClass="tx-detail-value" text="-" />
+                            </children>
+                        </HBox>
+
+                        <HBox alignment="TOP_LEFT" spacing="10.0" styleClass="tx-detail-row">
+                            <children>
+                                <Label styleClass="tx-detail-label" text="Utilisateur" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="userValueLabel" styleClass="tx-detail-value" text="-" wrapText="true" />
+                            </children>
+                        </HBox>
+
+                        <HBox alignment="TOP_LEFT" spacing="10.0" styleClass="tx-detail-row">
+                            <children>
+                                <Label styleClass="tx-detail-label" text="Description" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="descriptionValueLabel" styleClass="tx-detail-value" text="-" wrapText="true" />
+                            </children>
+                        </HBox>
+
+                        <HBox alignment="TOP_LEFT" spacing="10.0" styleClass="tx-detail-row">
+                            <children>
+                                <Label styleClass="tx-detail-label" text="Source" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="sourceValueLabel" styleClass="tx-detail-source" text="-" wrapText="true" />
+                            </children>
+                        </HBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="8.0" left="2.0" right="2.0" top="2.0" />
+                    </padding>
+                </VBox>
+
+                <HBox alignment="CENTER_RIGHT" spacing="8.0">
+                    <children>
+                        <Button fx:id="okButton" mnemonicParsing="false" styleClass="tx-detail-ok" text="OK" />
+                    </children>
+                    <padding>
+                        <Insets top="2.0" />
+                    </padding>
+                </HBox>
+            </children>
+            <padding>
+                <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
+            </padding>
+        </VBox>
+    </children>
+</StackPane>

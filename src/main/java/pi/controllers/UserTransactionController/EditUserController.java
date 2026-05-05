@@ -5,8 +5,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -16,19 +14,18 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import pi.entities.User;
 import pi.mains.Main;
+import pi.tools.AdminNavigation;
 import pi.tools.FxmlResources;
+import pi.tools.UiDialog;
 
 import java.io.File;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class EditUserController {
 
-    @FXML
-    private Label sidebarNameLabel;
     @FXML
     private Label avatarLetterLabel;
     @FXML
@@ -66,10 +63,6 @@ public class EditUserController {
         this.adminUser = adminUser;
         this.editingUserId = userToEdit != null ? userToEdit.getId() : 0;
         this.pendingImagePath = null;
-
-        if (sidebarNameLabel != null && adminUser != null) {
-            sidebarNameLabel.setText(valueOrDash(adminUser.getNom()));
-        }
 
         User fresh = userToEdit != null ? userController.show(userToEdit.getId()) : null;
         if (fresh == null) {
@@ -125,17 +118,24 @@ public class EditUserController {
             return;
         }
 
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Supprimer l'utilisateur");
-        confirm.setHeaderText(null);
-        confirm.setContentText("Supprimer definitivement l'utilisateur #" + editingUserId + " ?");
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.isEmpty() || result.get() != ButtonType.OK) {
+        Stage stage = (Stage) nomField.getScene().getWindow();
+        boolean confirmed = UiDialog.showConfirm(
+                stage,
+                "Utilisateur",
+                "Confirmer la suppression",
+                "Supprimer definitivement l'utilisateur #" + editingUserId + " ?"
+        );
+        if (!confirmed) {
             return;
         }
 
         try {
             userController.delete(editingUserId);
+            try {
+                UiDialog.deleted(stage, "Utilisateur", "Utilisateur supprime avec succes.");
+            } catch (Exception popupError) {
+                System.err.println("[EditUser] Delete popup failed: " + popupError.getMessage());
+            }
             navigateToAdminList();
         } catch (Exception e) {
             showError("Suppression", e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
@@ -196,6 +196,11 @@ public class EditUserController {
             }
 
             userController.edit(existing, plain);
+            try {
+                showSuccess("Utilisateur", "Utilisateur modifie avec succes.");
+            } catch (Exception popupError) {
+                System.err.println("[EditUser] Success popup failed: " + popupError.getMessage());
+            }
             navigateToAdminList();
         } catch (Exception e) {
             showError("Enregistrement", e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
@@ -220,22 +225,8 @@ public class EditUserController {
     }
 
     private void navigateToAdminList() {
-        try {
-            FXMLLoader loader = FxmlResources.load(Main.class, "/pi/mains/admin-backend-view.fxml");
-            Parent root = (Parent) loader.getRoot();
-            AdminBackendController c = loader.getController();
-            if (adminUser != null) {
-                c.setUser(adminUser);
-            }
-            Stage stage = (Stage) nomField.getScene().getWindow();
-            Scene scene = new Scene(root, 1460, 780);
-            FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/admin-backend.css");
-            stage.setTitle("Admin Backend");
-            stage.setScene(scene);
-            stage.show();
-        } catch (Exception e) {
-            showError("Navigation", e.getMessage());
-        }
+        Stage stage = (Stage) nomField.getScene().getWindow();
+        AdminNavigation.showUsersManagement(stage, adminUser);
     }
 
     private static String roleJsonFromLabel(String label) {
@@ -265,11 +256,15 @@ public class EditUserController {
     }
 
     private void showError(String title, String message) {
-        Alert a = new Alert(Alert.AlertType.ERROR);
-        a.setTitle(title);
-        a.setHeaderText(null);
-        a.setContentText(message);
-        a.showAndWait();
+        if (nomField != null && nomField.getScene() != null && nomField.getScene().getWindow() instanceof Stage stage) {
+            UiDialog.error(stage, title, message);
+        }
+    }
+
+    private void showSuccess(String title, String message) {
+        if (nomField != null && nomField.getScene() != null && nomField.getScene().getWindow() instanceof Stage stage) {
+            UiDialog.success(stage, title, message);
+        }
     }
 }
 
