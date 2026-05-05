@@ -91,6 +91,7 @@
     -fx-background-radius: 999;
     -fx-text-fill: white;
     -fx-font-weight: 800;
+    -fx-font-family: "Segoe UI Emoji", "Segoe UI Symbol", "Segoe UI";
 }
 
 .profile-name {
@@ -225,6 +226,7 @@
     -fx-text-fill: white;
     -fx-font-size: 22px;
     -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI Emoji", "Segoe UI Symbol", "Segoe UI";
     -fx-alignment: center;
     -fx-min-width: 58;
     -fx-min-height: 58;
@@ -940,4 +942,122 @@
 
 .footer-separator .line {
     -fx-border-color: rgba(255,255,255,0.14);
+}
+
+.theme-toggle-btn {
+    -fx-font-family: "Segoe UI Emoji", "Segoe UI Symbol", "Segoe UI";
+}
+
+.dark-mode {
+    -fx-background-color: #071521;
+}
+
+.dark-mode .page {
+    -fx-background-color:
+        radial-gradient(center 15% 10%, radius 30%, rgba(0,191,229,0.12), transparent),
+        radial-gradient(center 90% 0%, radius 35%, rgba(20,95,140,0.16), transparent),
+        radial-gradient(center 50% 60%, radius 45%, rgba(255,255,255,0.02), transparent),
+        #071521;
+}
+
+.dark-mode .page-scroll > .viewport,
+.dark-mode .scroll-pane,
+.dark-mode .scroll-pane > .viewport,
+.dark-mode .inner-scroll,
+.dark-mode .inner-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.dark-mode .glass-card,
+.dark-mode .goal-card,
+.dark-mode .mini-row,
+.dark-mode .mini-stat-card,
+.dark-mode .history-header {
+    -fx-background-color: linear-gradient(to bottom, rgba(13,28,43,0.96), rgba(9,22,34,0.96));
+    -fx-border-color: rgba(111, 199, 224, 0.18);
+}
+
+.dark-mode .section-title,
+.dark-mode .card-title,
+.dark-mode .mini-row-value,
+.dark-mode .goal-title,
+.dark-mode .table-head,
+.dark-mode .progress-value,
+.dark-mode .profile-name {
+    -fx-text-fill: #eef8ff;
+}
+
+.dark-mode .section-subtitle,
+.dark-mode .card-subtitle,
+.dark-mode .mini-row-label,
+.dark-mode .goal-meta,
+.dark-mode .table-cell,
+.dark-mode .field-label {
+    -fx-text-fill: #b4c9d8;
+}
+
+.dark-mode .field,
+.dark-mode .toolbar-combo,
+.dark-mode .date-picker.field .text-field,
+.dark-mode .date-picker.field .arrow-button,
+.dark-mode .tab-pill,
+.dark-mode .chip,
+.dark-mode .ghost-btn,
+.dark-mode .header-start-btn,
+.dark-mode .header-logout-btn {
+    -fx-background-color: rgba(15, 34, 49, 0.96);
+    -fx-border-color: rgba(111, 199, 224, 0.22);
+    -fx-text-fill: #eef8ff;
+}
+
+.dark-mode .toolbar-combo .list-cell,
+.dark-mode .date-picker.field .text-field,
+.dark-mode .field {
+    -fx-text-fill: #eef8ff;
+    -fx-prompt-text-fill: #7fa2b8;
+}
+
+.dark-mode .primary-btn,
+.dark-mode .primary-hero-btn,
+.dark-mode .tab-pill-active,
+.dark-mode .chip-active {
+    -fx-background-color: linear-gradient(to right, #0bbfe4, #0887c9);
+    -fx-text-fill: white;
+}
+
+.dark-mode .soft-hero-btn {
+    -fx-background-color: rgba(7, 21, 33, 0.42);
+    -fx-border-color: rgba(194, 239, 255, 0.34);
+}
+
+.dark-mode .amount-cell,
+.dark-mode .card-value {
+    -fx-text-fill: #6ce7ff;
+}
+
+.dark-mode .progress-bar > .track {
+    -fx-background-color: rgba(255,255,255,0.10);
+}
+
+.dark-mode .progress-bar > .bar {
+    -fx-background-color: linear-gradient(to right, #12d1ef, #4ed7f4);
+}
+
+.dialog-pane.dark-dialog {
+    -fx-background-color: #0b1c2b;
+}
+
+.dialog-pane.dark-dialog .header-panel {
+    -fx-background-color: linear-gradient(to right, #0f3048, #0a6f98);
+}
+
+.dialog-pane.dark-dialog .header-panel .label,
+.dialog-pane.dark-dialog .content.label {
+    -fx-text-fill: #eef8ff;
+}
+
+.dialog-pane.dark-dialog .button {
+    -fx-background-color: #123953;
+    -fx-text-fill: #eef8ff;
+    -fx-border-color: rgba(111, 199, 224, 0.28);
 }

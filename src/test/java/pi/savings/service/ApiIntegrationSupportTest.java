@@ -50,7 +50,12 @@ class ApiIntegrationSupportTest {
                 "https://calendar/PublicHolidays/2026/TN",
                 "[{\"date\":\"2026-04-09\",\"localName\":\"Aid\",\"name\":\"Aid Holiday\"}]"
         ));
-        SavingsCalendarService service = new SavingsCalendarService(apiClient, "https://calendar", "TN");
+        SavingsCalendarService service = new SavingsCalendarService(
+                new HolidayApiService(apiClient, "https://calendar", "TN"),
+                new CurrencyApiService(),
+                new GoalDeadlineService(),
+                new ContributionCalendarService()
+        );
 
         List<CalendarEvent> holidays = service.getPublicHolidayEvents(2026);
 

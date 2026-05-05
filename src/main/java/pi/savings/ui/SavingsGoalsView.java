@@ -84,10 +84,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.prefs.Preferences;
 import java.util.function.UnaryOperator;
 
 final class SavingsGoalsView {
     private static final DecimalFormat MONEY_FORMAT;
+    private static final String THEME_PREFERENCE_KEY = "savingsGoals.darkMode";
+    private final Preferences preferences = Preferences.userNodeForPackage(SavingsGoalsView.class);
 
     static {
         DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(Locale.US);
@@ -124,7 +127,6 @@ final class SavingsGoalsView {
     private DatePicker goalDeadlinePicker;
     private TextField goalPriorityField;
     private Button addGoalButton;
-    private Button autoPlanButton;
     private Integer editingGoalId;
     private VBox historyRowsBox;
     private VBox goalsListBox;
@@ -141,20 +143,26 @@ final class SavingsGoalsView {
     private Label goalsTargetValueLabel;
     private Label goalsRemainingValueLabel;
     private Label historyPaginationLabel;
+    private Label historyTotalLabel;
     private Button historyPreviousButton;
     private Button historyNextButton;
     private int historyPageIndex;
     private static final int HISTORY_PAGE_SIZE = 5;
     private Label goalsPaginationLabel;
+    private Label goalsTotalLabel;
     private Button goalsPreviousButton;
     private Button goalsNextButton;
     private int goalsPageIndex;
     private static final int GOALS_PAGE_SIZE = 4;
     private SavingsStatsService.FrontStatsSnapshot frontStats;
     private SmartVoiceAgentController smartVoiceAgentController;
+    private ToggleButton themeToggleButton;
+    private StackPane rootContainer;
+    private boolean darkModeEnabled;
 
     Parent build(SavingsUiController controller) {
         this.controller = controller;
+        this.darkModeEnabled = preferences.getBoolean(THEME_PREFERENCE_KEY, false);
         this.smartVoiceAgentController = new SmartVoiceAgentController(createAssistantGateway());
 
         VBox page = new VBox();
@@ -168,7 +176,7 @@ final class SavingsGoalsView {
         pageScrollPane.getStyleClass().add("page-scroll");
 
         BorderPane mainLayout = new BorderPane(pageScrollPane);
-        StackPane root = new StackPane(mainLayout);
+        rootContainer = new StackPane(mainLayout);
         SmartVoiceAgentPane smartVoiceAgentPane = new SmartVoiceAgentPane(
                 smartVoiceAgentController,
                 result -> {
@@ -179,15 +187,16 @@ final class SavingsGoalsView {
         );
         StackPane.setAlignment(smartVoiceAgentPane, Pos.BOTTOM_RIGHT);
         StackPane.setMargin(smartVoiceAgentPane, new Insets(0, 26, 24, 0));
-        root.getChildren().add(smartVoiceAgentPane);
+        rootContainer.getChildren().add(smartVoiceAgentPane);
 
-        root.getStylesheets().add(
+        rootContainer.getStylesheets().add(
                 SavingsGoalsView.class.getResource("/pi/savings/ui/savings-goals.css").toExternalForm()
         );
+        applyTheme();
 
         renderEmptyState();
         initializeDataAsync();
-        return root;
+        return rootContainer;
     }
 
     private void initializeDataAsync() {
@@ -294,7 +303,7 @@ final class SavingsGoalsView {
         HBox profilePill = new HBox(10);
         profilePill.getStyleClass().add("profile-pill");
         profilePill.setAlignment(Pos.CENTER);
-        Label profileIcon = new Label("S");
+        Label profileIcon = new Label("\uD83D\uDCB0");
         profileIcon.getStyleClass().add("profile-icon");
         Label profileName = new Label("Savings Workspace");
         profileName.getStyleClass().add("profile-name");
@@ -306,7 +315,13 @@ final class SavingsGoalsView {
         Button logoutButton = actionButton("Logout", "header-logout-btn");
         logoutButton.setOnAction(event -> openLoginPage());
 
-        HBox headerActions = new HBox(12, profilePill, startButton, logoutButton);
+        themeToggleButton = new ToggleButton();
+        themeToggleButton.getStyleClass().addAll("ghost-btn", "theme-toggle-btn");
+        themeToggleButton.setSelected(darkModeEnabled);
+        updateThemeToggleButton();
+        themeToggleButton.setOnAction(event -> toggleDarkMode(themeToggleButton.isSelected()));
+
+        HBox headerActions = new HBox(12, profilePill, themeToggleButton, startButton, logoutButton);
         headerActions.setAlignment(Pos.CENTER_RIGHT);
 
         header.getChildren().addAll(brand, nav, spacer, headerActions);
@@ -435,10 +450,10 @@ final class SavingsGoalsView {
         nearestDeadlineValueLabel = new Label();
         nearestDeadlineValueLabel.getStyleClass().add("card-value");
 
-        grid.add(buildKpiCard("Savings Balance", "Current account balance", balanceValueLabel, "S"), 0, 0);
-        grid.add(buildKpiCard("Active Goals", "Goals in progress", activeGoalsValueLabel, "G"), 1, 0);
-        grid.add(buildKpiCard("Goals Progress", "Average completion", progressValueLabel, "%"), 2, 0);
-        grid.add(buildKpiCard("Nearest Deadline", "Closest goal date", nearestDeadlineValueLabel, "D"), 3, 0);
+        grid.add(buildKpiCard("Savings Balance", "Current account balance", balanceValueLabel, "\uD83D\uDCB0"), 0, 0);
+        grid.add(buildKpiCard("Active Goals", "Goals in progress", activeGoalsValueLabel, "\uD83C\uDFAF"), 1, 0);
+        grid.add(buildKpiCard("Goals Progress", "Average completion", progressValueLabel, "\uD83D\uDCC8"), 2, 0);
+        grid.add(buildKpiCard("Nearest Deadline", "Closest goal date", nearestDeadlineValueLabel, "\uD83D\uDCC5"), 3, 0);
         return grid;
     }
 
@@ -695,9 +710,6 @@ final class SavingsGoalsView {
         Button saveDepositButton = actionButton("Save Deposit", "primary-btn");
         saveDepositButton.setOnAction(event -> handleDeposit());
 
-        Button noteButton = actionButton("Add Note / Tag (later)", "ghost-btn");
-        noteButton.setOnAction(event -> showInfo("Notes and tags will be added in a later step."));
-
         Button exportAccountCsvButton = actionButton("Account CSV", "ghost-btn");
         exportAccountCsvButton.setOnAction(event -> handleSavingAccountsExportCsv());
 
@@ -705,7 +717,7 @@ final class SavingsGoalsView {
         exportAccountPdfButton.setOnAction(event -> handleSavingAccountsExportPdf());
 
         card.getChildren().addAll(
-                cardHeader("My Savings Account", "balance + deposit", "S"),
+                cardHeader("My Savings Account", "balance + deposit", "\uD83D\uDCB0"),
                 infoRow("Balance (solde)", accountBalanceLabel),
                 infoRow("Currency API rate", accountRateApiLabel),
                 infoRow("Converted balance", accountConvertedBalanceLabel),
@@ -718,8 +730,7 @@ final class SavingsGoalsView {
                 fieldBlock("Amount", depositAmountField),
                 fieldBlock("Description", depositDescriptionField),
                 saveDepositButton,
-                new HBox(10, exportAccountCsvButton, exportAccountPdfButton),
-                noteButton
+                new HBox(10, exportAccountCsvButton, exportAccountPdfButton)
         );
 
         return card;
@@ -759,7 +770,7 @@ final class SavingsGoalsView {
         searchButton.setOnAction(event -> applyHistorySearchAndSort());
 
         historySortComboBox = new ComboBox<>();
-        historySortComboBox.getItems().addAll("All", "ID", "Date", "Type", "Amount", "Description");
+        historySortComboBox.getItems().addAll("All", "Date", "Type", "Amount", "Description");
         historySortComboBox.setValue("Date");
         historySortComboBox.getStyleClass().add("toolbar-combo");
         historySortComboBox.setOnAction(event -> applyHistorySearchAndSort());
@@ -796,7 +807,7 @@ final class SavingsGoalsView {
         HBox toolbar = new HBox(10, searchButton, historySearchField, historySortComboBox, historyDirectionComboBox, allButton, resetButton);
         toolbar.getStyleClass().add("toolbar-row");
 
-        card.getChildren().add(cardHeader("Savings History", "search - sort - export - stats", "H"));
+        card.getChildren().add(cardHeader("Savings History", "search - sort - export - stats", "\uD83D\uDCB3"));
         card.getChildren().add(toolbar);
         card.getChildren().add(buildHistoryStatsPanel());
         card.getChildren().add(buildHistoryTableWrapper());
@@ -812,7 +823,7 @@ final class SavingsGoalsView {
         historyAverageValueLabel = valueLabel();
 
         HBox row = new HBox(10,
-                compactStatCard("Rows", historyCountValueLabel),
+                compactStatCard("Transactions", historyCountValueLabel),
                 compactStatCard("Deposits", historyDepositsValueLabel),
                 compactStatCard("Contributions", historyContributionsValueLabel),
                 compactStatCard("Average", historyAverageValueLabel)
@@ -827,11 +838,10 @@ final class SavingsGoalsView {
         GridPane header = new GridPane();
         header.getStyleClass().add("history-header");
         configureHistoryColumns(header);
-        addHeaderCell(header, "#", 0);
-        addHeaderCell(header, "Date", 1);
-        addHeaderCell(header, "Type", 2);
-        addHeaderCell(header, "Amount", 3);
-        addHeaderCell(header, "Description", 4);
+        addHeaderCell(header, "Date", 0);
+        addHeaderCell(header, "Type", 1);
+        addHeaderCell(header, "Amount", 2);
+        addHeaderCell(header, "Description", 3);
 
         ScrollPane rowsScroll = new ScrollPane(historyRowsBox);
         rowsScroll.setFitToWidth(true);
@@ -884,16 +894,12 @@ final class SavingsGoalsView {
         addGoalButton = actionButton("Add Goal", "primary-btn");
         addGoalButton.setOnAction(event -> handleSaveGoal());
 
-        autoPlanButton = actionButton("Auto-plan (later)", "ghost-btn");
-        autoPlanButton.setOnAction(event -> handleSecondaryGoalAction());
-
         card.getChildren().addAll(
-                cardHeader("Create a Goal", "create + rules", "G"),
+                cardHeader("Create a Goal", "create + rules", "\uD83C\uDFAF"),
                 fieldBlock("Goal name", goalNameField),
                 twoFields(fieldBlock("Target (TND)", goalTargetField), fieldBlock("Current (TND)", goalCurrentField)),
                 twoFields(fieldBlock("Deadline", goalDeadlinePicker), fieldBlock("Priority (1-5)", goalPriorityField)),
-                addGoalButton,
-                autoPlanButton
+                addGoalButton
         );
         return card;
     }
@@ -939,7 +945,7 @@ final class SavingsGoalsView {
         Button goalsExportCsvButton = actionButton("Export CSV", "ghost-btn");
         goalsExportCsvButton.setOnAction(event -> handleGoalsExportCsv());
 
-        Button goalsExportPdfButton = actionButton("Export PDF", "ghost-btn");
+        Button goalsExportPdfButton = actionButton("Generate Smart PDF Report", "primary-btn");
         goalsExportPdfButton.setOnAction(event -> handleGoalsExportPdf());
 
         HBox paginationBar = buildGoalsPaginationBar();
@@ -953,7 +959,7 @@ final class SavingsGoalsView {
         goalsScroll.setPrefViewportHeight(360);
         goalsScroll.getStyleClass().add("inner-scroll");
 
-        card.getChildren().add(cardHeader("Your Goals", "search - sort - export - analytics", "P"));
+        card.getChildren().add(cardHeader("Your Goals", "search - sort - export - analytics", "\uD83C\uDFAF"));
         card.getChildren().add(toolbar);
         card.getChildren().add(buildGoalsStatsPanel());
         card.getChildren().add(goalsScroll);
@@ -979,8 +985,11 @@ final class SavingsGoalsView {
 
         historyPaginationLabel = new Label("Page 1 / 1");
         historyPaginationLabel.getStyleClass().add("mini-row-value");
-
-        HBox box = new HBox(10, historyPreviousButton, historyPaginationLabel, historyNextButton);
+        historyTotalLabel = new Label("0 transactions au total");
+        historyTotalLabel.getStyleClass().add("mini-row-label");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox box = new HBox(10, historyPreviousButton, historyPaginationLabel, historyNextButton, spacer, historyTotalLabel);
         box.setAlignment(Pos.CENTER_LEFT);
         return box;
     }
@@ -1002,8 +1011,11 @@ final class SavingsGoalsView {
 
         goalsPaginationLabel = new Label("Page 1 / 1");
         goalsPaginationLabel.getStyleClass().add("mini-row-value");
-
-        HBox box = new HBox(10, goalsPreviousButton, goalsPaginationLabel, goalsNextButton);
+        goalsTotalLabel = new Label("0 goals au total");
+        goalsTotalLabel.getStyleClass().add("mini-row-label");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox box = new HBox(10, goalsPreviousButton, goalsPaginationLabel, goalsNextButton, spacer, goalsTotalLabel);
         box.setAlignment(Pos.CENTER_LEFT);
         return box;
     }
@@ -1177,15 +1189,6 @@ final class SavingsGoalsView {
         }
     }
 
-    private void handleSecondaryGoalAction() {
-        if (editingGoalId != null) {
-            clearGoalForm();
-            showInfo("Goal edit canceled.");
-            return;
-        }
-        showInfo("Auto-plan remains a future enhancement.");
-    }
-
     private void handleContribute(SavingsModuleService.GoalSnapshot goal, TextField contributeField) {
         if (!validateMoneyField(contributeField, "Contribution", 7)) {
             return;
@@ -1209,7 +1212,6 @@ final class SavingsGoalsView {
         goalDeadlinePicker.setValue(goal.deadline());
         goalPriorityField.setText(String.valueOf(goal.priority()));
         addGoalButton.setText("Update Goal");
-        autoPlanButton.setText("Cancel Edit");
         tabPane.getSelectionModel().select(1);
         goalNameField.requestFocus();
         showInfo("Goal loaded into the form for editing.");
@@ -1236,7 +1238,6 @@ final class SavingsGoalsView {
         goalDeadlinePicker.setValue(null);
         goalPriorityField.setText("3");
         addGoalButton.setText("Add Goal");
-        autoPlanButton.setText("Auto-plan (later)");
     }
 
     private void navigateToSavingsForm() {
@@ -1337,11 +1338,10 @@ final class SavingsGoalsView {
             GridPane line = new GridPane();
             line.setPadding(new Insets(12, 14, 12, 14));
             configureHistoryColumns(line);
-            addBodyCell(line, "-", 0, "table-cell");
-            addBodyCell(line, "--/--/----", 1, "table-cell");
-            addBodyCell(line, "No data", 2, "table-cell");
-            addBodyCell(line, "0 TND", 3, "amount-cell");
-            addBodyCell(line, "No transaction matches the current filters.", 4, "table-cell");
+            addBodyCell(line, "--/--/----", 0, "table-cell");
+            addBodyCell(line, "No data", 1, "table-cell");
+            addBodyCell(line, "0 TND", 2, "amount-cell");
+            addBodyCell(line, "No transaction matches the current filters.", 3, "table-cell");
             historyRowsBox.getChildren().add(line);
             return;
         }
@@ -1350,11 +1350,10 @@ final class SavingsGoalsView {
             GridPane line = new GridPane();
             line.setPadding(new Insets(12, 14, 12, 14));
             configureHistoryColumns(line);
-            addBodyCell(line, String.valueOf(entry.id()), 0, "table-cell");
-            addBodyCell(line, entry.date().toLocalDate().toString(), 1, "table-cell");
-            addBodyCell(line, entry.type(), 2, "table-cell");
-            addBodyCell(line, formatMoney(entry.amount()), 3, "amount-cell");
-            addBodyCell(line, entry.description(), 4, "table-cell");
+            addBodyCell(line, entry.date().toLocalDate().toString(), 0, "table-cell");
+            addBodyCell(line, friendlyTransactionType(entry.type()), 1, "table-cell");
+            addBodyCell(line, formatMoney(entry.amount()), 2, "amount-cell");
+            addBodyCell(line, safeText(entry.description()), 3, "table-cell");
             historyRowsBox.getChildren().add(line);
         }
     }
@@ -1435,9 +1434,10 @@ final class SavingsGoalsView {
 
     private void updateHistoryPagination(SavingsUiController.PageSlice<SavingsTransactionRepository.TransactionRow> page) {
         if (historyPaginationLabel != null) {
-            historyPaginationLabel.setText(
-                    "Page " + (page.pageIndex() + 1) + " / " + page.pageCount() + " (" + page.totalItems() + " rows)"
-            );
+            historyPaginationLabel.setText("Page " + (page.pageIndex() + 1) + " / " + page.pageCount());
+        }
+        if (historyTotalLabel != null) {
+            historyTotalLabel.setText(page.totalItems() + (page.totalItems() == 1 ? " transaction au total" : " transactions au total"));
         }
         if (historyPreviousButton != null) {
             historyPreviousButton.setDisable(page.pageIndex() <= 0);
@@ -1449,9 +1449,10 @@ final class SavingsGoalsView {
 
     private void updateGoalsPagination(SavingsUiController.PageSlice<SavingsModuleService.GoalSnapshot> page) {
         if (goalsPaginationLabel != null) {
-            goalsPaginationLabel.setText(
-                    "Page " + (page.pageIndex() + 1) + " / " + page.pageCount() + " (" + page.totalItems() + " goals)"
-            );
+            goalsPaginationLabel.setText("Page " + (page.pageIndex() + 1) + " / " + page.pageCount());
+        }
+        if (goalsTotalLabel != null) {
+            goalsTotalLabel.setText(page.totalItems() + (page.totalItems() == 1 ? " goal au total" : " goals au total"));
         }
         if (goalsPreviousButton != null) {
             goalsPreviousButton.setDisable(page.pageIndex() <= 0);
@@ -1463,16 +1464,14 @@ final class SavingsGoalsView {
 
     private void configureHistoryColumns(GridPane grid) {
         ColumnConstraints c0 = new ColumnConstraints();
-        c0.setPercentWidth(8);
+        c0.setPercentWidth(22);
         ColumnConstraints c1 = new ColumnConstraints();
-        c1.setPercentWidth(20);
+        c1.setPercentWidth(22);
         ColumnConstraints c2 = new ColumnConstraints();
         c2.setPercentWidth(18);
         ColumnConstraints c3 = new ColumnConstraints();
-        c3.setPercentWidth(18);
-        ColumnConstraints c4 = new ColumnConstraints();
-        c4.setPercentWidth(36);
-        grid.getColumnConstraints().setAll(c0, c1, c2, c3, c4);
+        c3.setPercentWidth(38);
+        grid.getColumnConstraints().setAll(c0, c1, c2, c3);
     }
 
     private void addHeaderCell(GridPane grid, String text, int column) {
@@ -1683,9 +1682,8 @@ final class SavingsGoalsView {
         analyzeByCombo.setValue(initialAttribute);
 
         Button refreshButton = actionButton("Refresh Analytics", "primary-btn");
-        Button aiButton = actionButton("AI Financial Insight", "ghost-btn");
         Button backToGoalsButton = actionButton("Back to Goals", "ghost-btn");
-        HBox controls = new HBox(10, new Label("Analyze by"), analyzeByCombo, refreshButton, aiButton, backToGoalsButton);
+        HBox controls = new HBox(10, new Label("Analyze by"), analyzeByCombo, refreshButton, backToGoalsButton);
         controls.setAlignment(Pos.CENTER_LEFT);
 
         HBox kpiRow = new HBox(10);
@@ -1693,17 +1691,6 @@ final class SavingsGoalsView {
 
         Label healthMessageLabel = new Label();
         healthMessageLabel.getStyleClass().add("mini-row-label");
-
-        Label aiInsightValue = new Label("Click AI Financial Insight to generate recommendation from live analytics.");
-        aiInsightValue.getStyleClass().add("mini-row-label");
-        aiInsightValue.setWrapText(true);
-        Label aiSourceLabel = new Label("Waiting for AI generation");
-        aiSourceLabel.getStyleClass().add("mini-row-label");
-        VBox aiInsightCard = new VBox(10);
-        aiInsightCard.getStyleClass().add("glass-card");
-        Label aiTitle = new Label("AI Financial Insight");
-        aiTitle.getStyleClass().add("card-title");
-        aiInsightCard.getChildren().addAll(aiTitle, aiInsightValue, aiSourceLabel);
 
         VBox riskRows = buildRiskRowsContainer();
         Label riskCountLabel = new Label("0 goals analyzed");
@@ -1739,7 +1726,7 @@ final class SavingsGoalsView {
         riskCard.getChildren().addAll(riskTitle, riskCountLabel, riskRows);
 
         VBox content = new VBox(16);
-        content.getChildren().addAll(headerLabel, subtitleLabel, controls, kpiRow, healthMessageLabel, chartsRow, aiInsightCard, riskCard, whatIfCard);
+        content.getChildren().addAll(headerLabel, subtitleLabel, controls, kpiRow, healthMessageLabel, chartsRow, riskCard, whatIfCard);
         content.setPadding(new Insets(20));
 
         ScrollPane scrollPane = new ScrollPane(content);
@@ -1771,15 +1758,6 @@ final class SavingsGoalsView {
 
         analyzeByCombo.setOnAction(event -> renderDashboard.run());
         refreshButton.setOnAction(event -> renderDashboard.run());
-        aiButton.setOnAction(event -> {
-            String insight = controller.loadAiFinancialInsight(analyticsState[0]);
-            aiInsightValue.setText(insight);
-            if (insight != null && insight.toLowerCase(Locale.ROOT).contains("ai insight unavailable")) {
-                aiSourceLabel.setText("Source: local fallback");
-            } else {
-                aiSourceLabel.setText("Generated from live analytics via external AI API");
-            }
-        });
         backToGoalsButton.setOnAction(event -> {
             if (tabPane != null) {
                 tabPane.getSelectionModel().select(1);
@@ -1802,9 +1780,7 @@ final class SavingsGoalsView {
         runScenario.accept("Balanced", monthlyInput.getText());
 
         Scene scene = new Scene(scrollPane, 1320, 900);
-        scene.getStylesheets().add(
-                SavingsGoalsView.class.getResource("/pi/savings/ui/savings-goals.css").toExternalForm()
-        );
+        applySceneTheme(scene);
         stage.setTitle("Goals Intelligence Dashboard");
         stage.setScene(scene);
         stage.show();
@@ -2312,8 +2288,10 @@ final class SavingsGoalsView {
         Button previous = actionButton("\u2190 Previous", "ghost-btn");
         Button next = actionButton("Next \u2192", "ghost-btn");
         Button goButton = actionButton("Go", "primary-btn");
-        HBox topRow = new HBox(8, backButton);
-        topRow.setAlignment(Pos.CENTER_LEFT);
+        Region topSpacer = new Region();
+        HBox.setHgrow(topSpacer, Priority.ALWAYS);
+        HBox topRow = new HBox(8, topSpacer, backButton);
+        topRow.setAlignment(Pos.CENTER_RIGHT);
         HBox titleRow = new HBox(title);
         titleRow.setAlignment(Pos.CENTER_LEFT);
         HBox subtitleRow = new HBox(subtitle);
@@ -2541,7 +2519,7 @@ final class SavingsGoalsView {
 
         reloadData.run();
         Scene scene = new Scene(scrollPane, 1220, 780);
-        scene.getStylesheets().add(SavingsGoalsView.class.getResource("/pi/savings/ui/savings-goals.css").toExternalForm());
+        applySceneTheme(scene);
         stage.setTitle("Savings Calendar");
         stage.setScene(scene);
         stage.show();
@@ -2601,7 +2579,7 @@ final class SavingsGoalsView {
     }
 
     private void handleGoalsExportPdf() {
-        SavingsUiController.OperationResult result = controller.safeExportGoalsPdf(
+        SavingsUiController.OperationResult result = controller.safeGenerateSmartPdfReport(
                 goalsSearchValue(),
                 goalsSortAttributeValue(),
                 goalsSortDirectionValue(),
@@ -2609,10 +2587,10 @@ final class SavingsGoalsView {
         );
         if (result.success()) {
             showSuccess(result.message());
-            showModal("PDF Export", "Goals exported", result.message(), Alert.AlertType.INFORMATION);
+            showModal("Smart PDF Report API", "Smart PDF report generated", result.message(), Alert.AlertType.INFORMATION);
         } else {
             showError(result.message());
-            showModal("PDF Export", "Goals export failed", result.message(), Alert.AlertType.ERROR);
+            showModal("Smart PDF Report API", "PDF generation failed", result.message(), Alert.AlertType.ERROR);
         }
     }
 
@@ -2638,9 +2616,7 @@ final class SavingsGoalsView {
         root.getChildren().addAll(headerLabel, subtitleLabel, content);
 
         Scene scene = new Scene(root, 980, 760);
-        scene.getStylesheets().add(
-                SavingsGoalsView.class.getResource("/pi/savings/ui/savings-goals.css").toExternalForm()
-        );
+        applySceneTheme(scene);
 
         stage.setTitle(title);
         stage.setScene(scene);
@@ -2654,9 +2630,9 @@ final class SavingsGoalsView {
         VBox content = new VBox(18);
 
         HBox statRow = new HBox(10,
-                compactStatCard("Rows", statLabel(String.valueOf(stats.transactionCount()))),
+                compactStatCard("Transactions", statLabel(String.valueOf(stats.transactionCount()))),
                 compactStatCard("Deposits", statLabel(formatMoney(stats.totalDeposited()))),
-                compactStatCard("Goals", statLabel(formatMoney(stats.totalContributedToGoals()))),
+                compactStatCard("Contributions", statLabel(formatMoney(stats.totalContributedToGoals()))),
                 compactStatCard("Latest", statLabel(stats.latestTransactionDate()))
         );
 
@@ -2672,7 +2648,7 @@ final class SavingsGoalsView {
                 List.of(
                         "Types present: " + summarizeTransactionTypes(transactions),
                         "Module sources: " + summarizeModuleSources(transactions),
-                        "Users covered: " + summarizeUserIds(transactions),
+                        "Descriptions included: " + summarizeTransactionDescriptions(transactions),
                         "Average amount: " + formatMoney(stats.averageAmount())
                 )
         );
@@ -3331,10 +3307,14 @@ final class SavingsGoalsView {
                 .orElse("None");
     }
 
-    private String summarizeUserIds(List<SavingsTransactionRepository.TransactionRow> transactions) {
+    private String summarizeTransactionDescriptions(List<SavingsTransactionRepository.TransactionRow> transactions) {
         return transactions.stream()
-                .map(row -> String.valueOf(row.userId()))
+                .map(SavingsTransactionRepository.TransactionRow::description)
+                .map(this::safeText)
+                .filter(value -> !value.isBlank())
+                .map(value -> truncate(value, 18))
                 .distinct()
+                .limit(4)
                 .reduce((left, right) -> left + ", " + right)
                 .orElse("None");
     }
@@ -3359,7 +3339,22 @@ final class SavingsGoalsView {
         if (value == null || value.length() <= maxLength) {
             return value == null ? "" : value;
         }
-        return value.substring(0, Math.max(0, maxLength - 1)) + "…";
+        return value.substring(0, Math.max(0, maxLength - 3)) + "...";
+    }
+
+    private String safeText(String value) {
+        return value == null || value.isBlank() ? "-" : value.trim();
+    }
+
+    private String friendlyTransactionType(String type) {
+        if (type == null || type.isBlank()) {
+            return "Transaction";
+        }
+        return switch (type.trim().toUpperCase(Locale.ROOT)) {
+            case "EPARGNE" -> "Deposit";
+            case "GOAL_CONTRIBUTION" -> "Goal Contribution";
+            default -> type.replace('_', ' ');
+        };
     }
 
     private void showModal(String title, String header, String content, Alert.AlertType type) {
@@ -3374,6 +3369,13 @@ final class SavingsGoalsView {
         if (!alert.getDialogPane().getStylesheets().contains(stylesheet)) {
             alert.getDialogPane().getStylesheets().add(stylesheet);
         }
+        if (darkModeEnabled) {
+            if (!alert.getDialogPane().getStyleClass().contains("dark-dialog")) {
+                alert.getDialogPane().getStyleClass().add("dark-dialog");
+            }
+        } else {
+            alert.getDialogPane().getStyleClass().remove("dark-dialog");
+        }
         alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
         Optional<ButtonType> ignored = alert.showAndWait();
     }
@@ -3383,6 +3385,7 @@ final class SavingsGoalsView {
             GoalsBackOfficeView backOfficeView = new GoalsBackOfficeView();
             Stage stage = new Stage();
             Scene scene = new Scene(backOfficeView.build(new SavingsUiController()), 1400, 860);
+            applySceneTheme(scene);
             stage.setTitle("Decide$ - Goals Back Office");
             Window owner = currentWindow();
             if (owner != null) {
@@ -3404,6 +3407,52 @@ final class SavingsGoalsView {
             return feedbackBox.getScene().getWindow();
         }
         return null;
+    }
+
+    private void toggleDarkMode(boolean enabled) {
+        darkModeEnabled = enabled;
+        preferences.putBoolean(THEME_PREFERENCE_KEY, enabled);
+        applyTheme();
+        showInfo(enabled ? "Dark mode activated." : "Light mode activated.");
+    }
+
+    private void updateThemeToggleButton() {
+        if (themeToggleButton == null) {
+            return;
+        }
+        themeToggleButton.setSelected(darkModeEnabled);
+        themeToggleButton.setText(darkModeEnabled ? "\u2600\uFE0F Light Mode" : "\uD83C\uDF19 Dark Mode");
+    }
+
+    private void applyTheme() {
+        updateThemeToggleButton();
+        if (rootContainer == null) {
+            return;
+        }
+        if (darkModeEnabled) {
+            if (!rootContainer.getStyleClass().contains("dark-mode")) {
+                rootContainer.getStyleClass().add("dark-mode");
+            }
+        } else {
+            rootContainer.getStyleClass().remove("dark-mode");
+        }
+    }
+
+    private void applySceneTheme(Scene scene) {
+        if (scene == null) {
+            return;
+        }
+        String stylesheet = SavingsGoalsView.class.getResource("/pi/savings/ui/savings-goals.css").toExternalForm();
+        if (!scene.getStylesheets().contains(stylesheet)) {
+            scene.getStylesheets().add(stylesheet);
+        }
+        if (darkModeEnabled) {
+            if (!scene.getRoot().getStyleClass().contains("dark-mode")) {
+                scene.getRoot().getStyleClass().add("dark-mode");
+            }
+        } else {
+            scene.getRoot().getStyleClass().remove("dark-mode");
+        }
     }
 
     private Button headerNavButton(String text, Runnable action) {
@@ -3460,6 +3509,7 @@ final class SavingsGoalsView {
             if (cssPath != null) {
                 scene.getStylesheets().add(Main.class.getResource(cssPath).toExternalForm());
             }
+            applySceneTheme(scene);
 
             stage.setUserData(userData);
             stage.setTitle(title);

@@ -3,6 +3,7 @@ module Pidev3A47 {
     requires javafx.fxml;
     requires javafx.web;
     requires java.net.http;
+    requires java.prefs;
     requires java.sql;
     requires java.desktop;
     requires com.fasterxml.jackson.databind;

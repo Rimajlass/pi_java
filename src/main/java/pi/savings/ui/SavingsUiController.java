@@ -3,6 +3,7 @@ package pi.savings.ui;
 import pi.entities.CalendarEvent;
 import pi.savings.dto.CalendarEventDTO;
 import pi.savings.dto.GoalAnalyticsDTO;
+import pi.savings.dto.PdfExportResultDTO;
 import pi.savings.dto.WhatIfScenarioDTO;
 import pi.savings.service.AiFinancialInsightService;
 import pi.savings.service.CsvExportService;
@@ -14,6 +15,7 @@ import pi.savings.service.SavingsModuleService.DashboardSnapshot;
 import pi.savings.service.SavingsModuleService.GoalSnapshot;
 import pi.savings.service.SavingsModuleService.SavingsModuleException;
 import pi.savings.service.SavingsStatsService;
+import pi.savings.service.SmartPdfReportService;
 import pi.savings.service.SavingsValidation.SavingsValidationException;
 
 import java.math.BigDecimal;
@@ -39,6 +41,7 @@ final class SavingsUiController {
     private PdfExportService pdfExportService;
     private GoalsAnalyticsService goalsAnalyticsService;
     private AiFinancialInsightService aiFinancialInsightService;
+    private SmartPdfReportService smartPdfReportService;
     private DashboardSnapshot snapshot;
     private String initializationFailureMessage;
     private String selectedCurrency = "TND";
@@ -446,6 +449,24 @@ final class SavingsUiController {
         }
     }
 
+    OperationResult safeGenerateSmartPdfReport(
+            String queryText,
+            String sortAttributeText,
+            String sortDirectionText,
+            Path exportDirectory
+    ) {
+        PdfExportResultDTO result = getSmartPdfReportService().generateSmartGoalsReport(
+                selectedCurrency,
+                queryText,
+                sortAttributeText,
+                sortDirectionText,
+                exportDirectory
+        );
+        return result.success()
+                ? OperationResult.success(result.userMessage())
+                : OperationResult.error(result.userMessage());
+    }
+
     record OperationResult(boolean success, String message) {
         static OperationResult success(String message) {
             return new OperationResult(true, message);
@@ -630,6 +651,13 @@ final class SavingsUiController {
         return aiFinancialInsightService;
     }
 
+    private SmartPdfReportService getSmartPdfReportService() {
+        if (smartPdfReportService == null) {
+            smartPdfReportService = new SmartPdfReportService();
+        }
+        return smartPdfReportService;
+    }
+
     private String resolveMessage(RuntimeException exception, String fallbackMessage) {
         if (exception instanceof SavingsModuleException savingsModuleException
                 && savingsModuleException.getMessage() != null
@@ -649,8 +677,7 @@ final class SavingsUiController {
             return true;
         }
 
-        return String.valueOf(goal.id()).contains(query)
-                || safeLower(goal.name()).contains(query)
+        return safeLower(goal.name()).contains(query)
                 || String.valueOf(goal.priority()).contains(query)
                 || goal.target().toPlainString().contains(query)
                 || goal.current().toPlainString().contains(query)
@@ -663,13 +690,11 @@ final class SavingsUiController {
             return true;
         }
 
-        return String.valueOf(row.id()).contains(query)
-                || safeLower(row.type()).contains(query)
+        return safeLower(row.type()).contains(query)
                 || row.date().toLocalDate().toString().contains(query)
                 || row.amount().toPlainString().contains(query)
                 || safeLower(row.description()).contains(query)
-                || safeLower(row.moduleSource()).contains(query)
-                || String.valueOf(row.userId()).contains(query);
+                || safeLower(row.moduleSource()).contains(query);
     }
 
     private String normalizeQuery(String rawValue) {

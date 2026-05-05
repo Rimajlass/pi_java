@@ -67,7 +67,7 @@ class SavingsModuleServiceTest {
         assertTrue(Files.exists(csv));
         assertTrue(Files.exists(pdf));
         assertTrue(Files.readString(csv, StandardCharsets.UTF_8).contains("monthly savings"));
-        assertTrue(Files.readString(csv, StandardCharsets.UTF_8).contains("GOAL_CONTRIBUTION"));
+        assertTrue(Files.readString(csv, StandardCharsets.UTF_8).contains("Goal Contribution"));
         assertTrue(Files.size(pdf) > 0);
         assertTrue(new String(Files.readAllBytes(pdf), StandardCharsets.ISO_8859_1).startsWith("%PDF-1.4"));
     }
