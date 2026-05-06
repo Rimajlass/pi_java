@@ -184,8 +184,19 @@ public final class AdminNavigation {
             case "unexpected events", "real cases" -> showWorkspace(stage, currentUser, key, AdminUnexpectedCasesBackOfficeFactory::buildWorkspace);
             case "savings" -> showWorkspace(stage, currentUser, key, AdminSavingsBackOfficeFactory::buildSavingsWorkspace);
             case "goals" -> showWorkspace(stage, currentUser, key, AdminSavingsBackOfficeFactory::buildGoalsWorkspace);
-            case "reports", "investments", "objectives", "reclamations", "statistics", "ai quiz generator" -> showPlaceholderModule(stage, currentUser, key);
+            case "investments" -> showWorkspace(stage, currentUser, key, AdminNavigation::buildInvestmentsWorkspace);
+            case "reports", "objectives", "reclamations", "statistics", "ai quiz generator" -> showPlaceholderModule(stage, currentUser, key);
             default -> showPlaceholderModule(stage, currentUser, key);
+        }
+    }
+
+    private static Node buildInvestmentsWorkspace() {
+        try {
+            FXMLLoader loader = FxmlResources.load(Main.class, "/Invest/admin.fxml");
+            Parent root = (Parent) loader.getRoot();
+            return detachContentWrapper(root);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to load investments workspace", e);
         }
     }
 

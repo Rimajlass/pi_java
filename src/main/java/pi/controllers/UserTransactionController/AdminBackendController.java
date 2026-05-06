@@ -37,6 +37,7 @@ import javafx.util.converter.DefaultStringConverter;
 import pi.controllers.CoursQuizController.AdminCoursesQuizBackOfficeFactory;
 import pi.controllers.ExpenseRevenueController.BACK.AdminRevenueExpenseBackOfficeFactory;
 import pi.controllers.ImprevusCasreelController.AdminUnexpectedCasesBackOfficeFactory;
+import pi.controllers.InvestissementController.AdminController;
 import pi.entities.User;
 import pi.mains.Main;
 import pi.savings.ui.AdminSavingsBackOfficeFactory;
@@ -650,6 +651,24 @@ public class AdminBackendController {
         }
     }
 
+    private void showInvestmentsWorkspace() {
+        try {
+            FXMLLoader loader = FxmlResources.load(Main.class, "/Invest/admin.fxml");
+            Parent root = (Parent) loader.getRoot();
+            Object raw = loader.getController();
+            if (raw instanceof AdminController controller && currentUser != null) {
+                controller.setUser(currentUser);
+            }
+            Stage stage = (Stage) headerLabel.getScene().getWindow();
+            Scene scene = new Scene(root, 1460, 780);
+            stage.setTitle("Investments | Decide$");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            showError("Navigation", chainMessages(e));
+        }
+    }
+
     private void routeMenuSelection(String menuKey) {
         String normalized = normalizeMenuKey(menuKey);
         switch (normalized) {
@@ -662,7 +681,8 @@ public class AdminBackendController {
             case "expenses" -> showExpenseWorkspace();
             case "savings" -> showSavingsWorkspace();
             case "goals" -> showGoalsWorkspace();
-            case "reports", "investments", "objectives", "reclamations", "statistics", "ai quiz generator" -> showPlaceholderWorkspace(menuKey);
+            case "investments" -> showInvestmentsWorkspace();
+            case "reports", "objectives", "reclamations", "statistics", "ai quiz generator" -> showPlaceholderWorkspace(menuKey);
             default -> showPlaceholderWorkspace(menuKey);
         }
     }
