@@ -272,15 +272,19 @@ public class SocialAuthService {
         String clientId = readConfig(clientIdKey);
         String clientSecret = readConfig(clientSecretKey);
         String redirectUri = readConfig(redirectUriKey);
-        if (clientId == null || clientId.isBlank() || clientSecret == null || clientSecret.isBlank() || redirectUri == null || redirectUri.isBlank()) {
+        if (isBlank(clientId) || isBlank(clientSecret) || isBlank(redirectUri)) {
             return false;
         }
         try {
             validateRedirectUri(redirectUri, redirectUriKey);
             return true;
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             return false;
         }
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 
     private URI validateRedirectUri(String value, String key) {
