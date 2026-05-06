@@ -289,8 +289,19 @@ public final class AdminNavigation {
         if (contentNode == null) {
             throw new IllegalStateException("content-wrapper not found");
         }
+        if (contentNode == root) {
+            AnchorPane.setTopAnchor(contentNode, 0.0);
+            AnchorPane.setRightAnchor(contentNode, 0.0);
+            AnchorPane.setBottomAnchor(contentNode, 0.0);
+            AnchorPane.setLeftAnchor(contentNode, 0.0);
+            return contentNode;
+        }
         if (!(contentNode.getParent() instanceof Pane parentPane)) {
-            throw new IllegalStateException("Unsupported parent for content-wrapper");
+            AnchorPane.setTopAnchor(contentNode, 0.0);
+            AnchorPane.setRightAnchor(contentNode, 0.0);
+            AnchorPane.setBottomAnchor(contentNode, 0.0);
+            AnchorPane.setLeftAnchor(contentNode, 0.0);
+            return contentNode;
         }
         parentPane.getChildren().remove(contentNode);
         AnchorPane.setTopAnchor(contentNode, 0.0);
