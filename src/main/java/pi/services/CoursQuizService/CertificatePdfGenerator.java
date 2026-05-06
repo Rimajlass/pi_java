@@ -7,6 +7,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 import java.awt.*;
@@ -17,6 +18,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public final class CertificatePdfGenerator {
+
+    private static final org.apache.pdfbox.pdmodel.font.PDFont FONT_HELVETICA =
+            new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+    private static final org.apache.pdfbox.pdmodel.font.PDFont FONT_HELVETICA_BOLD =
+            new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
 
     private CertificatePdfGenerator() {
     }
@@ -46,7 +52,7 @@ public final class CertificatePdfGenerator {
                 cs.fill();
 
                 cs.setNonStrokingColor(Color.WHITE);
-                drawCentered(cs, PDType1Font.HELVETICA_BOLD, 18, w / 2, h - 45, "Decide$ Learning");
+                drawCentered(cs, FONT_HELVETICA_BOLD, 18, w / 2, h - 45, "Decide$ Learning");
 
                 // Border
                 cs.setStrokingColor(new Color(15, 106, 166));
@@ -56,11 +62,11 @@ public final class CertificatePdfGenerator {
 
                 // Title
                 cs.setNonStrokingColor(new Color(16, 38, 58));
-                drawCentered(cs, PDType1Font.HELVETICA_BOLD, 28, w / 2, h - 140, "CERTIFICAT DE RÉUSSITE");
+                drawCentered(cs, FONT_HELVETICA_BOLD, 28, w / 2, h - 140, "CERTIFICAT DE RÉUSSITE");
 
                 // Subtitle
                 cs.setNonStrokingColor(new Color(79, 96, 115));
-                drawCentered(cs, PDType1Font.HELVETICA, 12, w / 2, h - 165, "Ce certificat atteste la réussite du quiz avec un score de performance.");
+                drawCentered(cs, FONT_HELVETICA, 12, w / 2, h - 165, "Ce certificat atteste la réussite du quiz avec un score de performance.");
 
                 String userName = safe(user == null ? "" : user.getNom());
                 String userEmail = safe(user == null ? "" : user.getEmail());
@@ -69,10 +75,10 @@ public final class CertificatePdfGenerator {
 
                 // Recipient
                 cs.setNonStrokingColor(new Color(16, 38, 58));
-                drawCentered(cs, PDType1Font.HELVETICA_BOLD, 20, w / 2, h - 220, userName.isBlank() ? "Étudiant" : userName);
+                drawCentered(cs, FONT_HELVETICA_BOLD, 20, w / 2, h - 220, userName.isBlank() ? "Étudiant" : userName);
                 if (!userEmail.isBlank()) {
                     cs.setNonStrokingColor(new Color(79, 96, 115));
-                    drawCentered(cs, PDType1Font.HELVETICA, 12, w / 2, h - 242, userEmail);
+                    drawCentered(cs, FONT_HELVETICA, 12, w / 2, h - 242, userEmail);
                 }
 
                 // Course box
@@ -89,19 +95,19 @@ public final class CertificatePdfGenerator {
                 cs.stroke();
 
                 cs.setNonStrokingColor(new Color(79, 96, 115));
-                drawText(cs, PDType1Font.HELVETICA_BOLD, 12, boxX + 18, boxY + boxH - 28, "Cours");
+                drawText(cs, FONT_HELVETICA_BOLD, 12, boxX + 18, boxY + boxH - 28, "Cours");
                 cs.setNonStrokingColor(new Color(16, 38, 58));
-                drawText(cs, PDType1Font.HELVETICA_BOLD, 16, boxX + 18, boxY + boxH - 52, truncate(coursTitle, 70));
+                drawText(cs, FONT_HELVETICA_BOLD, 16, boxX + 18, boxY + boxH - 52, truncate(coursTitle, 70));
 
                 cs.setNonStrokingColor(new Color(79, 96, 115));
-                drawText(cs, PDType1Font.HELVETICA, 12, boxX + 18, boxY + boxH - 78,
+                drawText(cs, FONT_HELVETICA, 12, boxX + 18, boxY + boxH - 78,
                         "Score: " + percentage + "%  •  Seuil: " + LearningCertificationService.PASS_THRESHOLD_PERCENT + "%");
 
                 // Footer
                 cs.setNonStrokingColor(new Color(79, 96, 115));
-                drawText(cs, PDType1Font.HELVETICA, 11, 70, 90, "Date: " + now);
-                drawText(cs, PDType1Font.HELVETICA, 11, 70, 72, "Code de vérification: " + safe(certificateCode));
-                drawText(cs, PDType1Font.HELVETICA, 10, 70, 52, "Généré automatiquement par Decide$.");
+                drawText(cs, FONT_HELVETICA, 11, 70, 90, "Date: " + now);
+                drawText(cs, FONT_HELVETICA, 11, 70, 72, "Code de vérification: " + safe(certificateCode));
+                drawText(cs, FONT_HELVETICA, 10, 70, 52, "Généré automatiquement par Decide$.");
             }
 
             doc.save(outputFile.toFile());
