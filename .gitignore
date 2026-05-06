@@ -50,3 +50,4 @@ config/ai.properties
 
 ### Generated artifacts ###
 certificates/
+.m2/
