@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="780.0" prefWidth="1300.0" styleClass="admin-root"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pi.controllers.InvestissementController.AdminController">
+    <stylesheets>
+        <URL value="@../styles/RevenueExpenseFRONT/salary-expense.css"/>
+        <URL value="@../pi/styles/admin-backend.css"/>
+    </stylesheets>
+    <children>
+
+        <!-- SIDEBAR -->
+        <VBox prefWidth="230.0" styleClass="side-nav"
+              AnchorPane.bottomAnchor="0.0"
+              AnchorPane.leftAnchor="0.0"
+              AnchorPane.topAnchor="0.0">
+            <children>
+                <VBox spacing="4.0" styleClass="brand-wrap">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                            <children>
+                                <Label styleClass="brand-label" text="Decide$" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <VBox spacing="5.0" styleClass="menu-list">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon">
+                                    <children><Label styleClass="menu-icon-text" text="&#x1F4C8;" /></children>
+                                </StackPane>
+                                <Label styleClass="menu-text" text="Crypto Market" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row menu-row-active menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon">
+                                    <children><Label styleClass="menu-icon-text" text="&#x1F4B0;" /></children>
+                                </StackPane>
+                                <Label styleClass="menu-text" text="Investissements" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon">
+                                    <children><Label styleClass="menu-icon-text" text="&#x1F3AF;" /></children>
+                                </StackPane>
+                                <Label styleClass="menu-text" text="Objectifs" />
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row menu-row-nav">
+                            <children>
+                                <StackPane styleClass="menu-icon">
+                                    <children><Label styleClass="menu-icon-text" text="&#x25D4;" /></children>
+                                </StackPane>
+                                <Label styleClass="menu-text" text="Statistiques" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS" />
+                <Separator styleClass="side-separator" />
+                <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="profile-box">
+                    <children>
+                        <StackPane styleClass="profile-avatar">
+                            <children>
+                                <Label styleClass="profile-avatar-text" text="&#x1F6E1;" />
+                            </children>
+                        </StackPane>
+                        <VBox spacing="1.0">
+                            <children>
+                                <Label styleClass="profile-name" text="Admin" />
+                                <Label styleClass="profile-role" text="Invest Panel" />
+                            </children>
+                        </VBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+                    </padding>
+                </HBox>
+            </children>
+            <padding>
+                <Insets bottom="16.0" left="12.0" right="12.0" top="20.0" />
+            </padding>
+        </VBox>
+
+        <!-- CONTENT AREA -->
+        <AnchorPane styleClass="content-wrapper"
+                    AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="230.0"
+                    AnchorPane.rightAnchor="0.0"
+                    AnchorPane.topAnchor="0.0">
+            <children>
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="content-scroll"
+                            AnchorPane.bottomAnchor="0.0"
+                            AnchorPane.leftAnchor="0.0"
+                            AnchorPane.rightAnchor="0.0"
+                            AnchorPane.topAnchor="0.0">
+                    <content>
+                        <VBox spacing="16.0" styleClass="content-root">
+                            <children>
+
+                                <!-- Page header -->
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <VBox spacing="4.0">
+                                            <children>
+                                                <Label styleClass="admin-title" text="Admin Dashboard" />
+                                                <Label styleClass="admin-subtitle" text="Manage investments and objectives from one workspace." />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+
+                                <!-- Summary metric cards -->
+                                <HBox spacing="14.0">
+                                    <children>
+                                        <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label styleClass="metric-title" text="INVESTISSEMENTS" />
+                                                <Label fx:id="totalInvestLabel" styleClass="metric-value" text="0" />
+                                                <Label styleClass="metric-title" text="Total" />
+                                            </children>
+                                        </VBox>
+                                        <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label styleClass="metric-title" text="MONTANT TOTAL" />
+                                                <Label fx:id="totalAmountLabel" styleClass="metric-value" text="0 USD" />
+                                                <Label styleClass="metric-title" text="Investi" />
+                                            </children>
+                                        </VBox>
+                                        <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label styleClass="metric-title" text="OBJECTIFS" />
+                                                <Label fx:id="totalObjLabel" styleClass="metric-value" text="0" />
+                                                <Label styleClass="metric-title" text="Total" />
+                                            </children>
+                                        </VBox>
+                                        <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label styleClass="metric-title" text="COMPLETE" />
+                                                <Label fx:id="completedObjLabel" styleClass="metric-value" text="0" />
+                                                <Label styleClass="metric-title" text="Objectifs atteints" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+
+                                <!-- PieChart -->
+                                <VBox spacing="10.0" styleClass="card">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                            <children>
+                                                <StackPane styleClass="section-icon">
+                                                    <children><Label styleClass="section-icon-text" text="&#x25D4;" /></children>
+                                                </StackPane>
+                                                <Label styleClass="card-title" text="Repartition des Objectifs" />
+                                            </children>
+                                        </HBox>
+                                        <HBox alignment="CENTER">
+                                            <children>
+                                                <PieChart fx:id="objectifChart" prefHeight="300" prefWidth="400" legendVisible="true" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <!-- Investments table -->
+                                <VBox spacing="10.0" styleClass="card">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                            <children>
+                                                <StackPane styleClass="section-icon">
+                                                    <children><Label styleClass="section-icon-text" text="&#x1F4B0;" /></children>
+                                                </StackPane>
+                                                <Label styleClass="card-title" text="Tous les Investissements" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <TextField fx:id="investSearch" promptText="Rechercher par crypto..."
+                                                           styleClass="filter-field" prefWidth="260" />
+                                            </children>
+                                        </HBox>
+                                        <TableView fx:id="investTable" styleClass="history-table"
+                                                   prefHeight="260" maxWidth="1.7976931348623157E308">
+                                            <columns>
+                                                <TableColumn fx:id="colCrypto" text="Crypto" prefWidth="160" />
+                                                <TableColumn fx:id="colAmount" text="Montant" prefWidth="140" />
+                                                <TableColumn fx:id="colQuantity" text="Quantite" prefWidth="130" />
+                                                <TableColumn fx:id="colProfitLoss" text="Gain/Perte (USD)" prefWidth="160" />
+                                                <TableColumn fx:id="colDeleteInvest" text="Supprimer" prefWidth="130" />
+                                            </columns>
+                                        </TableView>
+                                    </children>
+                                </VBox>
+
+                                <!-- Objectifs table -->
+                                <VBox spacing="10.0" styleClass="card">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                            <children>
+                                                <StackPane styleClass="section-icon">
+                                                    <children><Label styleClass="section-icon-text" text="&#x1F3AF;" /></children>
+                                                </StackPane>
+                                                <Label styleClass="card-title" text="Tous les Objectifs" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <TextField fx:id="objectifSearch" promptText="Rechercher par nom..."
+                                                           styleClass="filter-field" prefWidth="260" />
+                                            </children>
+                                        </HBox>
+                                        <TableView fx:id="objectifTable" styleClass="history-table"
+                                                   prefHeight="260" maxWidth="1.7976931348623157E308">
+                                            <columns>
+                                                <TableColumn fx:id="colName" text="Nom" prefWidth="150" />
+                                                <TableColumn fx:id="colInitial" text="Montant initial" prefWidth="130" />
+                                                <TableColumn fx:id="colTarget" text="Objectif" prefWidth="120" />
+                                                <TableColumn fx:id="colCurrent" text="Valeur actuelle" prefWidth="130" />
+                                                <TableColumn fx:id="colCompleted" text="Statut" prefWidth="110" />
+                                                <TableColumn fx:id="colModifyObj" text="Modifier" prefWidth="110" />
+                                                <TableColumn fx:id="colDeleteObj" text="Supprimer" prefWidth="110" />
+                                            </columns>
+                                        </TableView>
+                                    </children>
+                                </VBox>
+
+                            </children>
+                            <padding>
+                                <Insets bottom="20.0" left="18.0" right="18.0" top="16.0" />
+                            </padding>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </children>
+        </AnchorPane>
+
+    </children>
+</AnchorPane>

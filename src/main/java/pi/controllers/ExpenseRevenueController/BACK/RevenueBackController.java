@@ -21,13 +21,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import pi.controllers.ExpenseRevenueController.UPDATE.RevenueEditController;
 import pi.entities.Revenue;
 import pi.entities.User;
 import pi.mains.Main;
 import pi.services.RevenueExpenseService.RevenueService;
+import pi.services.UserTransactionService.TransactionService;
+import pi.tools.ThemeManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -53,6 +53,8 @@ public class RevenueBackController {
     @FXML
     private TextArea revenueDescriptionArea;
     @FXML
+    private Button revenueSubmitButton;
+    @FXML
     private TextField revenueSearchField;
     @FXML
     private ComboBox<String> revenueSortByComboBox;
@@ -76,9 +78,11 @@ public class RevenueBackController {
     private VBox menuList;
 
     private final RevenueService revenueService = new RevenueService();
+    private final TransactionService transactionService = new TransactionService();
     private final ObservableList<Revenue> revenues = FXCollections.observableArrayList();
     private final User currentUser = createCurrentUser();
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private Revenue editingRevenue;
 
     @FXML
     public void initialize() {
@@ -91,16 +95,35 @@ public class RevenueBackController {
     @FXML
     private void handleAddRevenue() {
         try {
-            Revenue revenue = new Revenue();
-            revenue.setUser(currentUser);
-            revenue.setAmount(parseAmount(revenueAmountField.getText(), "Revenue amount"));
-            revenue.setType(requireValue(revenueTypeComboBox.getValue(), "Revenue type"));
-            revenue.setReceivedAt(Objects.requireNonNullElse(revenueDatePicker.getValue(), LocalDate.now()));
-            revenue.setDescription(normalizeText(revenueDescriptionArea.getText()));
-            revenue.setCreatedAt(LocalDateTime.now());
+            double amount = parseAmount(revenueAmountField.getText(), "Revenue amount");
+            String type = normalizeRevenueType(requireValue(revenueTypeComboBox.getValue(), "Revenue type"));
+            LocalDate txDate = Objects.requireNonNullElse(revenueDatePicker.getValue(), LocalDate.now());
+            String description = normalizeText(revenueDescriptionArea.getText());
 
-            revenueService.add(revenue);
-            showInfo("Revenue added successfully.");
+            Revenue revenue = editingRevenue != null ? editingRevenue : new Revenue();
+            revenue.setUser(currentUser);
+            revenue.setAmount(amount);
+            revenue.setType(type);
+            revenue.setReceivedAt(txDate);
+            revenue.setDescription(description);
+            revenue.setCreatedAt(editingRevenue != null && editingRevenue.getCreatedAt() != null ? editingRevenue.getCreatedAt() : LocalDateTime.now());
+
+            boolean updating = editingRevenue != null;
+            if (updating) {
+                revenueService.update(revenue);
+                showInfo("Revenue updated successfully.");
+            } else {
+                revenueService.add(revenue);
+                transactionService.insertTransactionForUser(
+                        currentUser.getId(),
+                        "SAVING",
+                        amount,
+                        txDate,
+                        description,
+                        "revenue-back-office"
+                );
+                showInfo("Revenue added successfully.");
+            }
             clearRevenueForm();
             loadData();
         } catch (Exception exception) {
@@ -167,7 +190,15 @@ public class RevenueBackController {
             Parent root = FXMLLoader.load(Main.class.getResource(resource));
             Stage stage = new Stage();
             stage.setTitle(title);
-            stage.setScene(new Scene(root, 1460, 900));
+            Scene scene = new Scene(root, 1460, 900);
+            if (resource != null && resource.contains("/pi/mains/transactions-management-view.fxml")) {
+                scene.getStylesheets().add(Main.class.getResource("/pi/styles/admin-backend.css").toExternalForm());
+                scene.getStylesheets().add(Main.class.getResource("/pi/styles/user-show.css").toExternalForm());
+                scene.getStylesheets().add(Main.class.getResource("/pi/styles/edit-user.css").toExternalForm());
+                scene.getStylesheets().add(Main.class.getResource("/pi/styles/transactions-management.css").toExternalForm());
+                ThemeManager.registerScene(scene);
+            }
+            stage.setScene(scene);
             if (feedbackLabel != null && feedbackLabel.getScene() != null) {
                 stage.initOwner(feedbackLabel.getScene().getWindow());
             }
@@ -178,7 +209,7 @@ public class RevenueBackController {
     }
 
     private void configureFilters() {
-        revenueTypeComboBox.setItems(FXCollections.observableArrayList("FIXE", "BONUS", "FREELANCE", "OTHER"));
+        revenueTypeComboBox.setItems(FXCollections.observableArrayList("FIXED", "BONUS", "FREELANCE", "OTHER"));
         if (revenueSortByComboBox != null) {
             revenueSortByComboBox.setItems(FXCollections.observableArrayList("Date", "Amount", "Type", "Id"));
             revenueSortByComboBox.valueProperty().addListener((observable, oldValue, newValue) -> refreshRevenueTable());
@@ -196,15 +227,13 @@ public class RevenueBackController {
         revenueIdColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getId()));
         revenueDateColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(formatDate(cell.getValue().getReceivedAt())));
         revenueAmountColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getAmount()));
-        revenueTypeColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(nullSafe(cell.getValue().getType())));
+        revenueTypeColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(localizeRevenueType(cell.getValue().getType())));
         revenueDescriptionColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(nullSafe(cell.getValue().getDescription())));
         revenueActionColumn.setCellFactory(column -> new TableCell<>() {
-            private final Button editButton = createActionButton("Modify", "table-edit-button");
             private final Button deleteButton = new Button("Delete");
-            private final HBox actionBox = new HBox(8.0, editButton, deleteButton);
+            private final HBox actionBox = new HBox(8.0, deleteButton);
 
             {
-                editButton.setOnAction(event -> openRevenueEditDialog(getTableView().getItems().get(getIndex())));
                 deleteButton.setOnAction(event -> deleteRevenue(getTableView().getItems().get(getIndex())));
                 deleteButton.getStyleClass().add("table-delete-button");
             }
@@ -215,10 +244,19 @@ public class RevenueBackController {
                 setGraphic(empty ? null : actionBox);
             }
         });
+        revenueTable.setRowFactory(table -> {
+            TableRowWithRevenue row = new TableRowWithRevenue();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    startRevenueEdit(row.getItem());
+                }
+            });
+            return row;
+        });
     }
 
     private void configureFormDefaults() {
-        revenueTypeComboBox.setValue("FIXE");
+        revenueTypeComboBox.setValue("FIXED");
         if (revenueSortByComboBox != null) {
             revenueSortByComboBox.setValue("Date");
         }
@@ -226,6 +264,9 @@ public class RevenueBackController {
             revenueDirectionComboBox.setValue("Desc");
         }
         revenueDatePicker.setValue(LocalDate.now());
+        if (revenueSubmitButton != null) {
+            revenueSubmitButton.setText("Add Revenue");
+        }
         feedbackLabel.setText("Revenue interface ready.");
     }
 
@@ -259,7 +300,7 @@ public class RevenueBackController {
             return Comparator.comparingDouble(Revenue::getAmount);
         }
         if ("Type".equals(sortBy)) {
-            return Comparator.comparing(revenue -> nullSafe(revenue.getType()), String.CASE_INSENSITIVE_ORDER);
+            return Comparator.comparing(revenue -> localizeRevenueType(revenue.getType()), String.CASE_INSENSITIVE_ORDER);
         }
         if ("Id".equals(sortBy)) {
             return Comparator.comparingInt(Revenue::getId);
@@ -275,42 +316,21 @@ public class RevenueBackController {
         if (search.isBlank()) {
             return true;
         }
-        return nullSafe(revenue.getType()).toLowerCase(Locale.ROOT).contains(search)
+        return localizeRevenueType(revenue.getType()).toLowerCase(Locale.ROOT).contains(search)
                 || nullSafe(revenue.getDescription()).toLowerCase(Locale.ROOT).contains(search);
     }
 
     private void deleteRevenue(Revenue revenue) {
         try {
+            boolean wasEditingCurrentRevenue = editingRevenue != null && editingRevenue.getId() == revenue.getId();
             revenueService.delete(revenue.getId());
+            if (wasEditingCurrentRevenue) {
+                clearRevenueForm();
+            }
             showInfo("Revenue deleted.");
             loadData();
         } catch (SQLException exception) {
             showError("Unable to delete revenue: " + exception.getMessage());
-        }
-    }
-
-    private void openRevenueEditDialog(Revenue revenue) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Expense/Revenue/update/revenue-edit-view.fxml"));
-            Parent root = loader.load();
-
-            RevenueEditController controller = loader.getController();
-            controller.setRevenue(revenue);
-            controller.setOnSaved(() -> {
-                showInfo("Revenue updated successfully.");
-                loadData();
-            });
-
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            if (feedbackLabel != null && feedbackLabel.getScene() != null) {
-                stage.initOwner(feedbackLabel.getScene().getWindow());
-            }
-            stage.setTitle("Modify Revenue");
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
-        } catch (IOException exception) {
-            showError("Unable to open revenue editor: " + exception.getMessage());
         }
     }
 
@@ -341,10 +361,48 @@ public class RevenueBackController {
     }
 
     private void clearRevenueForm() {
+        editingRevenue = null;
         revenueAmountField.clear();
         revenueDescriptionArea.clear();
         revenueDatePicker.setValue(LocalDate.now());
-        revenueTypeComboBox.setValue("FIXE");
+        revenueTypeComboBox.setValue("FIXED");
+        if (revenueTable != null) {
+            revenueTable.getSelectionModel().clearSelection();
+        }
+        if (revenueSubmitButton != null) {
+            revenueSubmitButton.setText("Add Revenue");
+        }
+    }
+
+    private void startRevenueEdit(Revenue revenue) {
+        if (revenue == null) {
+            return;
+        }
+        editingRevenue = revenue;
+        revenueAmountField.setText(String.format(Locale.US, "%.2f", revenue.getAmount()));
+        revenueTypeComboBox.setValue(localizeRevenueType(revenue.getType()));
+        revenueDatePicker.setValue(Objects.requireNonNullElse(revenue.getReceivedAt(), LocalDate.now()));
+        revenueDescriptionArea.setText(nullSafe(revenue.getDescription()));
+        if (revenueSubmitButton != null) {
+            revenueSubmitButton.setText("Update Revenue");
+        }
+        showInfo("Revenue loaded. Double-click another row to edit it, then click Update Revenue.");
+    }
+
+    private String normalizeRevenueType(String value) {
+        if (value == null) {
+            return "";
+        }
+        return switch (value.trim().toUpperCase(Locale.ROOT)) {
+            case "FIXE", "FIXED" -> "FIXED";
+            case "BONUS" -> "BONUS";
+            case "FREELANCE" -> "FREELANCE";
+            default -> "OTHER";
+        };
+    }
+
+    private String localizeRevenueType(String value) {
+        return normalizeRevenueType(value);
     }
 
     private void showInfo(String message) {
@@ -375,5 +433,8 @@ public class RevenueBackController {
         User user = new User();
         user.setId(1);
         return user;
+    }
+
+    private static final class TableRowWithRevenue extends javafx.scene.control.TableRow<Revenue> {
     }
 }

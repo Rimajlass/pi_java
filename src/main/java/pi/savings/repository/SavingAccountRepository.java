@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class SavingAccountRepository {
@@ -97,6 +99,47 @@ public class SavingAccountRepository {
         return connection;
     }
 
+    public Optional<SavingAccountDetails> findLatestDetailsByUserId(int userId) throws SQLException {
+        String sql = """
+                SELECT sa.id, sa.user_id, sa.sold, sa.date_creation, sa.taux_interet,
+                       u.nom AS user_name, u.email AS user_email
+                FROM saving_account sa
+                LEFT JOIN `user` u ON u.id = sa.user_id
+                WHERE sa.user_id = ?
+                ORDER BY sa.id DESC
+                LIMIT 1
+                """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return Optional.of(mapDetails(resultSet));
+                }
+                return Optional.empty();
+            }
+        }
+    }
+
+    public List<SavingAccountDetails> findAllDetailedAccounts() throws SQLException {
+        String sql = """
+                SELECT sa.id, sa.user_id, sa.sold, sa.date_creation, sa.taux_interet,
+                       u.nom AS user_name, u.email AS user_email
+                FROM saving_account sa
+                LEFT JOIN `user` u ON u.id = sa.user_id
+                ORDER BY sa.sold DESC, sa.id DESC
+                """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+            List<SavingAccountDetails> rows = new ArrayList<>();
+            while (resultSet.next()) {
+                rows.add(mapDetails(resultSet));
+            }
+            return rows;
+        }
+    }
+
     private SavingAccount map(ResultSet resultSet) throws SQLException {
         SavingAccount savingAccount = new SavingAccount();
         savingAccount.setId(resultSet.getInt("id"));
@@ -105,5 +148,28 @@ public class SavingAccountRepository {
         savingAccount.setDateCreation(resultSet.getDate("date_creation"));
         savingAccount.setTauxInteret(resultSet.getDouble("taux_interet"));
         return savingAccount;
+    }
+
+    private SavingAccountDetails mapDetails(ResultSet resultSet) throws SQLException {
+        return new SavingAccountDetails(
+                resultSet.getInt("id"),
+                resultSet.getInt("user_id"),
+                resultSet.getString("user_name"),
+                resultSet.getString("user_email"),
+                resultSet.getBigDecimal("sold").setScale(2, java.math.RoundingMode.HALF_UP),
+                resultSet.getDate("date_creation").toLocalDate(),
+                resultSet.getBigDecimal("taux_interet").setScale(2, java.math.RoundingMode.HALF_UP)
+        );
+    }
+
+    public record SavingAccountDetails(
+            int accountId,
+            int userId,
+            String userName,
+            String userEmail,
+            BigDecimal balance,
+            LocalDate createdOn,
+            BigDecimal interestRate
+    ) {
     }
 }

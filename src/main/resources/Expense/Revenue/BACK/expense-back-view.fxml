@@ -188,7 +188,7 @@
                                                 <ComboBox fx:id="expenseRevenueComboBox" maxWidth="1.7976931348623157E308" GridPane.columnIndex="0" GridPane.rowIndex="9" />
                                             </children>
                                         </GridPane>
-                                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleAddExpense" styleClass="primary-button" text="Add Expense" />
+                                        <Button fx:id="expenseSubmitButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleAddExpense" styleClass="primary-button" text="Add Expense" />
                                     </children>
                                 </VBox>
 
@@ -203,7 +203,7 @@
                                                 <TableColumn fx:id="expenseCategoryColumn" prefWidth="150.0" text="Category" />
                                                 <TableColumn fx:id="expenseDescriptionColumn" prefWidth="220.0" text="Description" />
                                                 <TableColumn fx:id="expenseRevenueColumn" prefWidth="180.0" text="Linked Revenue" />
-                                                <TableColumn fx:id="expenseActionColumn" prefWidth="180.0" text="Actions" />
+                                                <TableColumn fx:id="expenseActionColumn" prefWidth="110.0" text="Actions" />
                                             </columns>
                                         </TableView>
                                     </children>

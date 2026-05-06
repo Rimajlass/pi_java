@@ -1,21 +1,39 @@
 package pi.controllers.UserTransactionController;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.ScaleTransition;
+import javafx.animation.TranslateTransition;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+import javafx.util.converter.DefaultStringConverter;
 import pi.controllers.CoursQuizController.AdminCoursesQuizBackOfficeFactory;
 import pi.controllers.ExpenseRevenueController.BACK.AdminRevenueExpenseBackOfficeFactory;
 import pi.controllers.ImprevusCasreelController.AdminUnexpectedCasesBackOfficeFactory;
@@ -24,12 +42,22 @@ import pi.mains.Main;
 import pi.savings.ui.AdminSavingsBackOfficeFactory;
 import pi.tools.AdminNavigation;
 import pi.tools.FxmlResources;
+import pi.tools.ThemeManager;
+import pi.tools.UiDialog;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
+import javafx.util.Duration;
 
 public class AdminBackendController {
 
@@ -67,10 +95,25 @@ public class AdminBackendController {
     private ComboBox<String> orderFilterCombo;
 
     @FXML
-    private VBox adminsRowsBox;
+    private TableView<User> usersTable;
 
     @FXML
-    private VBox usersRowsBox;
+    private TableColumn<User, User> avatarColumn;
+
+    @FXML
+    private TableColumn<User, String> nameColumn;
+
+    @FXML
+    private TableColumn<User, String> emailColumn;
+
+    @FXML
+    private TableColumn<User, String> roleColumn;
+
+    @FXML
+    private TableColumn<User, String> balanceColumn;
+
+    @FXML
+    private TableColumn<User, User> actionsColumn;
 
     @FXML
     private VBox menuList;
@@ -84,9 +127,34 @@ public class AdminBackendController {
     @FXML
     private Button addUserButton;
 
+    @FXML
+    private Button myProfileButton;
+
+    @FXML
+    private Button editProfileButton;
+
+    @FXML
+    private Button applyFiltersButton;
+
+    @FXML
+    private Button resetFiltersButton;
+
+    @FXML
+    private VBox searchCard;
+
+    @FXML
+    private VBox usersCard;
+
+    @FXML
+    private Label resultsTextLabel;
+
     private final UserController userController = new UserController();
+    private final ObservableList<User> tableUsers = FXCollections.observableArrayList();
+    private final Map<String, Image> avatarImageCache = new HashMap<>();
     private final DecimalFormat moneyFormat = new DecimalFormat("#,##0.00");
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
     private User currentUser;
+    private String defaultHeaderSubtitle;
     private Parent savingsWorkspace;
     private Parent goalsWorkspace;
     private Parent courseQuizWorkspace;
@@ -94,6 +162,7 @@ public class AdminBackendController {
     private Parent expenseWorkspace;
     private Parent unexpectedWorkspace;
     private Parent realCasesWorkspace;
+    private Parent transactionsWorkspace;
 
     @FXML
     public void initialize() {
@@ -105,6 +174,10 @@ public class AdminBackendController {
         sortFilterCombo.setValue("Sort by name");
         orderFilterCombo.setValue("ASC");
 
+        defaultHeaderSubtitle = headerSubtitle != null ? headerSubtitle.getText() : "";
+        configureUsersTable();
+        installButtonEffects();
+        playSectionEntrance();
         loadUsers();
     }
 
@@ -115,25 +188,19 @@ public class AdminBackendController {
         this.currentUser = user;
         headerLabel.setText("Users");
         userLabel.setText(valueOrDash(user.getNom()));
-        roleLabel.setText("Admin Panel");
+        roleLabel.setText("Online");
         loadUsers();
     }
 
     @FXML
     private void handleNavTransactions() {
-        if (currentUser == null) {
-            return;
-        }
-        try {
-            AdminNavigation.showTransactionsManagement((Stage) headerLabel.getScene().getWindow(), currentUser);
-        } catch (Exception e) {
-            showError("Navigation", e.getMessage() != null ? e.getMessage() : String.valueOf(e));
-        }
+        showTransactionsWorkspace();
     }
 
     @FXML
     private void handleSidebarSelection(MouseEvent event) {
-        if (!(event.getSource() instanceof HBox selectedRow) || menuList == null) {
+        HBox selectedRow = resolveMenuRow(event);
+        if (selectedRow == null || menuList == null) {
             return;
         }
 
@@ -146,20 +213,9 @@ public class AdminBackendController {
             selectedRow.getStyleClass().add("menu-row-active");
         }
 
-        if (selectedRow.getChildren().size() >= 2 && selectedRow.getChildren().get(1) instanceof Label menuLabel) {
-            String key = menuLabel.getText();
-            switch (key.toLowerCase()) {
-                case "users" -> showUsersWorkspace();
-                case "transactions" -> handleNavTransactions();
-                case "course & quiz" -> showCourseQuizWorkspace();
-                case "unexpected events" -> showUnexpectedWorkspace();
-                case "real cases" -> showRealCasesWorkspace();
-                case "revenues" -> showRevenueWorkspace();
-                case "expenses" -> showExpenseWorkspace();
-                case "savings" -> showSavingsWorkspace();
-                case "goals" -> showGoalsWorkspace();
-                default -> showPlaceholderWorkspace(key);
-            }
+        String menuKey = extractMenuKey(selectedRow);
+        if (!menuKey.isEmpty()) {
+            routeMenuSelection(menuKey);
         }
     }
 
@@ -191,24 +247,11 @@ public class AdminBackendController {
 
     @FXML
     private void handleAddUser() {
-        try {
-            FXMLLoader loader = FxmlResources.load(Main.class, "/pi/mains/add-user-view.fxml");
-            Parent root = (Parent) loader.getRoot();
-            AddUserController controller = loader.getController();
-
-            Stage stage = (Stage) headerLabel.getScene().getWindow();
-            Scene scene = new Scene(root, 1460, 780);
-            FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/user-show.css");
-            FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/edit-user.css");
-
-            stage.setTitle("Create User");
-            stage.setScene(scene);
-            stage.show();
-
-            controller.setContext(currentUser);
-        } catch (Exception e) {
-            showError("Navigation error", "Unable to open create user form:\n" + chainMessages(e));
+        if (currentUser == null || headerLabel == null || headerLabel.getScene() == null) {
+            return;
         }
+        Stage stage = (Stage) headerLabel.getScene().getWindow();
+        AdminNavigation.showUserCreate(stage, currentUser);
     }
 
     @FXML
@@ -225,6 +268,233 @@ public class AdminBackendController {
         loadUsers();
     }
 
+    private void configureUsersTable() {
+        if (usersTable == null) {
+            return;
+        }
+
+        usersTable.setEditable(true);
+        usersTable.setItems(tableUsers);
+
+        avatarColumn.setEditable(false);
+        avatarColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
+        avatarColumn.setCellFactory(col -> new TableCell<>() {
+            private final ImageView imageView = new ImageView();
+            private final Label fallbackLabel = new Label();
+            private final StackPane avatarShell = new StackPane();
+
+            {
+                imageView.setFitWidth(34);
+                imageView.setFitHeight(34);
+                imageView.setPreserveRatio(true);
+                imageView.setSmooth(true);
+                imageView.setClip(new Circle(17, 17, 17));
+
+                fallbackLabel.getStyleClass().add("avatar-fallback-text");
+                avatarShell.getStyleClass().add("avatar-shell-cell");
+                avatarShell.getChildren().addAll(imageView, fallbackLabel);
+
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            }
+
+            @Override
+            protected void updateItem(User user, boolean empty) {
+                super.updateItem(user, empty);
+                if (!getStyleClass().contains("avatar-table-cell")) {
+                    getStyleClass().add("avatar-table-cell");
+                }
+                if (empty || user == null) {
+                    setGraphic(null);
+                    return;
+                }
+
+                Image avatarImage = loadUserAvatarImage(user.getImage());
+                if (avatarImage != null) {
+                    imageView.setImage(avatarImage);
+                    imageView.setVisible(true);
+                    fallbackLabel.setVisible(false);
+                } else {
+                    imageView.setImage(null);
+                    imageView.setVisible(false);
+                    fallbackLabel.setText(getInitial(user.getNom()));
+                    fallbackLabel.setVisible(true);
+                }
+                setGraphic(avatarShell);
+            }
+        });
+
+        nameColumn.setEditable(true);
+        nameColumn.setCellValueFactory(cell -> new SimpleStringProperty(valueOrDash(cell.getValue().getNom())));
+        nameColumn.setCellFactory(col -> createEditableTextCell());
+        nameColumn.setOnEditCommit(this::handleNameEditCommit);
+
+        emailColumn.setEditable(true);
+        emailColumn.setCellValueFactory(cell -> new SimpleStringProperty(valueOrDash(cell.getValue().getEmail())));
+        emailColumn.setCellFactory(col -> createEditableTextCell());
+        emailColumn.setOnEditCommit(this::handleEmailEditCommit);
+
+        roleColumn.setEditable(false);
+        roleColumn.setCellValueFactory(cell -> new SimpleStringProperty(resolveRoleLabel(cell.getValue())));
+        roleColumn.setCellFactory(col -> new TableCell<>() {
+            private final Label roleTag = new Label();
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                    return;
+                }
+                User rowUser = getTableRow() != null ? getTableRow().getItem() : null;
+                roleTag.setText(item);
+                roleTag.getStyleClass().setAll("tag", rowUser == null ? "tag-user" : resolveRoleStyle(rowUser));
+                setGraphic(roleTag);
+            }
+        });
+
+        balanceColumn.setEditable(false);
+        balanceColumn.setCellValueFactory(cell -> new SimpleStringProperty(moneyFormat.format(cell.getValue().getSoldeTotal()) + " TND"));
+        balanceColumn.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    getStyleClass().remove("col-balance");
+                    return;
+                }
+                setText(item);
+                if (!getStyleClass().contains("col-balance")) {
+                    getStyleClass().add("col-balance");
+                }
+            }
+        });
+
+        actionsColumn.setEditable(false);
+        actionsColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
+        actionsColumn.setCellFactory(col -> new TableCell<>() {
+            private final Button showButton = new Button("Show");
+            private final Button editButton = new Button("Edit");
+            private final HBox box = new HBox(6, showButton, editButton);
+
+            {
+                showButton.getStyleClass().add("action-outline");
+                editButton.getStyleClass().add("action-solid");
+                installRowButtonEffect(showButton, false);
+                installRowButtonEffect(editButton, true);
+                showButton.setOnAction(event -> {
+                    User user = getItem();
+                    if (user != null) {
+                        openUserShow(user);
+                    }
+                });
+                editButton.setOnAction(event -> {
+                    User user = getItem();
+                    if (user != null) {
+                        openUserEdit(user);
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(User item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty || item == null ? null : box);
+            }
+        });
+    }
+
+    private TableCell<User, String> createEditableTextCell() {
+        TextFieldTableCell<User, String> cell = new TextFieldTableCell<>(new DefaultStringConverter());
+        cell.setOnMouseClicked(event -> {
+            if (event.getButton() != MouseButton.PRIMARY || event.getClickCount() != 2 || cell.isEmpty()) {
+                return;
+            }
+            TableView<User> table = cell.getTableView();
+            TableColumn<User, String> column = cell.getTableColumn();
+            if (table != null && column != null) {
+                table.getSelectionModel().clearAndSelect(cell.getIndex(), column);
+                table.edit(cell.getIndex(), column);
+                event.consume();
+            }
+        });
+        return cell;
+    }
+
+    private void handleNameEditCommit(TableColumn.CellEditEvent<User, String> event) {
+        User user = event.getRowValue();
+        if (user == null) {
+            return;
+        }
+
+        String previousValue = valueOrEmpty(user.getNom());
+        String newValue = clean(event.getNewValue());
+
+        if (newValue.equals(previousValue)) {
+            return;
+        }
+        if (newValue.length() < 2) {
+            showError("Validation", "Le nom doit contenir au moins 2 caractères.");
+            usersTable.refresh();
+            return;
+        }
+
+        user.setNom(newValue);
+        persistInlineUserUpdate(
+                user,
+                () -> user.setNom(previousValue),
+                "Nom mis à jour."
+        );
+    }
+
+    private void handleEmailEditCommit(TableColumn.CellEditEvent<User, String> event) {
+        User user = event.getRowValue();
+        if (user == null) {
+            return;
+        }
+
+        String previousValue = valueOrEmpty(user.getEmail());
+        String newValue = clean(event.getNewValue()).toLowerCase(Locale.ROOT);
+
+        if (newValue.equals(previousValue)) {
+            return;
+        }
+        if (!isValidEmail(newValue)) {
+            showError("Email invalide", "Veuillez saisir une adresse email valide avant la sauvegarde.");
+            usersTable.refresh();
+            return;
+        }
+
+        user.setEmail(newValue);
+        persistInlineUserUpdate(
+                user,
+                () -> user.setEmail(previousValue),
+                "Email mis à jour."
+        );
+    }
+
+    private void persistInlineUserUpdate(User user, Runnable rollbackAction, String successMessage) {
+        try {
+            userController.edit(user, null);
+            usersTable.refresh();
+            showInlineSuccess(successMessage);
+        } catch (Exception e) {
+            rollbackAction.run();
+            usersTable.refresh();
+            showError("Mise à jour", e.getMessage());
+        }
+    }
+
+    private void showInlineSuccess(String message) {
+        if (headerSubtitle == null) {
+            return;
+        }
+        headerSubtitle.setText(message);
+        PauseTransition resetMessageTimer = new PauseTransition(Duration.seconds(2.4));
+        resetMessageTimer.setOnFinished(event -> headerSubtitle.setText(defaultHeaderSubtitle));
+        resetMessageTimer.play();
+    }
+
     private void loadUsers() {
         try {
             String search = clean(searchField.getText());
@@ -237,21 +507,13 @@ public class AdminBackendController {
             String order = "DESC".equalsIgnoreCase(orderFilterCombo.getValue()) ? "DESC" : "ASC";
 
             List<User> allUsers = userController.index(search, role, sortBy, order);
-            List<User> admins = new ArrayList<>();
-            List<User> regularUsers = new ArrayList<>();
-
-            for (User user : allUsers) {
-                boolean isCurrent = currentUser != null && currentUser.getId() == user.getId();
-                if (user.hasRole("ROLE_ADMIN") || isCurrent) {
-                    admins.add(user);
-                } else {
-                    regularUsers.add(user);
-                }
+            avatarImageCache.clear();
+            tableUsers.setAll(allUsers);
+            updateMetrics(allUsers);
+            updateResultsFooter(allUsers.size());
+            if (usersTable != null) {
+                usersTable.refresh();
             }
-
-            renderRows(adminsRowsBox, admins, true);
-            renderRows(usersRowsBox, regularUsers, false);
-            updateMetrics(allUsers, admins);
         } catch (Exception e) {
             showError("Erreur de chargement", e.getMessage());
         }
@@ -260,6 +522,7 @@ public class AdminBackendController {
     private void showUsersWorkspace() {
         headerLabel.setText("Users");
         headerSubtitle.setText("Manage admin and user accounts from one workspace.");
+        defaultHeaderSubtitle = headerSubtitle.getText();
         if (addUserButton != null) {
             addUserButton.setManaged(true);
             addUserButton.setVisible(true);
@@ -361,6 +624,87 @@ public class AdminBackendController {
         replaceWorkspace(goalsWorkspace);
     }
 
+    private void routeMenuSelection(String menuKey) {
+        String normalized = normalizeMenuKey(menuKey);
+        switch (normalized) {
+            case "users" -> showUsersWorkspace();
+            case "transactions" -> showTransactionsWorkspace();
+            case "course & quiz" -> showCourseQuizWorkspace();
+            case "unexpected events" -> showUnexpectedWorkspace();
+            case "real cases" -> showRealCasesWorkspace();
+            case "revenues" -> showRevenueWorkspace();
+            case "expenses" -> showExpenseWorkspace();
+            case "savings" -> showSavingsWorkspace();
+            case "goals" -> showGoalsWorkspace();
+            case "reports", "investments", "objectives", "reclamations", "statistics", "ai quiz generator" -> showPlaceholderWorkspace(menuKey);
+            default -> showPlaceholderWorkspace(menuKey);
+        }
+    }
+
+    private HBox resolveMenuRow(MouseEvent event) {
+        if (event == null) {
+            return null;
+        }
+        Object source = event.getSource();
+        if (source instanceof HBox row && row.getStyleClass().contains("menu-row")) {
+            return row;
+        }
+        if (!(event.getTarget() instanceof Node node)) {
+            return null;
+        }
+        Node current = node;
+        while (current != null) {
+            if (current instanceof HBox row && row.getStyleClass().contains("menu-row")) {
+                return row;
+            }
+            current = current.getParent();
+        }
+        return null;
+    }
+
+    private String extractMenuKey(HBox row) {
+        if (row == null) {
+            return "";
+        }
+        for (Node child : row.getChildren()) {
+            if (child instanceof Label label) {
+                return label.getText() == null ? "" : label.getText();
+            }
+        }
+        return "";
+    }
+
+    private String normalizeMenuKey(String key) {
+        if (key == null) {
+            return "";
+        }
+        return key
+                .replace('\u00A0', ' ')
+                .trim()
+                .replaceAll("\\s+", " ")
+                .toLowerCase(Locale.ROOT);
+    }
+
+    private void showTransactionsWorkspace() {
+        if (headerLabel != null && headerLabel.getScene() != null && headerLabel.getScene().getWindow() instanceof Stage stage && currentUser != null) {
+            AdminNavigation.showTransactionsManagement(stage, currentUser);
+            return;
+        }
+        loadContent(
+                "/pi/mains/transactions-management-view.fxml",
+                "Transactions",
+                "Track, filter and create transactions in a structured workspace.",
+                false,
+                TransactionsManagementController.class,
+                controller -> {
+                    if (currentUser != null) {
+                        controller.setContext(currentUser);
+                    }
+                }
+        );
+        ensureTransactionsStylesheet();
+    }
+
     private void showPlaceholderWorkspace(String key) {
         headerLabel.setText(key);
         headerSubtitle.setText("This module is not connected yet. The admin sidebar remains available for navigation.");
@@ -386,123 +730,140 @@ public class AdminBackendController {
         }
     }
 
-    private void updateMetrics(List<User> allUsers, List<User> admins) {
+    private <T> void loadContent(
+            String fxmlPath,
+            String title,
+            String subtitle,
+            boolean showAddUser,
+            Class<T> controllerClass,
+            Consumer<T> controllerInitializer
+    ) {
+        try {
+            FXMLLoader loader = FxmlResources.load(Main.class, fxmlPath);
+            Parent root = (Parent) loader.getRoot();
+            Object rawController = loader.getController();
+            if (controllerClass != null && !controllerClass.isInstance(rawController)) {
+                throw new IllegalStateException("Unexpected controller for " + fxmlPath);
+            }
+            if (controllerClass != null && controllerInitializer != null) {
+                controllerInitializer.accept(controllerClass.cast(rawController));
+            }
+            headerLabel.setText(title);
+            headerSubtitle.setText(subtitle);
+            if (addUserButton != null) {
+                addUserButton.setManaged(showAddUser);
+                addUserButton.setVisible(showAddUser);
+            }
+            replaceWorkspace(root);
+        } catch (Exception e) {
+            showError("Navigation", chainMessages(e));
+        }
+    }
+
+    private void ensureTransactionsStylesheet() {
+        if (headerLabel == null || headerLabel.getScene() == null) {
+            return;
+        }
+        Scene scene = headerLabel.getScene();
+        String txCss = Main.class.getResource("/pi/styles/transactions-management.css").toExternalForm();
+        if (!scene.getStylesheets().contains(txCss)) {
+            scene.getStylesheets().add(txCss);
+        }
+        ThemeManager.registerScene(scene);
+    }
+
+    private void updateMetrics(List<User> allUsers) {
+        int adminsCount = (int) allUsers.stream()
+                .filter(user -> user.hasRole("ROLE_ADMIN"))
+                .count();
         int activeToday = (int) allUsers.stream()
                 .filter(user -> user.getDateInscription() != null && user.getDateInscription().isEqual(LocalDate.now()))
                 .count();
 
         totalUsersMetric.setText(String.valueOf(allUsers.size()));
-        adminsMetric.setText(String.valueOf(admins.size()));
+        adminsMetric.setText(String.valueOf(adminsCount));
         activeTodayMetric.setText(String.valueOf(activeToday));
     }
 
-    private void renderRows(VBox container, List<User> users, boolean adminSection) {
-        container.getChildren().clear();
-
-        if (users.isEmpty()) {
-            HBox emptyRow = new HBox();
-            emptyRow.getStyleClass().add("table-row");
-            Label emptyText = new Label(adminSection ? "No administrator found." : "No user found.");
-            emptyText.getStyleClass().add("cell-text");
-            emptyRow.getChildren().add(emptyText);
-            container.getChildren().add(emptyRow);
-            return;
-        }
-
-        for (User user : users) {
-            container.getChildren().add(createUserRow(user, adminSection));
-        }
+    private void playSectionEntrance() {
+        playCardFade(searchCard, 0);
+        playCardFade(usersCard, 90);
     }
 
-    private HBox createUserRow(User user, boolean adminSection) {
-        HBox row = new HBox();
-        row.getStyleClass().add("table-row");
+    private void playCardFade(Node node, int delayMs) {
+        if (node == null) {
+            return;
+        }
+        node.setOpacity(0.0);
+        node.setTranslateY(8);
+        FadeTransition fade = new FadeTransition(Duration.millis(260), node);
+        fade.setFromValue(0.0);
+        fade.setToValue(1.0);
+        fade.setDelay(Duration.millis(delayMs));
+        TranslateTransition lift = new TranslateTransition(Duration.millis(260), node);
+        lift.setFromY(8);
+        lift.setToY(0);
+        lift.setDelay(Duration.millis(delayMs));
+        fade.play();
+        lift.play();
+    }
 
-        HBox nameCell = new HBox(8);
-        nameCell.setAlignment(Pos.CENTER_LEFT);
-        nameCell.getStyleClass().add("col-name");
+    private void installButtonEffects() {
+        installStaticButtonEffect(addUserButton, true);
+        installStaticButtonEffect(applyFiltersButton, true);
+        installStaticButtonEffect(myProfileButton, false);
+        installStaticButtonEffect(editProfileButton, false);
+        installStaticButtonEffect(resetFiltersButton, false);
+    }
 
-        StackPane avatar = new StackPane();
-        avatar.getStyleClass().add("user-avatar");
-        Label avatarText = new Label(getInitial(user.getNom()));
-        avatarText.getStyleClass().add("user-avatar-text");
-        avatar.getChildren().add(avatarText);
+    private void installStaticButtonEffect(Button button, boolean primary) {
+        if (button == null) {
+            return;
+        }
+        DropShadow shadow = new DropShadow();
+        shadow.setRadius(primary ? 16 : 10);
+        shadow.setSpread(primary ? 0.24 : 0.16);
+        shadow.setOffsetY(2);
+        shadow.setColor(primary ? Color.rgb(76, 185, 255, 0.46) : Color.rgb(98, 142, 206, 0.24));
+        button.setEffect(shadow);
 
-        Label nameLabel = new Label(valueOrDash(user.getNom()));
-        nameLabel.getStyleClass().add("cell-text");
-        nameCell.getChildren().addAll(avatar, nameLabel);
+        button.setOnMouseEntered(event -> animateButtonScale(button, 1.05));
+        button.setOnMouseExited(event -> animateButtonScale(button, 1.0));
+    }
 
-        Label emailLabel = new Label(valueOrDash(user.getEmail()));
-        emailLabel.getStyleClass().addAll("col-email", "cell-text");
+    private void installRowButtonEffect(Button button, boolean primary) {
+        DropShadow shadow = new DropShadow();
+        shadow.setRadius(primary ? 12 : 8);
+        shadow.setSpread(primary ? 0.22 : 0.12);
+        shadow.setOffsetY(1);
+        shadow.setColor(primary ? Color.rgb(66, 186, 255, 0.35) : Color.rgb(121, 181, 243, 0.24));
+        button.setEffect(shadow);
 
-        StackPane roleCell = new StackPane();
-        roleCell.getStyleClass().add("col-role");
-        Label roleTag = new Label(resolveRoleLabel(user, adminSection));
-        roleTag.getStyleClass().addAll("tag", resolveRoleStyle(user, adminSection));
-        roleCell.getChildren().add(roleTag);
+        button.setOnMouseEntered(event -> animateButtonScale(button, primary ? 1.05 : 1.03));
+        button.setOnMouseExited(event -> animateButtonScale(button, 1.0));
+    }
 
-        Label balanceLabel = new Label(moneyFormat.format(user.getSoldeTotal()) + " TND");
-        balanceLabel.getStyleClass().addAll("col-balance", "cell-text");
-
-        HBox actionsCell = new HBox(6);
-        actionsCell.setAlignment(Pos.CENTER_LEFT);
-        actionsCell.getStyleClass().add("col-actions");
-
-        Button showButton = new Button("Show");
-        showButton.getStyleClass().add("action-outline");
-        showButton.setOnAction(event -> openUserShow(user));
-
-        Button editButton = new Button("Edit");
-        editButton.getStyleClass().add("action-solid");
-        editButton.setOnAction(event -> openUserEdit(user));
-
-        actionsCell.getChildren().addAll(showButton, editButton);
-        row.getChildren().addAll(nameCell, emailLabel, roleCell, balanceLabel, actionsCell);
-
-        return row;
+    private void animateButtonScale(Button button, double targetScale) {
+        ScaleTransition transition = new ScaleTransition(Duration.millis(170), button);
+        transition.setToX(targetScale);
+        transition.setToY(targetScale);
+        transition.play();
     }
 
     private void openUserEdit(User user) {
-        try {
-            FXMLLoader loader = FxmlResources.load(Main.class, "/pi/mains/edit-user-view.fxml");
-            Parent root = (Parent) loader.getRoot();
-
-            EditUserController controller = loader.getController();
-
-            Stage stage = (Stage) headerLabel.getScene().getWindow();
-            Scene scene = new Scene(root, 1460, 780);
-            FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/user-show.css");
-            FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/edit-user.css");
-
-            stage.setTitle("Edit utilisateur");
-            stage.setScene(scene);
-            stage.show();
-
-            controller.setContext(currentUser, user);
-        } catch (Exception e) {
-            showError("Navigation error", "Unable to open edit form:\n" + chainMessages(e));
+        if (user == null || currentUser == null || headerLabel == null || headerLabel.getScene() == null) {
+            return;
         }
+        Stage stage = (Stage) headerLabel.getScene().getWindow();
+        AdminNavigation.showUserEdit(stage, currentUser, user);
     }
 
     private void openUserShow(User user) {
-        try {
-            FXMLLoader loader = FxmlResources.load(Main.class, "/pi/mains/user-show-view.fxml");
-            Parent root = (Parent) loader.getRoot();
-
-            UserShowController controller = loader.getController();
-
-            Stage stage = (Stage) headerLabel.getScene().getWindow();
-            Scene scene = new Scene(root, 1460, 780);
-            FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/user-show.css");
-
-            stage.setTitle("User Profile");
-            stage.setScene(scene);
-            stage.show();
-
-            controller.setContext(currentUser, user);
-        } catch (Exception e) {
-            showError("Navigation error", "Unable to open user details:\n" + chainMessages(e));
+        if (user == null || currentUser == null || headerLabel == null || headerLabel.getScene() == null) {
+            return;
         }
+        Stage stage = (Stage) headerLabel.getScene().getWindow();
+        AdminNavigation.showUserProfile(stage, currentUser, user);
     }
 
     private static String chainMessages(Throwable e) {
@@ -524,6 +885,13 @@ public class AdminBackendController {
                 "\nRoles: " + valueOrDash(user.getRoles()) +
                 "\nBalance: " + moneyFormat.format(user.getSoldeTotal()) + " TND";
         showInfo("User details", message);
+    }
+
+    private void updateResultsFooter(int usersCount) {
+        if (resultsTextLabel == null) {
+            return;
+        }
+        resultsTextLabel.setText("Showing " + usersCount + " user(s)");
     }
 
     private String mapRole(String displayRole) {
@@ -553,8 +921,8 @@ public class AdminBackendController {
         };
     }
 
-    private String resolveRoleLabel(User user, boolean adminSection) {
-        if (adminSection || user.hasRole("ROLE_ADMIN")) {
+    private String resolveRoleLabel(User user) {
+        if (user.hasRole("ROLE_ADMIN")) {
             return "Admin";
         }
         if (user.hasRole("ROLE_SALARY")) {
@@ -566,8 +934,8 @@ public class AdminBackendController {
         return "User";
     }
 
-    private String resolveRoleStyle(User user, boolean adminSection) {
-        if (adminSection || user.hasRole("ROLE_ADMIN")) {
+    private String resolveRoleStyle(User user) {
+        if (user.hasRole("ROLE_ADMIN")) {
             return "tag-admin";
         }
         if (user.hasRole("ROLE_SALARY")) {
@@ -579,11 +947,60 @@ public class AdminBackendController {
         return "tag-user";
     }
 
+    private Image loadUserAvatarImage(String imageRef) {
+        if (imageRef == null || imageRef.isBlank()) {
+            return null;
+        }
+
+        String cacheKey = imageRef.trim();
+        if (avatarImageCache.containsKey(cacheKey)) {
+            return avatarImageCache.get(cacheKey);
+        }
+
+        Image loaded = tryLoadAvatarImage(cacheKey);
+        if (loaded != null && !loaded.isError()) {
+            avatarImageCache.put(cacheKey, loaded);
+            return loaded;
+        }
+        return null;
+    }
+
+    private Image tryLoadAvatarImage(String imageRef) {
+        try {
+            Path path = Path.of(imageRef);
+            if (Files.exists(path)) {
+                return new Image(path.toUri().toString(), 34, 34, true, true, true);
+            }
+        } catch (Exception ignored) {
+            // Not a local path; fallback below.
+        }
+
+        try {
+            if (imageRef.startsWith("/") && Main.class.getResource(imageRef) != null) {
+                return new Image(Main.class.getResource(imageRef).toExternalForm(), 34, 34, true, true, true);
+            }
+            return new Image(imageRef, 34, 34, true, true, true);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private String valueOrDash(String value) {
         if (value == null || value.isBlank()) {
             return "-";
         }
         return value;
+    }
+
+    private String valueOrEmpty(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.trim();
+    }
+
+    private boolean isValidEmail(String email) {
+        return email != null && email.length() <= 180 && EMAIL_PATTERN.matcher(email).matches();
     }
 
     private String getInitial(String name) {
@@ -602,19 +1019,15 @@ public class AdminBackendController {
     }
 
     private void showInfo(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+        if (headerLabel != null && headerLabel.getScene() != null && headerLabel.getScene().getWindow() instanceof Stage stage) {
+            UiDialog.show(stage, UiDialog.Type.INFO, title, title, content);
+        }
     }
 
     private void showError(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+        if (headerLabel != null && headerLabel.getScene() != null && headerLabel.getScene().getWindow() instanceof Stage stage) {
+            UiDialog.show(stage, UiDialog.Type.ERROR, title, title, content);
+        }
     }
 
     @FXML

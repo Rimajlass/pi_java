@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="splashRoot" prefHeight="780.0" prefWidth="1460.0" styleClass="splash-root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.UserTransactionController.SplashScreenController">
+    <children>
+        <Region fx:id="backgroundPulse" maxHeight="980.0" maxWidth="1760.0" styleClass="background-pulse" />
+        <Pane fx:id="particlesLayer" maxHeight="980.0" maxWidth="1760.0" mouseTransparent="true" pickOnBounds="false" />
+        <Region fx:id="ambientOrb" maxHeight="540.0" maxWidth="760.0" styleClass="ambient-orb" />
+        <VBox alignment="CENTER" spacing="20.0" styleClass="splash-content">
+            <padding>
+                <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
+            </padding>
+            <children>
+                <StackPane>
+                    <children>
+                        <Region fx:id="logoGlow" maxHeight="170.0" maxWidth="170.0" styleClass="logo-glow" />
+                        <ImageView fx:id="logoImage" fitHeight="106.0" fitWidth="106.0" pickOnBounds="true" preserveRatio="true" styleClass="splash-logo">
+                            <image>
+                                <Image url="@../images/chat.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                </StackPane>
+                <Label fx:id="titleLabel" maxWidth="960.0" styleClass="splash-title" text="Access your finance workspace securely" wrapText="true" />
+                <Label fx:id="subtitleLabel" maxWidth="840.0" styleClass="splash-subtitle" text="Encrypted access | Smart insights | Trusted financial control" wrapText="true" />
+                <StackPane fx:id="loadingTrack" maxWidth="760.0" prefHeight="5.0" prefWidth="620.0" styleClass="loading-track">
+                    <children>
+                        <Region fx:id="loadingLine" prefHeight="5.0" prefWidth="0.0" styleClass="loading-line" />
+                    </children>
+                </StackPane>
+            </children>
+        </VBox>
+    </children>
+</StackPane>

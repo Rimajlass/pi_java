@@ -66,7 +66,16 @@ public class ServiceController {
     }
 
     @FXML
-    private void handleOpenSavingsGoals(MouseEvent event) {
+    private void handleOpenServiceAction(ActionEvent event) {
+        try {
+            openService((Node) event.getSource());
+        } catch (IOException e) {
+            throw new RuntimeException("Impossible d'ouvrir la page Services.", e);
+        }
+    }
+
+    @FXML
+    private void handleOpenSavingsGoals(ActionEvent event) {
         try {
             openSavingsGoals((Node) event.getSource());
         } catch (Exception e) {
@@ -75,7 +84,7 @@ public class ServiceController {
     }
 
     @FXML
-    private void handleOpenUnexpectedRealCases(MouseEvent event) {
+    private void handleOpenUnexpectedRealCases(ActionEvent event) {
         try {
             openUnexpectedRealCases((Node) event.getSource());
         } catch (IOException e) {
@@ -166,6 +175,24 @@ public class ServiceController {
         stage.show();
     }
 
+    private void openService(Node source) throws IOException {
+        Stage stage = (Stage) source.getScene().getWindow();
+        Object userData = stage.getUserData();
+
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/pi/mains/service-view.fxml"));
+        Parent root = loader.load();
+        ServiceController controller = loader.getController();
+        if (userData instanceof User user) {
+            controller.setUser(user);
+        }
+
+        Scene scene = new Scene(root, 1460, 780);
+        scene.getStylesheets().add(Main.class.getResource("/pi/styles/service.css").toExternalForm());
+        stage.setTitle("Services");
+        stage.setScene(scene);
+        stage.show();
+    }
+
     private void openSavingsGoals(Node source) throws Exception {
         Stage stage = (Stage) source.getScene().getWindow();
         Object userData = stage.getUserData();
@@ -189,6 +216,28 @@ public class ServiceController {
         stage.setTitle("Income & Expense Management");
         stage.setScene(scene);
         stage.show();
+    }
+
+    @FXML
+    private void handleOpenInvestissement(ActionEvent event) {
+        try {
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Object userData = currentStage.getUserData();
+            FXMLLoader loader = new FXMLLoader(
+                    ServiceController.class.getResource("/Invest/Crypto.fxml"));
+            Scene scene = new Scene(loader.load(), 900, 700);
+            Object controller = loader.getController();
+            if (userData instanceof User user && controller instanceof pi.controllers.InvestissementController.CryptoController cryptoController) {
+                cryptoController.setUser(user);
+            }
+            Stage stage = new Stage();
+            stage.setTitle("Investissement");
+            stage.setScene(scene);
+            stage.setUserData(userData);
+            stage.show();
+        } catch (Exception e) {
+            throw new RuntimeException("Impossible d'ouvrir l'interface Investissement.", e);
+        }
     }
 
     private void openUnexpectedRealCases(Node source) throws IOException {

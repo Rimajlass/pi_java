@@ -6,75 +6,46 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="780.0" prefWidth="1460.0" styleClass="user-show-root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.UserTransactionController.AddUserController">
+<AnchorPane minHeight="700.0" minWidth="1180.0" prefHeight="780.0" prefWidth="1460.0" styleClass="add-user-root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.UserTransactionController.AddUserController">
     <children>
-        <VBox prefWidth="230.0" styleClass="side-nav" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <AnchorPane styleClass="content-wrapper" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
-                <VBox spacing="4.0" styleClass="brand-wrap">
-                    <children>
-                        <Label styleClass="brand-label" text="Decide$" />
-                    </children>
-                </VBox>
-                <VBox spacing="5.0" styleClass="menu-list">
-                    <children>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row menu-row-active"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="U" /></children></StackPane><Label styleClass="menu-text" text="Users" /></children></HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="T" /></children></StackPane><Label styleClass="menu-text" text="Transactions" /></children></HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="CQ" /></children></StackPane><Label styleClass="menu-text" text="Course &amp; Quiz" /></children></HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="UE" /></children></StackPane><Label styleClass="menu-text" text="Unexpected Events" /></children></HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="RC" /></children></StackPane><Label styleClass="menu-text" text="Real Cases" /></children></HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="R" /></children></StackPane><Label styleClass="menu-text" text="Revenues" /></children></HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="E" /></children></StackPane><Label styleClass="menu-text" text="Expenses" /></children></HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="RP" /></children></StackPane><Label styleClass="menu-text" text="Reports" /></children></HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="I" /></children></StackPane><Label styleClass="menu-text" text="Investments" /></children></HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="O" /></children></StackPane><Label styleClass="menu-text" text="Objectives" /></children></HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="RE" /></children></StackPane><Label styleClass="menu-text" text="Reclamations" /></children></HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="G" /></children></StackPane><Label styleClass="menu-text" text="Goals" /></children></HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="S" /></children></StackPane><Label styleClass="menu-text" text="Statistics" /></children></HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-row"><children><StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="AI" /></children></StackPane><Label styleClass="menu-text" text="AI Quiz Generator" /></children></HBox>
-                    </children>
-                </VBox>
-                <Region VBox.vgrow="ALWAYS" />
-                <Separator styleClass="side-separator" />
-                <HBox alignment="CENTER_LEFT" spacing="8.0" styleClass="profile-box">
-                    <children>
-                        <StackPane styleClass="profile-avatar"><children><Label styleClass="profile-avatar-text" text="AD" /></children></StackPane>
-                        <VBox spacing="1.0"><children><Label fx:id="sidebarNameLabel" styleClass="profile-name" text="admin" /><Label styleClass="profile-role" text="Admin Panel" /></children></VBox>
-                    </children>
-                    <padding><Insets bottom="12.0" left="12.0" right="12.0" top="12.0" /></padding>
-                </HBox>
-                <Button mnemonicParsing="false" onAction="#handleSignOut" styleClass="signout-button" text="Sign out" />
-            </children>
-            <padding><Insets bottom="16.0" left="12.0" right="12.0" top="20.0" /></padding>
-        </VBox>
-
-        <AnchorPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="230.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-            <children>
-                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="page-scroll" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" styleClass="content-scroll page-scroll" vbarPolicy="AS_NEEDED" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <content>
-                        <VBox spacing="14.0" styleClass="page-content">
+                        <VBox spacing="10.0" styleClass="content-root page-content">
                             <children>
-                                <Label styleClass="page-title" text="Create User" />
+                                <HBox alignment="CENTER_LEFT" styleClass="card page-header-card">
+                                    <children>
+                                        <VBox spacing="5.0">
+                                            <children>
+                                                <Label styleClass="page-title" text="Create User" />
+                                                <Label styleClass="page-subtitle" text="Add a new user account to the workspace" />
+                                            </children>
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Button defaultButton="true" mnemonicParsing="false" onAction="#handleSave" styleClass="primary-button" text="Save" />
+                                        <Button mnemonicParsing="false" onAction="#handleBack" styleClass="header-button" text="Back to list" />
+                                    </children>
+                                </HBox>
 
-                                <HBox alignment="TOP_CENTER">
+                                <VBox spacing="10.0" styleClass="card add-user-form-card">
                                     <children>
-                                        <Region minWidth="0.0" HBox.hgrow="ALWAYS" />
-                                        <VBox spacing="16.0" maxWidth="720.0" minWidth="400.0" prefWidth="720.0" styleClass="card add-user-form-card" HBox.hgrow="NEVER">
-                                    <children>
+                                        <Label styleClass="section-title" text="Informations du compte" />
+
                                         <VBox spacing="6.0">
                                             <children>
                                                 <Label styleClass="form-field-label" text="Photo utilisateur" />
                                                 <HBox alignment="CENTER_LEFT" spacing="12.0">
                                                     <children>
-                                                        <Button mnemonicParsing="false" onAction="#handleChoosePhoto" styleClass="btn btn-outline" text="Choisir un fichier" />
-                                                        <Label fx:id="photoPathLabel" styleClass="form-field-hint" text="Aucun fichier choisi" />
+                                                        <Button mnemonicParsing="false" onAction="#handleChoosePhoto" styleClass="header-button" text="Choisir un fichier" />
+                                                        <Label fx:id="photoPathLabel" styleClass="form-field-hint file-name-label" text="Aucun fichier choisi" />
                                                     </children>
                                                 </HBox>
                                             </children>
@@ -103,8 +74,8 @@
 
                                         <VBox spacing="4.0">
                                             <children>
-                                                <Label styleClass="form-field-label" text="Rôle" />
-                                                <ComboBox fx:id="roleCombo" prefWidth="520.0" styleClass="edit-form-field" />
+                                                <Label styleClass="form-field-label" text="Role" />
+                                                <ComboBox fx:id="roleCombo" maxWidth="Infinity" styleClass="edit-form-field" />
                                             </children>
                                         </VBox>
 
@@ -114,26 +85,8 @@
                                                 <TextField fx:id="soldeField" styleClass="edit-form-field" text="0" />
                                             </children>
                                         </VBox>
-
-                                        <HBox alignment="CENTER_LEFT">
-                                            <children>
-                                                <Button defaultButton="true" mnemonicParsing="false" onAction="#handleSave" styleClass="btn btn-primary" text="Save" />
-                                            </children>
-                                        </HBox>
                                     </children>
-                                    <padding><Insets bottom="20.0" left="20.0" right="20.0" top="18.0" /></padding>
-                                        </VBox>
-                                        <Region minWidth="0.0" HBox.hgrow="ALWAYS" />
-                                    </children>
-                                </HBox>
-
-                                <HBox alignment="CENTER_LEFT">
-                                    <children>
-                                        <Region minWidth="0.0" HBox.hgrow="ALWAYS" />
-                                        <Button mnemonicParsing="false" onAction="#handleBack" styleClass="btn btn-muted add-user-back-link" text="← Back to list" />
-                                        <Region minWidth="0.0" HBox.hgrow="ALWAYS" />
-                                    </children>
-                                </HBox>
+                                </VBox>
 
                                 <HBox alignment="CENTER_LEFT" styleClass="page-footer">
                                     <children>
@@ -145,7 +98,9 @@
                                     </children>
                                 </HBox>
                             </children>
-                            <padding><Insets bottom="18.0" left="18.0" right="18.0" top="14.0" /></padding>
+                            <padding>
+                                <Insets bottom="14.0" left="14.0" right="14.0" top="10.0" />
+                            </padding>
                         </VBox>
                     </content>
                 </ScrollPane>

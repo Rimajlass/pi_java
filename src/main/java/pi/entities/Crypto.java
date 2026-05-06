@@ -7,6 +7,10 @@ public class Crypto {
     private String symbol;
     private String apiid;
     private double currentprice;
+    private String imageUrl;
+
+    public Crypto() {
+    }
 
     public Crypto(String name, String symbol, String apiid, double currentprice) {
         this.name = name;
@@ -23,28 +27,76 @@ public class Crypto {
         this.currentprice = currentprice;
     }
 
-    public int getId() { return this.id; }
+    public Crypto(String name, String symbol, String apiid, double currentprice, String imageUrl) {
+        this.name = name;
+        this.symbol = symbol;
+        this.apiid = apiid;
+        this.currentprice = currentprice;
+        this.imageUrl = imageUrl;
+    }
 
-    public void setId(int id) { this.id = id; }
+    public Crypto(int id, String name, String symbol, String apiid, double currentprice, String imageUrl) {
+        this.id = id;
+        this.name = name;
+        this.symbol = symbol;
+        this.apiid = apiid;
+        this.currentprice = currentprice;
+        this.imageUrl = imageUrl;
+    }
 
-    public String getName() { return this.name; }
+    public int getId() {
+        return id;
+    }
 
-    public void setName(String name) { this.name = name; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getSymbol() { return this.symbol; }
+    public String getName() {
+        return name;
+    }
 
-    public void setSymbol(String symbol) { this.symbol = symbol; }
+    public String getSymbolUpper() {
+        return symbol != null ? symbol.toUpperCase() : "";
+    }
 
-    public String getApiid() { return this.apiid; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public void setApiid(String apiid) { this.apiid = apiid; }
+    public String getSymbol() {
+        return symbol;
+    }
 
-    public double getCurrentprice() { return this.currentprice; }
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
 
-    public void setCurrentprice(double currentprice) { this.currentprice = currentprice; }
+    public String getApiid() {
+        return apiid;
+    }
 
+    public void setApiid(String apiid) {
+        this.apiid = apiid;
+    }
+
+    public double getCurrentprice() {
+        return currentprice;
+    }
+
+    public void setCurrentprice(double currentprice) {
+        this.currentprice = currentprice;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
     @Override
     public String toString() {
-        return "Crypto{" + "id=" + this.id + ", symbol='" + this.symbol + '\'' + ", currentprice=" + this.currentprice + '}';
+        return name; // important pour ComboBox
     }
 }

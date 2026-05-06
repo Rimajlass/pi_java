@@ -14,7 +14,6 @@ public class MyDatabase {
     private static MyDatabase myDb;
 
     private Connection cnx;
-    private RuntimeException initializationError;
 
     private MyDatabase() {
         connect();
@@ -29,20 +28,12 @@ public class MyDatabase {
 
     public Connection getCnx() {
         try {
-            if (cnx == null || cnx.isClosed()) {
+            if (cnx == null || !cnx.isValid(2)) {
                 connect();
             }
         } catch (SQLException e) {
-            throw new IllegalStateException("Impossible de verifier l'etat de la connexion MySQL.", e);
+            System.out.println("Connection check failed: " + e.getMessage());
         }
-
-        if (cnx == null) {
-            if (initializationError != null) {
-                throw initializationError;
-            }
-            throw new IllegalStateException("La connexion MySQL n'a pas ete initialisee.");
-        }
-
         return cnx;
     }
 
@@ -50,21 +41,13 @@ public class MyDatabase {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             cnx = DriverManager.getConnection(URL, USER, PASSWORD);
-            initializationError = null;
             System.out.println("Connexion MySQL etablie.");
         } catch (ClassNotFoundException e) {
             cnx = null;
-            initializationError = new IllegalStateException(
-                    "Driver MySQL introuvable. Verifiez la dependance mysql-connector-java.",
-                    e
-            );
+            System.out.println("Driver MySQL introuvable: " + e.getMessage());
         } catch (SQLException e) {
             cnx = null;
-            initializationError = new IllegalStateException(
-                    "Connexion a decides_db impossible. Verifiez MySQL, la base, l'utilisateur root et le mot de passe.",
-                    e
-            );
+            System.out.println("Connexion impossible: " + e.getMessage());
         }
     }
 }
-//////testtt

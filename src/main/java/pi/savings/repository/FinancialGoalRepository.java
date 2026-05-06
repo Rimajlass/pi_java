@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -135,6 +136,51 @@ public class FinancialGoalRepository {
         }
     }
 
+    public List<FinancialGoalDetails> findDetailedByUserId(int userId) throws SQLException {
+        String sql = """
+                SELECT fg.id, fg.saving_account_id, fg.nom, fg.montant_cible, fg.montant_actuel, fg.date_limite, fg.priorite,
+                       sa.user_id, sa.sold, sa.taux_interet,
+                       u.nom AS user_name, u.email AS user_email
+                FROM financial_goal fg
+                INNER JOIN saving_account sa ON sa.id = fg.saving_account_id
+                LEFT JOIN `user` u ON u.id = sa.user_id
+                WHERE sa.user_id = ?
+                ORDER BY fg.priorite DESC, fg.date_limite ASC, fg.id DESC
+                """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                List<FinancialGoalDetails> goals = new ArrayList<>();
+                while (resultSet.next()) {
+                    goals.add(mapDetails(resultSet));
+                }
+                return goals;
+            }
+        }
+    }
+
+    public List<FinancialGoalDetails> findAllDetailedGoals() throws SQLException {
+        String sql = """
+                SELECT fg.id, fg.saving_account_id, fg.nom, fg.montant_cible, fg.montant_actuel, fg.date_limite, fg.priorite,
+                       sa.user_id, sa.sold, sa.taux_interet,
+                       u.nom AS user_name, u.email AS user_email
+                FROM financial_goal fg
+                INNER JOIN saving_account sa ON sa.id = fg.saving_account_id
+                LEFT JOIN `user` u ON u.id = sa.user_id
+                ORDER BY fg.priorite DESC, fg.date_limite ASC, fg.id DESC
+                """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+            List<FinancialGoalDetails> goals = new ArrayList<>();
+            while (resultSet.next()) {
+                goals.add(mapDetails(resultSet));
+            }
+            return goals;
+        }
+    }
+
     private FinancialGoal map(ResultSet resultSet) throws SQLException {
         FinancialGoal goal = new FinancialGoal();
         goal.setId(resultSet.getInt("id"));
@@ -145,5 +191,39 @@ public class FinancialGoalRepository {
         goal.setDateLimite(resultSet.getDate("date_limite"));
         goal.setPriorite(resultSet.getInt("priorite"));
         return goal;
+    }
+
+    private FinancialGoalDetails mapDetails(ResultSet resultSet) throws SQLException {
+        Date deadline = resultSet.getDate("date_limite");
+        return new FinancialGoalDetails(
+                resultSet.getInt("id"),
+                resultSet.getInt("saving_account_id"),
+                resultSet.getInt("user_id"),
+                resultSet.getString("nom"),
+                resultSet.getBigDecimal("montant_cible").setScale(2, java.math.RoundingMode.HALF_UP),
+                resultSet.getBigDecimal("montant_actuel").setScale(2, java.math.RoundingMode.HALF_UP),
+                deadline == null ? null : deadline.toLocalDate(),
+                resultSet.getInt("priorite"),
+                resultSet.getString("user_name"),
+                resultSet.getString("user_email"),
+                resultSet.getBigDecimal("sold").setScale(2, java.math.RoundingMode.HALF_UP),
+                resultSet.getBigDecimal("taux_interet").setScale(2, java.math.RoundingMode.HALF_UP)
+        );
+    }
+
+    public record FinancialGoalDetails(
+            int goalId,
+            int savingAccountId,
+            int userId,
+            String goalName,
+            java.math.BigDecimal targetAmount,
+            java.math.BigDecimal currentAmount,
+            LocalDate deadline,
+            int priority,
+            String userName,
+            String userEmail,
+            java.math.BigDecimal accountBalance,
+            java.math.BigDecimal interestRate
+    ) {
     }
 }

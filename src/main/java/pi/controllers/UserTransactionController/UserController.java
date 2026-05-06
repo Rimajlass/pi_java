@@ -33,6 +33,10 @@ public class UserController {
         return userService.findById(userId);
     }
 
+    public User findByEmail(String email) {
+        return userService.findByEmail(email);
+    }
+
     public TransactionService.UserDashboardStats showDetails(int userId) {
         return transactionService.buildUserDashboard(userId);
     }
@@ -45,12 +49,28 @@ public class UserController {
         return userService.update(user, plainPassword);
     }
 
+    public void updateProfileImage(int userId, String imagePath) {
+        userService.updateProfileImage(userId, imagePath);
+    }
+
+    public void updateFaceIdCredential(int userId, String credentialId, boolean enabled) {
+        userService.updateFaceIdCredential(userId, credentialId, enabled);
+    }
+
     public void delete(int userId) {
         userService.delete(userId);
     }
 
     public User login(String email, String plainPassword) {
         return userService.authenticate(email, plainPassword);
+    }
+
+    public User loginWithBiometric(String email, String credentialId) {
+        return userService.authenticateWithBiometric(email, credentialId);
+    }
+
+    public void refreshGeoLocationForUser(User user) {
+        userService.refreshGeoLocationForUser(user);
     }
 
     public boolean validateEmailAvailability(String email) {

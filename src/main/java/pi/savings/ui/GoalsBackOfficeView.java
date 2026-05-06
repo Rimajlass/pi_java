@@ -27,8 +27,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import pi.savings.repository.SavingsTransactionRepository;
 import pi.savings.service.SavingsModuleService;
+import pi.savings.service.SavingsStatsService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -60,9 +63,21 @@ final class GoalsBackOfficeView {
     private Label activeSearchValue;
     private Label activeSortValue;
     private TabPane tabPane;
-    private PieChart statsPieChart;
-    private BarChart<String, Number> statsBarChart;
-    private Label chartSectionTitle;
+    private ComboBox<String> currencyComboBox;
+    private PieChart savingsPieChart;
+    private BarChart<String, Number> savingsBarChart;
+    private PieChart goalsPieChart;
+    private BarChart<String, Number> goalsBarChart;
+    private Label savingsPaginationLabel;
+    private Button savingsPreviousButton;
+    private Button savingsNextButton;
+    private int savingsPageIndex;
+    private static final int SAVINGS_PAGE_SIZE = 8;
+    private Label goalsPaginationLabel;
+    private Button goalsPreviousButton;
+    private Button goalsNextButton;
+    private int goalsPageIndex;
+    private static final int GOALS_PAGE_SIZE = 8;
 
     Parent build(SavingsUiController controller) {
         return build(controller, "Goals", false);
@@ -116,7 +131,33 @@ final class GoalsBackOfficeView {
         refreshButton.getStyleClass().add("primary-action-btn");
         refreshButton.setOnAction(event -> reloadDashboard());
 
-        top.getChildren().addAll(title, spacer, openMainButton, refreshButton);
+        currencyComboBox = new ComboBox<>();
+        currencyComboBox.getItems().setAll(controller.getSupportedCurrencies());
+        currencyComboBox.setValue(controller.getSelectedCurrency());
+        currencyComboBox.getStyleClass().add("toolbar-combo");
+        currencyComboBox.setOnAction(event -> handleCurrencyChange());
+
+        Button statsButton = new Button("Global Stats");
+        statsButton.getStyleClass().add("secondary-action-btn");
+        statsButton.setOnAction(event -> showGlobalStatsWindow());
+
+        Button savingsCsvButton = new Button("Savings CSV");
+        savingsCsvButton.getStyleClass().add("secondary-action-btn");
+        savingsCsvButton.setOnAction(event -> exportAllSavingsCsv());
+
+        Button savingsPdfButton = new Button("Savings PDF");
+        savingsPdfButton.getStyleClass().add("secondary-action-btn");
+        savingsPdfButton.setOnAction(event -> exportAllSavingsPdf());
+
+        Button goalsCsvButton = new Button("Goals CSV");
+        goalsCsvButton.getStyleClass().add("secondary-action-btn");
+        goalsCsvButton.setOnAction(event -> exportAllGoalsCsv());
+
+        Button goalsPdfButton = new Button("Goals PDF");
+        goalsPdfButton.getStyleClass().add("secondary-action-btn");
+        goalsPdfButton.setOnAction(event -> exportAllGoalsPdf());
+
+        top.getChildren().addAll(title, spacer, currencyComboBox, statsButton, savingsCsvButton, savingsPdfButton, goalsCsvButton, goalsPdfButton, openMainButton, refreshButton);
 
         Label subtitle = new Label("Admin-style interface for browsing, searching, sorting, and monitoring savings transactions and financial goals.");
         subtitle.getStyleClass().add("hero-subtitle");
@@ -169,41 +210,45 @@ final class GoalsBackOfficeView {
                 summaryBlock("Remaining amount", remainingAmountValue),
                 summaryBlock("Nearest deadline", nearestDeadlineValue),
                 summaryBlock("Active search", activeSearchValue),
-                summaryBlock("Active sort", activeSortValue),
-                buildChartsCard()
+                summaryBlock("Active sort", activeSortValue)
         );
         return panel;
     }
 
-    private VBox buildChartsCard() {
+    private VBox buildChartsCard(String titleText, PieChart pieChart, BarChart<String, Number> barChart) {
         VBox card = new VBox(12);
         card.getStyleClass().add("summary-block");
 
-        chartSectionTitle = new Label("Savings charts");
-        chartSectionTitle.getStyleClass().add("card-title");
+        Label title = new Label(titleText);
+        title.getStyleClass().add("card-title");
+        card.getChildren().addAll(title, pieChart, barChart);
+        return card;
+    }
 
-        statsPieChart = new PieChart();
-        statsPieChart.setLegendVisible(true);
-        statsPieChart.setLabelsVisible(true);
-        statsPieChart.setPrefHeight(230);
-        statsPieChart.getStyleClass().add("stats-pie-chart");
+    private PieChart createPieChart() {
+        PieChart chart = new PieChart();
+        chart.setLegendVisible(true);
+        chart.setLabelsVisible(true);
+        chart.setPrefHeight(230);
+        chart.getStyleClass().add("stats-pie-chart");
+        return chart;
+    }
 
+    private BarChart<String, Number> createBarChart() {
         CategoryAxis xAxis = new CategoryAxis();
         NumberAxis yAxis = new NumberAxis();
         yAxis.setAutoRanging(true);
         yAxis.setMinorTickVisible(false);
         yAxis.setTickLabelsVisible(true);
 
-        statsBarChart = new BarChart<>(xAxis, yAxis);
-        statsBarChart.setLegendVisible(false);
-        statsBarChart.setAnimated(false);
-        statsBarChart.setCategoryGap(18);
-        statsBarChart.setBarGap(6);
-        statsBarChart.setPrefHeight(240);
-        statsBarChart.getStyleClass().add("stats-bar-chart");
-
-        card.getChildren().addAll(chartSectionTitle, statsPieChart, statsBarChart);
-        return card;
+        BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
+        chart.setLegendVisible(false);
+        chart.setAnimated(false);
+        chart.setCategoryGap(18);
+        chart.setBarGap(6);
+        chart.setPrefHeight(240);
+        chart.getStyleClass().add("stats-bar-chart");
+        return chart;
     }
 
     private VBox buildTablePanel() {
@@ -244,19 +289,28 @@ final class GoalsBackOfficeView {
         savingsSearchField.setPromptText("Search by id, date, type, amount, description, module source, user...");
         savingsSearchField.getStyleClass().add("toolbar-field");
         HBox.setHgrow(savingsSearchField, Priority.ALWAYS);
-        savingsSearchField.textProperty().addListener((obs, oldValue, newValue) -> applySavingsSearchAndSort());
+        savingsSearchField.textProperty().addListener((obs, oldValue, newValue) -> {
+            savingsPageIndex = 0;
+            applySavingsSearchAndSort();
+        });
 
         savingsSortFieldCombo = new ComboBox<>();
         savingsSortFieldCombo.getItems().addAll("ID", "Date", "Type", "Amount", "Description", "Module Source", "User ID");
         savingsSortFieldCombo.setValue("Date");
         savingsSortFieldCombo.getStyleClass().add("toolbar-combo");
-        savingsSortFieldCombo.setOnAction(event -> applySavingsSearchAndSort());
+        savingsSortFieldCombo.setOnAction(event -> {
+            savingsPageIndex = 0;
+            applySavingsSearchAndSort();
+        });
 
         savingsSortDirectionCombo = new ComboBox<>();
         savingsSortDirectionCombo.getItems().addAll("Descending", "Ascending");
         savingsSortDirectionCombo.setValue("Descending");
         savingsSortDirectionCombo.getStyleClass().add("toolbar-combo");
-        savingsSortDirectionCombo.setOnAction(event -> applySavingsSearchAndSort());
+        savingsSortDirectionCombo.setOnAction(event -> {
+            savingsPageIndex = 0;
+            applySavingsSearchAndSort();
+        });
 
         Button refreshButton = new Button("Refresh");
         refreshButton.getStyleClass().add("primary-action-btn");
@@ -270,7 +324,6 @@ final class GoalsBackOfficeView {
         savingsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         savingsTable.setPlaceholder(new Label("No savings transactions available."));
         savingsTable.getColumns().addAll(
-                savingsIdColumn(),
                 savingsDateColumn(),
                 savingsTypeColumn(),
                 savingsAmountColumn(),
@@ -280,7 +333,10 @@ final class GoalsBackOfficeView {
         );
         VBox.setVgrow(savingsTable, Priority.ALWAYS);
 
-        box.getChildren().addAll(toolbar, savingsTable);
+        savingsPieChart = createPieChart();
+        savingsBarChart = createBarChart();
+
+        box.getChildren().addAll(toolbar, savingsTable, buildSavingsPaginationBar(), buildChartsCard("Savings charts", savingsPieChart, savingsBarChart));
         return box;
     }
 
@@ -291,19 +347,28 @@ final class GoalsBackOfficeView {
         goalsSearchField.setPromptText("Search by id, name, target, current, deadline, priority or progress...");
         goalsSearchField.getStyleClass().add("toolbar-field");
         HBox.setHgrow(goalsSearchField, Priority.ALWAYS);
-        goalsSearchField.textProperty().addListener((obs, oldValue, newValue) -> applyGoalsSearchAndSort());
+        goalsSearchField.textProperty().addListener((obs, oldValue, newValue) -> {
+            goalsPageIndex = 0;
+            applyGoalsSearchAndSort();
+        });
 
         goalsSortFieldCombo = new ComboBox<>();
         goalsSortFieldCombo.getItems().addAll("ID", "Name", "Target", "Current", "Deadline", "Priority", "Progress");
         goalsSortFieldCombo.setValue("Priority");
         goalsSortFieldCombo.getStyleClass().add("toolbar-combo");
-        goalsSortFieldCombo.setOnAction(event -> applyGoalsSearchAndSort());
+        goalsSortFieldCombo.setOnAction(event -> {
+            goalsPageIndex = 0;
+            applyGoalsSearchAndSort();
+        });
 
         goalsSortDirectionCombo = new ComboBox<>();
         goalsSortDirectionCombo.getItems().addAll("Descending", "Ascending");
         goalsSortDirectionCombo.setValue("Descending");
         goalsSortDirectionCombo.getStyleClass().add("toolbar-combo");
-        goalsSortDirectionCombo.setOnAction(event -> applyGoalsSearchAndSort());
+        goalsSortDirectionCombo.setOnAction(event -> {
+            goalsPageIndex = 0;
+            applyGoalsSearchAndSort();
+        });
 
         Button refreshButton = new Button("Refresh");
         refreshButton.getStyleClass().add("primary-action-btn");
@@ -317,7 +382,6 @@ final class GoalsBackOfficeView {
         goalsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         goalsTable.setPlaceholder(new Label("No goals available."));
         goalsTable.getColumns().addAll(
-                goalIdColumn(),
                 goalNameColumn(),
                 goalTargetColumn(),
                 goalCurrentColumn(),
@@ -328,7 +392,60 @@ final class GoalsBackOfficeView {
         );
         VBox.setVgrow(goalsTable, Priority.ALWAYS);
 
-        box.getChildren().addAll(toolbar, goalsTable);
+        goalsPieChart = createPieChart();
+        goalsBarChart = createBarChart();
+
+        box.getChildren().addAll(toolbar, goalsTable, buildGoalsPaginationBar(), buildChartsCard("Goals charts", goalsPieChart, goalsBarChart));
+        return box;
+    }
+
+    private HBox buildSavingsPaginationBar() {
+        savingsPreviousButton = new Button("Previous");
+        savingsPreviousButton.getStyleClass().add("secondary-action-btn");
+        savingsPreviousButton.setOnAction(event -> {
+            if (savingsPageIndex > 0) {
+                savingsPageIndex--;
+                applySavingsSearchAndSort();
+            }
+        });
+
+        savingsNextButton = new Button("Next");
+        savingsNextButton.getStyleClass().add("secondary-action-btn");
+        savingsNextButton.setOnAction(event -> {
+            savingsPageIndex++;
+            applySavingsSearchAndSort();
+        });
+
+        savingsPaginationLabel = new Label("Page 1 / 1");
+        savingsPaginationLabel.getStyleClass().add("summary-value");
+
+        HBox box = new HBox(10, savingsPreviousButton, savingsPaginationLabel, savingsNextButton);
+        box.setAlignment(Pos.CENTER_LEFT);
+        return box;
+    }
+
+    private HBox buildGoalsPaginationBar() {
+        goalsPreviousButton = new Button("Previous");
+        goalsPreviousButton.getStyleClass().add("secondary-action-btn");
+        goalsPreviousButton.setOnAction(event -> {
+            if (goalsPageIndex > 0) {
+                goalsPageIndex--;
+                applyGoalsSearchAndSort();
+            }
+        });
+
+        goalsNextButton = new Button("Next");
+        goalsNextButton.getStyleClass().add("secondary-action-btn");
+        goalsNextButton.setOnAction(event -> {
+            goalsPageIndex++;
+            applyGoalsSearchAndSort();
+        });
+
+        goalsPaginationLabel = new Label("Page 1 / 1");
+        goalsPaginationLabel.getStyleClass().add("summary-value");
+
+        HBox box = new HBox(10, goalsPreviousButton, goalsPaginationLabel, goalsNextButton);
+        box.setAlignment(Pos.CENTER_LEFT);
         return box;
     }
 
@@ -492,6 +609,8 @@ final class GoalsBackOfficeView {
 
     private void reloadDashboard() {
         SavingsUiController.OperationResult result = controller.initialize();
+        savingsPageIndex = 0;
+        goalsPageIndex = 0;
         refreshTablesFromController();
         if (result.success()) {
             showInfo("Back-office tables refreshed.");
@@ -501,35 +620,65 @@ final class GoalsBackOfficeView {
     }
 
     private void refreshTablesFromController() {
-        savingsItems.setAll(controller.filterAndSortHistory(
-                savingsSearchValue(),
-                savingsSortFieldValue(),
-                savingsSortDirectionValue()
-        ));
-        goalsItems.setAll(controller.filterAndSortGoals(
-                goalsSearchValue(),
-                goalsSortFieldValue(),
-                goalsSortDirectionValue()
-        ));
+        SavingsUiController.PageSlice<SavingsTransactionRepository.TransactionRow> savingsPage = controller.paginate(
+                controller.filterAndSortHistory(
+                        savingsSearchValue(),
+                        savingsSortFieldValue(),
+                        savingsSortDirectionValue()
+                ),
+                savingsPageIndex,
+                SAVINGS_PAGE_SIZE
+        );
+        savingsPageIndex = savingsPage.pageIndex();
+        savingsItems.setAll(savingsPage.items());
+        updateSavingsPagination(savingsPage);
+
+        SavingsUiController.PageSlice<SavingsModuleService.GoalSnapshot> goalsPage = controller.paginate(
+                controller.filterAndSortGoals(
+                        goalsSearchValue(),
+                        goalsSortFieldValue(),
+                        goalsSortDirectionValue()
+                ),
+                goalsPageIndex,
+                GOALS_PAGE_SIZE
+        );
+        goalsPageIndex = goalsPage.pageIndex();
+        goalsItems.setAll(goalsPage.items());
+        updateGoalsPagination(goalsPage);
+
         refreshOverviewFromCurrentTab();
     }
 
     private void applySavingsSearchAndSort() {
-        savingsItems.setAll(controller.filterAndSortHistory(
-                savingsSearchValue(),
-                savingsSortFieldValue(),
-                savingsSortDirectionValue()
-        ));
+        SavingsUiController.PageSlice<SavingsTransactionRepository.TransactionRow> savingsPage = controller.paginate(
+                controller.filterAndSortHistory(
+                        savingsSearchValue(),
+                        savingsSortFieldValue(),
+                        savingsSortDirectionValue()
+                ),
+                savingsPageIndex,
+                SAVINGS_PAGE_SIZE
+        );
+        savingsPageIndex = savingsPage.pageIndex();
+        savingsItems.setAll(savingsPage.items());
+        updateSavingsPagination(savingsPage);
         refreshOverviewFromCurrentTab();
         showInfo("Savings search/sort applied.");
     }
 
     private void applyGoalsSearchAndSort() {
-        goalsItems.setAll(controller.filterAndSortGoals(
-                goalsSearchValue(),
-                goalsSortFieldValue(),
-                goalsSortDirectionValue()
-        ));
+        SavingsUiController.PageSlice<SavingsModuleService.GoalSnapshot> goalsPage = controller.paginate(
+                controller.filterAndSortGoals(
+                        goalsSearchValue(),
+                        goalsSortFieldValue(),
+                        goalsSortDirectionValue()
+                ),
+                goalsPageIndex,
+                GOALS_PAGE_SIZE
+        );
+        goalsPageIndex = goalsPage.pageIndex();
+        goalsItems.setAll(goalsPage.items());
+        updateGoalsPagination(goalsPage);
         refreshOverviewFromCurrentTab();
         showInfo("Goals search/sort applied.");
     }
@@ -560,9 +709,11 @@ final class GoalsBackOfficeView {
 
     private void refreshSavingsCharts() {
         SavingsModuleService.HistoryStats stats = controller.calculateHistoryStats(List.copyOf(savingsItems));
-        chartSectionTitle.setText("Savings charts");
+        if (savingsPieChart == null || savingsBarChart == null) {
+            return;
+        }
 
-        statsPieChart.setData(FXCollections.observableArrayList(
+        savingsPieChart.setData(FXCollections.observableArrayList(
                 new PieChart.Data("Deposits", stats.totalDeposited().doubleValue()),
                 new PieChart.Data("Contributions", stats.totalContributedToGoals().doubleValue())
         ));
@@ -572,15 +723,17 @@ final class GoalsBackOfficeView {
         series.getData().add(new XYChart.Data<>("Deposits", stats.depositCount()));
         series.getData().add(new XYChart.Data<>("Goals", stats.goalContributionCount()));
 
-        statsBarChart.getData().setAll(series);
+        savingsBarChart.getData().setAll(series);
     }
 
     private void refreshGoalsCharts() {
         SavingsModuleService.GoalStats stats = controller.calculateGoalStats(List.copyOf(goalsItems));
         int inProgressCount = Math.max(0, stats.goalCount() - stats.completedGoalCount());
-        chartSectionTitle.setText("Goals charts");
+        if (goalsPieChart == null || goalsBarChart == null) {
+            return;
+        }
 
-        statsPieChart.setData(FXCollections.observableArrayList(
+        goalsPieChart.setData(FXCollections.observableArrayList(
                 new PieChart.Data("Completed", stats.completedGoalCount()),
                 new PieChart.Data("In progress", inProgressCount)
         ));
@@ -590,7 +743,7 @@ final class GoalsBackOfficeView {
         series.getData().add(new XYChart.Data<>("Current", stats.totalCurrent().doubleValue()));
         series.getData().add(new XYChart.Data<>("Remaining", stats.remainingAmount().doubleValue()));
 
-        statsBarChart.getData().setAll(series);
+        goalsBarChart.getData().setAll(series);
     }
 
     private VBox cardTitle(String titleText, String subtitleText) {
@@ -671,5 +824,126 @@ final class GoalsBackOfficeView {
 
     private String formatPlain(BigDecimal value) {
         return value.setScale(2, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();
+    }
+
+    private void updateSavingsPagination(SavingsUiController.PageSlice<SavingsTransactionRepository.TransactionRow> page) {
+        if (savingsPaginationLabel != null) {
+            savingsPaginationLabel.setText(
+                    "Page " + (page.pageIndex() + 1) + " / " + page.pageCount() + " (" + page.totalItems() + " rows)"
+            );
+        }
+        if (savingsPreviousButton != null) {
+            savingsPreviousButton.setDisable(page.pageIndex() <= 0);
+        }
+        if (savingsNextButton != null) {
+            savingsNextButton.setDisable(page.pageIndex() >= page.pageCount() - 1);
+        }
+    }
+
+    private void updateGoalsPagination(SavingsUiController.PageSlice<SavingsModuleService.GoalSnapshot> page) {
+        if (goalsPaginationLabel != null) {
+            goalsPaginationLabel.setText(
+                    "Page " + (page.pageIndex() + 1) + " / " + page.pageCount() + " (" + page.totalItems() + " goals)"
+            );
+        }
+        if (goalsPreviousButton != null) {
+            goalsPreviousButton.setDisable(page.pageIndex() <= 0);
+        }
+        if (goalsNextButton != null) {
+            goalsNextButton.setDisable(page.pageIndex() >= page.pageCount() - 1);
+        }
+    }
+
+    private void handleCurrencyChange() {
+        SavingsUiController.OperationResult result = controller.selectCurrency(
+                currencyComboBox == null ? "TND" : currencyComboBox.getValue()
+        );
+        if (result.success()) {
+            refreshOverviewFromCurrentTab();
+            showInfo(result.message());
+        } else {
+            showError(result.message());
+        }
+    }
+
+    private void exportAllSavingsCsv() {
+        SavingsUiController.OperationResult result = controller.safeExportAllSavingAccountsCsv(java.nio.file.Paths.get("target", "exports"));
+        if (result.success()) {
+            showInfo(result.message());
+        } else {
+            showError(result.message());
+        }
+    }
+
+    private void exportAllSavingsPdf() {
+        SavingsUiController.OperationResult result = controller.safeExportAllSavingAccountsPdf(java.nio.file.Paths.get("target", "exports"));
+        if (result.success()) {
+            showInfo(result.message());
+        } else {
+            showError(result.message());
+        }
+    }
+
+    private void exportAllGoalsCsv() {
+        SavingsUiController.OperationResult result = controller.safeExportAllGoalsCsv(java.nio.file.Paths.get("target", "exports"));
+        if (result.success()) {
+            showInfo(result.message());
+        } else {
+            showError(result.message());
+        }
+    }
+
+    private void exportAllGoalsPdf() {
+        SavingsUiController.OperationResult result = controller.safeExportAllGoalsPdf(java.nio.file.Paths.get("target", "exports"));
+        if (result.success()) {
+            showInfo(result.message());
+        } else {
+            showError(result.message());
+        }
+    }
+
+    private void showGlobalStatsWindow() {
+        SavingsStatsService.BackOfficeStatsSnapshot stats = controller.loadBackOfficeStats();
+        Stage stage = new Stage();
+        VBox root = new VBox(18);
+        root.setStyle("-fx-padding: 22;");
+        root.getStyleClass().add("table-card");
+
+        Label title = new Label("Back Office Statistics");
+        title.getStyleClass().add("hero-title");
+        title.setStyle("-fx-font-size: 28px;");
+
+        Label subtitle = new Label("Global figures enriched with Currency API and holiday risk detection.");
+        subtitle.getStyleClass().add("hero-subtitle");
+
+        HBox cards = new HBox(10,
+                summaryBlock("Accounts", valueOf(String.valueOf(stats.totalSavingsAccounts()))),
+                summaryBlock("Balance", valueOf(formatMoney(stats.totalBalance()))),
+                summaryBlock("Goals", valueOf(String.valueOf(stats.totalGoals()))),
+                summaryBlock("Near holiday", valueOf(String.valueOf(stats.nearHolidayGoals())))
+        );
+
+        VBox topUsers = cardTitle("Top Users", stats.topUsers().stream()
+                .map(row -> row.userName() + " - " + row.userEmail() + " - " + formatMoney(row.balance()))
+                .reduce((left, right) -> left + "\n" + right)
+                .orElse("No users"));
+        VBox topGoals = cardTitle("Top Goals", stats.topGoals().stream()
+                .map(row -> row.goalName() + " - " + row.progressPercent().stripTrailingZeros().toPlainString() + "% - " + row.status())
+                .reduce((left, right) -> left + "\n" + right)
+                .orElse("No goals"));
+
+        root.getChildren().addAll(title, subtitle, cards, topUsers, topGoals);
+
+        Scene scene = new Scene(root, 920, 620);
+        scene.getStylesheets().add(GoalsBackOfficeView.class.getResource("/pi/savings/ui/goals-backoffice.css").toExternalForm());
+        stage.setTitle("Back Office Statistics");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    private Label valueOf(String text) {
+        Label label = new Label(text);
+        label.getStyleClass().add("summary-value");
+        return label;
     }
 }

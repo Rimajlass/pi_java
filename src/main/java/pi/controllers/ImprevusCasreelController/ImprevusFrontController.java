@@ -43,6 +43,7 @@ import pi.services.ImprevusCasreelService.AppointmentSuggestionService;
 import pi.services.ImprevusCasreelService.PreventionPlanService;
 import pi.services.ImprevusCasreelService.UserNotificationService;
 import pi.savings.ui.SavingsGoalsApp;
+import pi.tools.AdminNavigation;
 import pi.tools.AppEnv;
 
 import java.awt.Desktop;
@@ -1958,13 +1959,9 @@ public class ImprevusFrontController {
     @FXML
     private void handleGoBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/back-office-view.fxml"));
-            Scene scene = new Scene(loader.load(), 1500, 950);
             Stage stage = (Stage) imprevusListView.getScene().getWindow();
-            stage.setUserData(currentUser);
-            stage.setScene(scene);
-            stage.setTitle("Back Office - Imprevus et Cas reels");
-            stage.show();
+            User user = resolveUser(stage);
+            AdminNavigation.showUnexpectedEventsBackOffice(stage, user);
         } catch (Exception e) {
             afficherErreur("Impossible d'ouvrir le back office : " + e.getMessage());
         }

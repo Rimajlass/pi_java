@@ -38,7 +38,7 @@ public class ExpenseEditController {
     @FXML
     public void initialize() {
         categoryComboBox.setItems(FXCollections.observableArrayList(
-                "Alimentation", "Transport", "Loyer", "Sante", "Education", "Loisirs", "Other"
+                "Food", "Transport", "Rent", "Health", "Education", "Leisure", "Other"
         ));
         revenueComboBox.setCellFactory(listView -> new RevenueListCell());
         revenueComboBox.setButtonCell(new RevenueListCell());
@@ -47,7 +47,7 @@ public class ExpenseEditController {
     public void setExpense(Expense expense) {
         this.expense = expense;
         amountField.setText(String.valueOf(expense.getAmount()));
-        categoryComboBox.setValue(expense.getCategory());
+        categoryComboBox.setValue(localizeExpenseCategory(expense.getCategory()));
         expenseDatePicker.setValue(Objects.requireNonNullElse(expense.getExpenseDate(), LocalDate.now()));
         descriptionArea.setText(expense.getDescription());
     }
@@ -77,7 +77,7 @@ public class ExpenseEditController {
 
             expense.setRevenue(selectedRevenue);
             expense.setAmount(parseAmount(amountField.getText()));
-            expense.setCategory(requireValue(categoryComboBox.getValue(), "Expense category"));
+            expense.setCategory(normalizeExpenseCategory(requireValue(categoryComboBox.getValue(), "Expense category")));
             expense.setExpenseDate(Objects.requireNonNullElse(expenseDatePicker.getValue(), LocalDate.now()));
             expense.setDescription(normalizeText(descriptionArea.getText()));
 
@@ -140,8 +140,51 @@ public class ExpenseEditController {
                 setText(null);
                 return;
             }
-            setText("Revenue #" + item.getId() + " - " + item.getType() + " - "
+            setText("Revenue #" + item.getId() + " - " + localizeRevenueTypeStatic(item.getType()) + " - "
                     + String.format(Locale.US, "%.2f TND", item.getAmount()));
         }
+
+        private static String localizeRevenueTypeStatic(String value) {
+            if (value == null) {
+                return "";
+            }
+            return switch (value.trim().toUpperCase(Locale.ROOT)) {
+                case "FIXE", "FIXED" -> "FIXED";
+                case "BONUS" -> "BONUS";
+                case "FREELANCE" -> "FREELANCE";
+                default -> "OTHER";
+            };
+        }
+    }
+
+    private String normalizeExpenseCategory(String value) {
+        if (value == null) {
+            return "";
+        }
+        return switch (value.trim().toLowerCase(Locale.ROOT)) {
+            case "alimentation", "food" -> "Food";
+            case "transport" -> "Transport";
+            case "loyer", "rent" -> "Rent";
+            case "sante", "santé", "health" -> "Health";
+            case "education", "éducation" -> "Education";
+            case "loisirs", "leisure" -> "Leisure";
+            default -> "Other";
+        };
+    }
+
+    private String localizeExpenseCategory(String value) {
+        return normalizeExpenseCategory(value);
+    }
+
+    private String localizeRevenueType(String value) {
+        if (value == null) {
+            return "";
+        }
+        return switch (value.trim().toUpperCase(Locale.ROOT)) {
+            case "FIXE", "FIXED" -> "FIXED";
+            case "BONUS" -> "BONUS";
+            case "FREELANCE" -> "FREELANCE";
+            default -> "OTHER";
+        };
     }
 }

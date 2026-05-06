@@ -1,0 +1,831 @@
+/* Global light theme overlay */
+
+.root {
+    -fx-font-family: "Segoe UI";
+    -fx-accent: #5a95ff;
+    -fx-base: #dfeafb;
+    -fx-background: #eef4ff;
+    -fx-control-inner-background: #fcfeff;
+    -fx-control-inner-background-alt: #eef5ff;
+    -fx-color: #f2f7ff;
+    -fx-focus-color: #5a95ff;
+    -fx-faint-focus-color: rgba(90, 149, 255, 0.2);
+    -fx-selection-bar: #5a95ff;
+    -fx-selection-bar-non-focused: #7ca9f2;
+    -fx-text-background-color: #234470;
+    -fx-text-inner-color: #27466f;
+    -fx-highlight-fill: #5a95ff;
+    -fx-highlight-text-fill: #ffffff;
+    -fx-prompt-text-fill: #7f96b6;
+    -app-surface-1: rgba(255, 255, 255, 0.90);
+    -app-surface-2: rgba(246, 251, 255, 0.95);
+    -app-border-subtle: rgba(133, 165, 214, 0.34);
+    -app-border-strong: rgba(122, 161, 219, 0.46);
+    -app-border-row: rgba(152, 179, 220, 0.26);
+    -app-row-hover: rgba(87, 151, 247, 0.12);
+    -app-text-primary: #234470;
+    -app-text-secondary: #6381a7;
+    -app-text: -app-text-primary;
+    -app-text-muted: #55729e;
+    -app-bg-input: -fx-control-inner-background;
+    -app-insight: #506b94;
+    -app-accent-strong: #3d75c8;
+    -app-good: #2f8c63;
+    -app-bad: #c55768;
+    -app-danger-surface: rgba(255, 238, 241, 0.85);
+    -app-danger-border: rgba(219, 108, 123, 0.32);
+    -app-danger-title: #bd5668;
+    -app-chart-grid: rgba(124, 154, 199, 0.24);
+    -app-scroll-thumb: rgba(110, 146, 201, 0.46);
+    -app-scroll-thumb-hover: rgba(95, 139, 205, 0.60);
+    -app-scroll-track: rgba(222, 233, 248, 0.62);
+}
+
+.label {
+    -fx-text-fill: #234470;
+}
+
+.button {
+    -fx-background-color: rgba(245, 250, 255, 0.95);
+    -fx-border-color: rgba(101, 137, 194, 0.30);
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-text-fill: #2a4c82;
+}
+
+.button:hover {
+    -fx-background-color: rgba(236, 245, 255, 0.98);
+}
+
+.text-input,
+.text-area,
+.combo-box-base,
+.choice-box,
+.spinner,
+.date-picker,
+.list-view,
+.tree-view,
+.table-view,
+.tree-table-view {
+    -fx-background-color: #fcfeff;
+    -fx-control-inner-background: #fcfeff;
+    -fx-text-fill: #27466f;
+    -fx-prompt-text-fill: #7f96b6;
+}
+
+.admin-root {
+    -fx-background-color: #f5f7fb;
+}
+
+.side-nav {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: rgba(148, 163, 184, 0.26);
+}
+
+.brand-label {
+    -fx-text-fill: #214278;
+}
+
+.brand-subtitle {
+    -fx-text-fill: #5f769b;
+}
+
+.nav-shell {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-background-radius: 16px;
+    -fx-border-radius: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.06), 10, 0.20, 0, 3);
+}
+
+.menu-row:hover {
+    -fx-background-color: rgba(59, 130, 246, 0.10);
+}
+
+.menu-row-active {
+    -fx-background-color: #e0ecff;
+    -fx-border-color: transparent transparent transparent #3b82f6;
+    -fx-border-width: 1 1 1 4;
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
+}
+
+.menu-icon {
+    -fx-background-color: rgba(70, 138, 236, 0.20);
+}
+
+.menu-icon-text {
+    -fx-text-fill: #244881;
+}
+
+.menu-text {
+    -fx-text-fill: #0f172a;
+}
+
+.sidebar-footer {
+    -fx-background-color: rgba(232, 241, 255, 0.84);
+    -fx-border-color: rgba(99, 134, 197, 0.22) transparent transparent transparent;
+}
+
+.profile-box {
+    -fx-background-color: rgba(255, 255, 255, 0.92);
+    -fx-border-color: rgba(131, 161, 214, 0.32);
+}
+
+.profile-avatar {
+    -fx-background-color: rgba(78, 146, 244, 0.34);
+}
+
+.profile-avatar-text,
+.profile-name {
+    -fx-text-fill: #264978;
+}
+
+.profile-role {
+    -fx-text-fill: #6480a6;
+}
+
+.logout-button {
+    -fx-background-color: rgba(255, 255, 255, 0.92);
+    -fx-border-color: rgba(126, 161, 219, 0.52);
+    -fx-text-fill: #315a93;
+}
+
+.logout-button:hover {
+    -fx-background-color: rgba(236, 245, 255, 0.95);
+}
+
+.admin-title {
+    -fx-text-fill: #203d6e;
+}
+
+.admin-subtitle {
+    -fx-text-fill: #6883a8;
+}
+
+.utility-icon-btn {
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+    -fx-border-color: rgba(100, 140, 198, 0.36);
+    -fx-text-fill: #3a5d93;
+}
+
+.sidebar-theme-toggle {
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+    -fx-border-color: rgba(100, 140, 198, 0.36);
+    -fx-text-fill: #3a5d93;
+}
+
+.utility-icon-btn:hover {
+    -fx-background-color: rgba(236, 244, 255, 0.98);
+    -fx-effect: dropshadow(gaussian, rgba(98, 151, 230, 0.32), 14, 0.2, 0, 3);
+}
+
+.header-avatar {
+    -fx-background-color: linear-gradient(to bottom, #5a94ff, #4f79ee);
+}
+
+.header-button {
+    -fx-background-color: #f5f9ff;
+    -fx-border-color: rgba(96, 130, 184, 0.32);
+    -fx-text-fill: #2a4c82;
+    -fx-effect: dropshadow(gaussian, rgba(117, 149, 201, 0.22), 14, 0.16, 0, 2);
+}
+
+.header-button:hover {
+    -fx-background-color: #edf5ff;
+    -fx-border-color: rgba(93, 143, 224, 0.45);
+    -fx-effect: dropshadow(gaussian, rgba(95, 154, 248, 0.28), 18, 0.28, 0, 3);
+}
+
+.primary-button {
+    -fx-background-color: linear-gradient(to right, #4a94ff 0%, #5b79ff 100%);
+    -fx-border-color: rgba(78, 123, 202, 0.45);
+    -fx-text-fill: #ffffff;
+}
+
+.primary-button:hover {
+    -fx-background-color: linear-gradient(to right, #5ba2ff 0%, #6686ff 100%);
+}
+
+.button-icon {
+    -fx-text-fill: #466da8;
+}
+
+.primary-button-icon {
+    -fx-text-fill: #ffffff;
+}
+
+.card {
+    -fx-background-color: rgba(255, 255, 255, 0.88);
+    -fx-border-color: rgba(141, 170, 217, 0.34);
+    -fx-effect: dropshadow(gaussian, rgba(117, 141, 185, 0.16), 20, 0.20, 0, 6);
+}
+
+.section-icon {
+    -fx-background-color: rgba(86, 158, 252, 0.18);
+}
+
+.section-icon-text {
+    -fx-text-fill: #3d73c6;
+}
+
+.section-more {
+    -fx-text-fill: rgba(89, 116, 163, 0.70);
+}
+
+.card-title {
+    -fx-text-fill: #234470;
+}
+
+.search-box {
+    -fx-background-color: rgba(245, 250, 255, 0.94);
+    -fx-border-color: rgba(128, 158, 206, 0.35);
+}
+
+.search-icon {
+    -fx-text-fill: #4f72a6;
+}
+
+.filter-field {
+    -fx-background-color: rgba(252, 254, 255, 0.98);
+    -fx-border-color: rgba(128, 158, 206, 0.35);
+    -fx-text-fill: #27466f;
+    -fx-prompt-text-fill: #7f96b6;
+}
+
+.filter-field.combo-box-base > .list-cell {
+    -fx-text-fill: #27466f;
+}
+
+.filter-field.combo-box-base .arrow {
+    -fx-background-color: #6385b5;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: rgba(246, 251, 255, 0.98);
+    -fx-border-color: rgba(128, 158, 206, 0.35);
+}
+
+.combo-box-popup .list-cell {
+    -fx-text-fill: #27466f;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: rgba(78, 143, 242, 0.18);
+}
+
+.reset-button {
+    -fx-background-color: rgba(243, 249, 255, 0.95);
+    -fx-border-color: rgba(126, 162, 219, 0.38);
+    -fx-text-fill: #5073a4;
+}
+
+.reset-button:hover {
+    -fx-background-color: rgba(232, 242, 255, 0.98);
+}
+
+.apply-button {
+    -fx-background-color: linear-gradient(to right, #4b96ff, #5fa7ff);
+    -fx-text-fill: #ffffff;
+}
+
+.apply-button:hover {
+    -fx-background-color: linear-gradient(to right, #5aa2ff, #6eb1ff);
+}
+
+.table-list {
+    -fx-border-color: rgba(131, 160, 208, 0.34);
+    -fx-background-color: rgba(248, 251, 255, 0.90);
+}
+
+.table-header-grid {
+    -fx-background-color: #eaf2ff;
+    -fx-border-color: rgba(141, 171, 217, 0.34);
+}
+
+.table-header-label,
+.table-header-cell,
+#adminsTableHeader .table-header-label,
+#usersTableHeader .table-header-label {
+    -fx-text-fill: #55729e;
+}
+
+.table-row {
+    -fx-border-color: rgba(152, 179, 220, 0.26) transparent transparent transparent;
+}
+
+.table-row:hover {
+    -fx-background-color: rgba(87, 151, 247, 0.12);
+    -fx-effect: dropshadow(gaussian, rgba(101, 157, 236, 0.18), 16, 0.22, 0, 0);
+}
+
+.cell-text {
+    -fx-text-fill: #2a486f;
+}
+
+.col-balance {
+    -fx-text-fill: #3d75c8;
+}
+
+.tag-admin {
+    -fx-background-color: rgba(229, 104, 121, 0.20);
+    -fx-border-color: rgba(219, 108, 123, 0.50);
+    -fx-text-fill: #c55768;
+}
+
+.tag-salary {
+    -fx-background-color: rgba(80, 147, 240, 0.18);
+    -fx-border-color: rgba(79, 145, 236, 0.44);
+    -fx-text-fill: #3f7fd0;
+}
+
+.tag-student {
+    -fx-background-color: rgba(72, 180, 122, 0.18);
+    -fx-border-color: rgba(73, 171, 118, 0.42);
+    -fx-text-fill: #317f59;
+}
+
+.tag-user {
+    -fx-background-color: rgba(113, 134, 164, 0.22);
+    -fx-text-fill: #44628e;
+}
+
+.action-outline {
+    -fx-border-color: rgba(79, 134, 213, 0.64);
+    -fx-text-fill: #4f79b8;
+}
+
+.action-outline:hover {
+    -fx-background-color: rgba(87, 151, 247, 0.12);
+}
+
+.action-solid {
+    -fx-background-color: linear-gradient(to right, #4b96ff, #5fa7ff);
+}
+
+.action-solid:hover {
+    -fx-background-color: linear-gradient(to right, #5aa2ff, #6eb1ff);
+}
+
+.content-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(110, 146, 201, 0.46);
+}
+
+.content-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: rgba(95, 139, 205, 0.60);
+}
+
+.content-scroll .scroll-bar:vertical .track {
+    -fx-background-color: rgba(222, 233, 248, 0.62);
+}
+
+.results-footer {
+    -fx-background-color: rgba(244, 249, 255, 0.92);
+    -fx-border-color: rgba(133, 165, 214, 0.34);
+}
+
+.results-text {
+    -fx-text-fill: #6381a7;
+}
+
+.pager-btn-ghost {
+    -fx-background-color: rgba(234, 243, 255, 0.95);
+    -fx-text-fill: #557eb5;
+}
+
+.pager-btn-active {
+    -fx-background-color: linear-gradient(to right, #4b96ff, #5f83ff);
+    -fx-text-fill: #ffffff;
+}
+
+/* Transactions Management - Premium Light */
+.tx-root {
+    -fx-background-color: #f5f7fb;
+}
+
+.tx-root .tx-title {
+    -fx-text-fill: #0f172a;
+}
+
+.tx-root .tx-subtitle {
+    -fx-text-fill: #64748b;
+}
+
+.tx-root .tx-chip {
+    -fx-background-color: rgba(37, 99, 235, 0.12);
+    -fx-border-color: rgba(37, 99, 235, 0.28);
+    -fx-text-fill: #2563eb;
+}
+
+.tx-root .tx-card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-background-radius: 14px;
+    -fx-border-radius: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 12, 0.2, 0, 6);
+}
+
+.tx-root .card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
+}
+
+.tx-root .stat-card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(58, 141, 255, 0.14);
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
+}
+
+.tx-root .tx-mgmt-kpi {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e5eaf2;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 12, 0.2, 0, 6);
+}
+
+.tx-root .tx-mgmt-kpi-expense {
+    -fx-border-color: rgba(239, 68, 68, 0.26);
+    -fx-background-color: linear-gradient(to bottom, rgba(239, 68, 68, 0.09), #ffffff 70%);
+}
+
+.tx-root .tx-mgmt-kpi-saving {
+    -fx-border-color: rgba(34, 197, 94, 0.26);
+    -fx-background-color: linear-gradient(to bottom, rgba(34, 197, 94, 0.09), #ffffff 70%);
+}
+
+.tx-root .tx-mgmt-kpi-investment {
+    -fx-border-color: rgba(168, 85, 247, 0.26);
+    -fx-background-color: linear-gradient(to bottom, rgba(168, 85, 247, 0.09), #ffffff 70%);
+}
+
+.tx-root .tx-kpi-icon-expense {
+    -fx-background-color: rgba(239, 68, 68, 0.14);
+    -fx-border-color: rgba(239, 68, 68, 0.32);
+}
+
+.tx-root .tx-kpi-icon-saving {
+    -fx-background-color: rgba(34, 197, 94, 0.14);
+    -fx-border-color: rgba(34, 197, 94, 0.32);
+}
+
+.tx-root .tx-kpi-icon-investment {
+    -fx-background-color: rgba(168, 85, 247, 0.14);
+    -fx-border-color: rgba(168, 85, 247, 0.32);
+}
+
+.tx-root .tx-mgmt-kpi-label {
+    -fx-text-fill: #64748b;
+}
+
+.tx-root .tx-mgmt-kpi-value {
+    -fx-text-fill: #0f172a;
+}
+
+.tx-root .tx-mgmt-kpi-subtext {
+    -fx-text-fill: #64748b;
+}
+
+.tx-root .tx-kpi-line-expense {
+    -fx-stroke: #ef4444;
+}
+
+.tx-root .tx-kpi-line-saving {
+    -fx-stroke: #22c55e;
+}
+
+.tx-root .tx-kpi-line-investment {
+    -fx-stroke: #a855f7;
+}
+
+.tx-root .tx-kpi-spark-dot-expense {
+    -fx-fill: #ef4444;
+}
+
+.tx-root .tx-kpi-spark-dot-saving {
+    -fx-fill: #22c55e;
+}
+
+.tx-root .tx-kpi-spark-dot-investment {
+    -fx-fill: #a855f7;
+}
+
+.tx-root .tx-section-icon-filter {
+    -fx-background-color: rgba(37, 99, 235, 0.14);
+    -fx-border-color: rgba(37, 99, 235, 0.34);
+}
+
+.tx-root .tx-section-icon-create {
+    -fx-background-color: rgba(58, 141, 255, 0.16);
+    -fx-border-color: rgba(58, 141, 255, 0.34);
+}
+
+.tx-root .tx-section-icon-table {
+    -fx-background-color: rgba(99, 102, 241, 0.13);
+    -fx-border-color: rgba(99, 102, 241, 0.30);
+}
+
+.tx-root .field-label {
+    -fx-text-fill: #334155;
+    -fx-font-weight: 700;
+}
+
+.tx-root .tx-focus-field {
+    -fx-background-color: #f1f3f8;
+    -fx-border-color: #d9e3f0;
+    -fx-text-fill: #1e293b;
+    -fx-prompt-text-fill: #64748b;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-padding: 8px;
+}
+
+.tx-root .input-field {
+    -fx-background-color: #f1f3f8;
+    -fx-border-color: #d9e3f0;
+    -fx-text-fill: #1e293b;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-padding: 8px;
+}
+
+.tx-root .tx-focus-field:hover {
+    -fx-border-color: rgba(59, 130, 246, 0.44);
+}
+
+.tx-root .tx-focus-field:focused,
+.tx-root .tx-focus-field.combo-box-base:focused,
+.tx-root .tx-focus-field.date-picker:focused {
+    -fx-border-color: #3b82f6;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.24), 11, 0.18, 0, 0);
+}
+
+.tx-root .tx-ghost-cta {
+    -fx-background-color: #eef2f7;
+    -fx-border-color: #d9e3f0;
+    -fx-text-fill: #475569;
+}
+
+.tx-root .button-outline {
+    -fx-background-color: #eef2f7;
+    -fx-border-color: #d9e3f0;
+    -fx-text-fill: #475569;
+}
+
+.tx-root .tx-ghost-cta:hover {
+    -fx-background-color: rgba(59, 130, 246, 0.12);
+    -fx-border-color: rgba(59, 130, 246, 0.32);
+}
+
+.tx-root .tx-primary-cta {
+    -fx-background-color: linear-gradient(to right, #3b82f6, #2563eb);
+    -fx-border-color: rgba(37, 99, 235, 0.46);
+    -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.34), 16, 0.20, 0, 3);
+}
+
+.tx-root .button-primary {
+    -fx-background-color: linear-gradient(to right, #3b82f6, #2563eb);
+    -fx-border-color: rgba(37, 99, 235, 0.46);
+    -fx-text-fill: #ffffff;
+}
+
+.tx-root .tx-primary-cta:hover {
+    -fx-background-color: linear-gradient(to right, #4a90f8, #2d6cea);
+}
+
+.tx-root .tx-mgmt-table {
+    -fx-border-color: rgba(58, 141, 255, 0.16);
+}
+
+.tx-root .tx-mgmt-table .column-header-background {
+    -fx-background-color: #eef2f7;
+    -fx-border-color: #d9e3f0;
+}
+
+.tx-root .tx-mgmt-table .column-header .label {
+    -fx-text-fill: #1e293b;
+    -fx-font-weight: 800;
+}
+
+.tx-root .tx-mgmt-table .table-row-cell {
+    -fx-border-color: transparent transparent rgba(15, 23, 42, 0.08) transparent;
+}
+
+.tx-root .tx-mgmt-table .table-row-cell:hover {
+    -fx-background-color: #f1f5ff;
+}
+
+.tx-root .tx-table-row-even {
+    -fx-background-color: #fafafa;
+}
+
+.tx-root .tx-table-row-odd {
+    -fx-background-color: #ffffff;
+}
+
+.tx-root .tx-type-expense {
+    -fx-text-fill: #ef4444;
+    -fx-background-color: #fee2e2;
+    -fx-border-color: rgba(239, 68, 68, 0.20);
+}
+
+.tx-root .badge-expense {
+    -fx-text-fill: #ef4444;
+    -fx-background-color: #fee2e2;
+    -fx-border-color: rgba(239, 68, 68, 0.24);
+}
+
+.tx-root .tx-type-saving {
+    -fx-text-fill: #22c55e;
+    -fx-background-color: #dcfce7;
+    -fx-border-color: rgba(34, 197, 94, 0.20);
+}
+
+.tx-root .badge-saving {
+    -fx-text-fill: #22c55e;
+    -fx-background-color: #dcfce7;
+    -fx-border-color: rgba(34, 197, 94, 0.24);
+}
+
+.tx-root .tx-type-investment {
+    -fx-text-fill: #8b5cf6;
+    -fx-background-color: rgba(139, 92, 246, 0.12);
+    -fx-border-color: rgba(139, 92, 246, 0.20);
+}
+
+.tx-root .badge-investment {
+    -fx-text-fill: #8b5cf6;
+    -fx-background-color: rgba(139, 92, 246, 0.13);
+    -fx-border-color: rgba(139, 92, 246, 0.24);
+}
+
+.tx-root .tx-mini-view {
+    -fx-border-color: #c7d5ea;
+    -fx-text-fill: #334155;
+    -fx-background-color: #eef2f7;
+}
+
+.tx-root .tx-mini-view:hover {
+    -fx-background-color: rgba(59, 130, 246, 0.10);
+    -fx-border-color: rgba(59, 130, 246, 0.32);
+}
+
+.tx-root .tx-mini-edit {
+    -fx-background-color: linear-gradient(to right, #2563eb, #3a8dff);
+    -fx-border-color: rgba(37, 99, 235, 0.40);
+}
+
+/* Salary Profile - single source of truth for LIGHT mode */
+.salary-profile-root.salary-profile-root,
+.salary-profile-root.salary-profile-root.app-root,
+.salary-profile-root.salary-profile-root.dark-mode-dashboard,
+.salary-profile-root.salary-profile-root .salary-profile-scroll,
+.salary-profile-root.salary-profile-root .salary-profile-scroll > .viewport,
+.salary-profile-root.salary-profile-root .main-content-wrap,
+.salary-profile-root.salary-profile-root .salary-shell {
+    -fx-background-color: #eef1f7;
+}
+
+.salary-profile-root.salary-profile-root .sidebar,
+.salary-profile-root.salary-profile-root .salary-sidebar {
+    -fx-background-color: #e4e9f3;
+    -fx-border-color: #d2dbeb;
+}
+
+.salary-profile-root.salary-profile-root .sidebar-brand,
+.salary-profile-root.salary-profile-root .sidebar-item,
+.salary-profile-root.salary-profile-root .sidebar-menu-item,
+.salary-profile-root.salary-profile-root .salary-title,
+.salary-profile-root.salary-profile-root .section-title-main,
+.salary-profile-root.salary-profile-root .profile-name,
+.salary-profile-root.salary-profile-root .field-label,
+.salary-profile-root.salary-profile-root .kpi-mini-label,
+.salary-profile-root.salary-profile-root .records-chip,
+.salary-profile-root.salary-profile-root .footer-brand,
+.salary-profile-root.salary-profile-root .footer-pill-title,
+.salary-profile-root.salary-profile-root .footer-heading {
+    -fx-text-fill: #234470;
+}
+
+.salary-profile-root.salary-profile-root .sidebar-brand-icon,
+.salary-profile-root.salary-profile-root .sidebar-copy,
+.salary-profile-root.salary-profile-root .salary-subtitle,
+.salary-profile-root.salary-profile-root .profile-email,
+.salary-profile-root.salary-profile-root .balance-sub,
+.salary-profile-root.salary-profile-root .converter-rate,
+.salary-profile-root.salary-profile-root .kpi-mini-sub,
+.salary-profile-root.salary-profile-root .small-note,
+.salary-profile-root.salary-profile-root .metric-score,
+.salary-profile-root.salary-profile-root .footer-text,
+.salary-profile-root.salary-profile-root .footer-pill-text,
+.salary-profile-root.salary-profile-root .footer-link {
+    -fx-text-fill: #6381a7;
+}
+
+.salary-profile-root.salary-profile-root .card,
+.salary-profile-root.salary-profile-root .profile-card,
+.salary-profile-root.salary-profile-root .transactions-card,
+.salary-profile-root.salary-profile-root .behavior-card,
+.salary-profile-root.salary-profile-root .converter-card,
+.salary-profile-root.salary-profile-root .dark-card,
+.salary-profile-root.salary-profile-root .light-card,
+.salary-profile-root.salary-profile-root .profile-footer,
+.salary-profile-root.salary-profile-root .premium-card,
+.salary-profile-root.salary-profile-root .dark-mode-row,
+.salary-profile-root.salary-profile-root .empty-state-box,
+.salary-profile-root.salary-profile-root .kpi-mini,
+.salary-profile-root.salary-profile-root .footer-pill {
+    -fx-background-color: #edf1f8;
+    -fx-border-color: #d7dfec;
+}
+
+.salary-profile-root.salary-profile-root .input-shell,
+.salary-profile-root.salary-profile-root .mini-combo,
+.salary-profile-root.salary-profile-root .converter-input,
+.salary-profile-root.salary-profile-root .salary-tx-table {
+    -fx-background-color: #f5f8fd;
+    -fx-border-color: #d3dceb;
+}
+
+.salary-profile-root.salary-profile-root .field-input,
+.salary-profile-root.salary-profile-root .converter-input,
+.salary-profile-root.salary-profile-root .mini-combo .list-cell,
+.salary-profile-root.salary-profile-root .salary-tx-table .column-header .label,
+.salary-profile-root.salary-profile-root .salary-tx-table .table-cell {
+    -fx-text-fill: #27466f;
+}
+
+.salary-profile-root.salary-profile-root .field-input,
+.salary-profile-root.salary-profile-root .converter-input {
+    -fx-prompt-text-fill: #7f96b6;
+}
+
+.salary-profile-root.salary-profile-root .button-secondary,
+.salary-profile-root.salary-profile-root .field-upload-btn,
+.salary-profile-root.salary-profile-root .mini-link-btn,
+.salary-profile-root.salary-profile-root .social-icon-btn,
+.salary-profile-root.salary-profile-root .swap-btn {
+    -fx-background-color: #f5f8fd;
+    -fx-border-color: rgba(101, 137, 194, 0.30);
+    -fx-text-fill: #2a4c82;
+}
+
+.salary-profile-root.salary-profile-root .button-primary,
+.salary-profile-root.salary-profile-root .convert-btn,
+.salary-profile-root.salary-profile-root .premium-button {
+    -fx-background-color: linear-gradient(to right, #4a94ff 0%, #5b79ff 100%);
+    -fx-text-fill: #ffffff;
+}
+
+.salary-profile-root.salary-profile-root .balance-card,
+.salary-profile-root.salary-profile-root .side-balance-card {
+    -fx-background-color: linear-gradient(to bottom right, #4f7bff, #6f69f7 58%, #8a63ec);
+    -fx-border-color: rgba(255, 255, 255, 0.32);
+}
+
+.salary-profile-root.salary-profile-root .side-title,
+.salary-profile-root.salary-profile-root .side-amount,
+.salary-profile-root.salary-profile-root .side-rate,
+.salary-profile-root.salary-profile-root .side-foot,
+.salary-profile-root.salary-profile-root .balance-card .label,
+.salary-profile-root.salary-profile-root .side-balance-card .label {
+    -fx-text-fill: #ffffff;
+}
+
+.salary-profile-root.salary-profile-root .side-currency-badge {
+    -fx-background-color: rgba(255, 255, 255, 0.94);
+    -fx-text-fill: #4f46e5;
+}
+
+.salary-profile-root.salary-profile-root .ai-message {
+    -fx-background-color: rgba(99, 102, 241, 0.12);
+    -fx-text-fill: #4d6a92;
+}
+
+.salary-profile-root.salary-profile-root .salary-tx-table .virtual-flow,
+.salary-profile-root.salary-profile-root .salary-tx-table .corner,
+.salary-profile-root.salary-profile-root .salary-tx-table .filler,
+.salary-profile-root.salary-profile-root .salary-tx-table .table-row-cell {
+    -fx-background-color: #f5f8fd;
+}
+
+.salary-profile-root.salary-profile-root .salary-tx-table .column-header-background {
+    -fx-background-color: #eaf2ff;
+}
+
+.salary-profile-root.salary-profile-root .salary-tx-table .table-row-cell:hover {
+    -fx-background-color: rgba(87, 151, 247, 0.12);
+}
+
+.salary-profile-root.salary-profile-root .salary-tx-table .tx-type-expense {
+    -fx-text-fill: #c55768;
+}
+
+.salary-profile-root.salary-profile-root .salary-tx-table .tx-type-saving {
+    -fx-text-fill: #2f8c63;
+}
+
+.salary-profile-root.salary-profile-root .salary-tx-table .tx-type-info {
+    -fx-text-fill: #3d75c8;
+}
