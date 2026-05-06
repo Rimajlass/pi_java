@@ -13,12 +13,4 @@ public class CoursQuizBackOfficeController {
     public void onShow() {
         // placeholder for future refresh hooks
     }
-
-    @FXML
-    private void onBackToFront() {
-        if (dashboardController != null) {
-            dashboardController.showFront();
-        }
-    }
 }
-

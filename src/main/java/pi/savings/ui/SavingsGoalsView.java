@@ -1669,6 +1669,15 @@ final class SavingsGoalsView {
 
         Label headerLabel = new Label("Dynamic Goals Analytics Dashboard");
         headerLabel.getStyleClass().add("section-title");
+        Button closeButton = new Button("X");
+        closeButton.getStyleClass().add("analytics-close-btn");
+        closeButton.setTooltip(new Tooltip("Close analytics"));
+        closeButton.setOnAction(event -> stage.close());
+        Region headerSpacer = new Region();
+        HBox.setHgrow(headerSpacer, Priority.ALWAYS);
+        HBox headerRow = new HBox(12, headerLabel, headerSpacer, closeButton);
+        headerRow.setAlignment(Pos.CENTER_LEFT);
+
         Label subtitleLabel = new Label("Smart statistics by selected attribute (API-based analytics over live MySQL data)");
         subtitleLabel.getStyleClass().add("section-subtitle");
 
@@ -1726,7 +1735,7 @@ final class SavingsGoalsView {
         riskCard.getChildren().addAll(riskTitle, riskCountLabel, riskRows);
 
         VBox content = new VBox(16);
-        content.getChildren().addAll(headerLabel, subtitleLabel, controls, kpiRow, healthMessageLabel, chartsRow, riskCard, whatIfCard);
+        content.getChildren().addAll(headerRow, subtitleLabel, controls, kpiRow, healthMessageLabel, chartsRow, riskCard, whatIfCard);
         content.setPadding(new Insets(20));
 
         ScrollPane scrollPane = new ScrollPane(content);

@@ -59,6 +59,23 @@
     -fx-cursor: hand;
 }
 
+.pill-button-logout {
+    -fx-background-color: linear-gradient(to right, #38bdf8, #0ea5e9);
+    -fx-text-fill: white;
+    -fx-font-weight: 800;
+    -fx-padding: 11 22 11 22;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.35), 16, 0.20, 0, 6);
+}
+
+.pill-button-logout:hover {
+    -fx-background-color: linear-gradient(to right, #60d3ff, #1ab3ff);
+}
+
 .hero-card {
     -fx-padding: 32 34 32 34;
     -fx-background-color:
@@ -67,6 +84,72 @@
     -fx-background-radius: 28;
     -fx-border-radius: 28;
     -fx-effect: dropshadow(gaussian, rgba(5, 44, 75, 0.28), 30, 0.22, 0, 10);
+}
+
+.hero-banner {
+    -fx-padding: 44 44 44 44;
+    -fx-min-height: 260px;
+    -fx-background-color: transparent;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center center;
+    -fx-background-size: cover;
+    -fx-border-color: rgba(255, 255, 255, 0.12);
+    -fx-border-width: 1;
+    -fx-border-radius: 28;
+}
+
+.hero-banner-overlay {
+    -fx-background-radius: 28;
+    -fx-background-color:
+        radial-gradient(center 50% 40%, radius 65%, rgba(255,255,255,0.06), transparent),
+        linear-gradient(to right, rgba(6, 56, 89, 0.18), rgba(10, 133, 170, 0.10));
+}
+
+.hero-banner-content {
+    -fx-padding: 4 0 4 0;
+}
+
+.hero-banner-image {
+    -fx-opacity: 1.0;
+}
+
+.hero-eyebrow {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: rgba(255, 255, 255, 0.92);
+    -fx-padding: 8 14 8 14;
+    -fx-background-color: rgba(255, 255, 255, 0.14);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(255, 255, 255, 0.16);
+    -fx-border-radius: 999;
+    -fx-border-width: 1;
+}
+
+.hero-text-centered {
+    -fx-font-size: 14px;
+    -fx-text-fill: rgba(255, 255, 255, 0.88);
+}
+
+.hero-breadcrumb-centered {
+    -fx-font-size: 12px;
+    -fx-text-fill: rgba(255, 255, 255, 0.76);
+}
+
+.hero-card-photo {
+    -fx-background-image: url("../images/lessons.jpg");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center center;
+    -fx-background-size: contain;
+    -fx-background-color: rgba(6, 56, 89, 0.96);
+}
+
+.hero-photo-text {
+    -fx-padding: 14 18 14 18;
+    -fx-background-color: rgba(6, 56, 89, 0.52);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(255, 255, 255, 0.18);
+    -fx-border-width: 1;
+    -fx-border-radius: 18;
 }
 
 .hero-title {
@@ -90,6 +173,11 @@
 .hero-breadcrumb {
     -fx-font-size: 12px;
     -fx-text-fill: rgba(255, 255, 255, 0.72);
+}
+
+.hero-illustration {
+    -fx-opacity: 0.92;
+    -fx-effect: dropshadow(gaussian, rgba(5, 44, 75, 0.35), 22, 0.22, 0, 10);
 }
 
 .hero-primary-button {
@@ -216,6 +304,11 @@
     -fx-text-fill: #708194;
 }
 
+.section-illustration {
+    -fx-opacity: 0.96;
+    -fx-effect: dropshadow(gaussian, rgba(5, 44, 75, 0.18), 14, 0.18, 0, 4);
+}
+
 .field-label {
     -fx-font-size: 14px;
     -fx-font-weight: 700;
@@ -257,6 +350,43 @@
     -fx-background-radius: 14;
     -fx-border-radius: 14;
     -fx-cursor: hand;
+}
+
+/* -------------------- Games (Crossword) -------------------- */
+.games-subcard {
+    -fx-padding: 16 16 16 16;
+    -fx-background-color: linear-gradient(to bottom, #fbfdff, #f2f7fb);
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-border-color: rgba(208, 220, 231, 0.95);
+}
+
+.crossword-cell {
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0b375a;
+    -fx-text-inner-color: #0b375a;
+    -fx-prompt-text-fill: rgba(11, 55, 90, 0.55);
+    -fx-control-inner-background: white;
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: rgba(208, 220, 231, 0.95);
+}
+
+.crossword-cell .text {
+    -fx-fill: #0b375a;
+}
+
+.crossword-cell:focused {
+    -fx-border-color: rgba(21, 182, 201, 0.8);
+    -fx-effect: dropshadow(gaussian, rgba(21, 182, 201, 0.25), 10, 0.20, 0, 2);
+}
+
+.crossword-block {
+    -fx-background-color: rgba(15, 23, 42, 0.78);
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
 }
 
 
@@ -397,6 +527,102 @@
     -fx-min-width: 230px;
 }
 
+.course-card-v2 {
+    -fx-padding: 0;
+    -fx-spacing: 0;
+}
+
+.course-media-header {
+    -fx-pref-height: 160px;
+    -fx-min-height: 160px;
+    -fx-background-radius: 20 20 0 0;
+    -fx-border-radius: 20 20 0 0;
+    -fx-background-insets: 0;
+}
+
+.course-media-default {
+    -fx-background-color: linear-gradient(to right, #0a4f7a, #178bb5);
+}
+
+.course-media-video {
+    -fx-background-color: linear-gradient(to right, #0a4f7a, #0c7dd6);
+}
+
+.course-media-pdf {
+    -fx-background-color: linear-gradient(to right, #7c3aed, #4f46e5);
+}
+
+.course-media-image {
+    -fx-background-color: linear-gradient(to right, #f59e0b, #ef4444);
+}
+
+.course-media-icon {
+    -fx-font-size: 54px;
+    -fx-font-weight: 900;
+    -fx-text-fill: rgba(255, 255, 255, 0.92);
+}
+
+.course-media-badge {
+    -fx-padding: 6 10 6 10;
+    -fx-background-radius: 999;
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.22), 10, 0.18, 0, 3);
+}
+
+.course-media-badge-default { -fx-background-color: rgba(255, 255, 255, 0.22); }
+.course-media-badge-video { -fx-background-color: rgba(255, 255, 255, 0.22); }
+.course-media-badge-pdf { -fx-background-color: rgba(255, 255, 255, 0.22); }
+.course-media-badge-image { -fx-background-color: rgba(255, 255, 255, 0.22); }
+
+.course-card-content {
+    -fx-padding: 14 16 16 16;
+    -fx-spacing: 10;
+}
+
+.course-card-desc {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6f8194;
+    -fx-line-spacing: 1px;
+}
+
+.course-chips {
+    -fx-padding: 2 0 2 0;
+}
+
+.course-chip {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-padding: 6 10 6 10;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-width: 1;
+}
+
+.course-chip-primary {
+    -fx-text-fill: #0f6aa6;
+    -fx-background-color: rgba(15, 106, 166, 0.10);
+    -fx-border-color: rgba(15, 106, 166, 0.18);
+}
+
+.course-chip-secondary {
+    -fx-text-fill: #6f8194;
+    -fx-background-color: rgba(111, 129, 148, 0.10);
+    -fx-border-color: rgba(111, 129, 148, 0.18);
+}
+
+.course-start-button {
+    -fx-padding: 12 16 12 16;
+    -fx-background-radius: 999;
+    -fx-font-weight: 800;
+}
+
+.course-start-default { -fx-background-color: linear-gradient(to right, #0a4f7a, #178bb5); -fx-text-fill: white; }
+.course-start-video { -fx-background-color: linear-gradient(to right, #0a4f7a, #0c7dd6); -fx-text-fill: white; }
+.course-start-pdf { -fx-background-color: linear-gradient(to right, #7c3aed, #4f46e5); -fx-text-fill: white; }
+.course-start-image { -fx-background-color: linear-gradient(to right, #f59e0b, #ef4444); -fx-text-fill: white; }
+
 .course-card:hover {
     -fx-border-color: #b7d7f1;
     -fx-effect: dropshadow(gaussian, rgba(12, 116, 182, 0.16), 18, 0.20, 0, 6);
@@ -427,6 +653,9 @@
 .course-badge-video { -fx-background-color: linear-gradient(to right, #15b6c9, #0c7dd6); }
 .course-badge-pdf { -fx-background-color: linear-gradient(to right, #7c3aed, #4f46e5); }
 .course-badge-image { -fx-background-color: linear-gradient(to right, #f59e0b, #ef4444); }
+.course-badge-bronze { -fx-background-color: linear-gradient(to right, #b45309, #f59e0b); }
+.course-badge-silver { -fx-background-color: linear-gradient(to right, #64748b, #94a3b8); }
+.course-badge-gold { -fx-background-color: linear-gradient(to right, #f59e0b, #fbbf24); }
 
 .course-detail-shell {
     -fx-padding: 4 0 0 0;

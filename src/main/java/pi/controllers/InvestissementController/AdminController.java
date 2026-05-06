@@ -7,6 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Button;
@@ -15,16 +16,24 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import pi.entities.Investissement;
 import pi.entities.Objectif;
 import pi.entities.User;
+import pi.mains.Main;
 import pi.services.InvestissementService.InvestissementService;
 import pi.services.InvestissementService.ObjectifService;
+import pi.tools.AdminNavigation;
+import pi.tools.ThemeManager;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class AdminController {
@@ -52,6 +61,8 @@ public class AdminController {
     @FXML private Label totalObjLabel;
     @FXML private Label completedObjLabel;
     @FXML private PieChart objectifChart;
+    @FXML private VBox menuList;
+    @FXML private Label feedbackLabel;
 
     private final InvestissementService investissementService = new InvestissementService();
     private final ObjectifService objectifService = new ObjectifService();
@@ -174,6 +185,85 @@ public class AdminController {
         this.currentUser = user;
         loadInvestissements();
         loadObjectifs();
+    }
+
+    @FXML
+    private void handleSidebarSelection(MouseEvent event) {
+        if (!(event.getSource() instanceof HBox selectedRow) || menuList == null) {
+            return;
+        }
+
+        menuList.getChildren().stream()
+                .filter(HBox.class::isInstance)
+                .map(HBox.class::cast)
+                .forEach(row -> row.getStyleClass().remove("menu-row-active"));
+
+        if (!selectedRow.getStyleClass().contains("menu-row-active")) {
+            selectedRow.getStyleClass().add("menu-row-active");
+        }
+
+        if (selectedRow.getChildren().size() < 2 || !(selectedRow.getChildren().get(1) instanceof Label menuLabel)) {
+            return;
+        }
+
+        String key = menuLabel.getText() == null ? "" : menuLabel.getText().trim().toLowerCase(Locale.ROOT);
+        switch (key) {
+            case "users", "transactions", "course & quiz", "unexpected events", "real cases",
+                 "revenues", "expenses", "reports", "objectives", "reclamations", "goals",
+                 "statistics", "ai quiz generator" -> openWindow("/pi/mains/admin-backend-view.fxml", "Admin Backend");
+            case "investments" -> {
+                // Already on investments page.
+            }
+            default -> {
+                // Placeholder entries not yet wired.
+            }
+        }
+    }
+
+    @FXML
+    private void handleOpenFrontInterfaceFromSidebar(MouseEvent event) {
+        openWindow("/Expense/Revenue/FRONT/salary-expense-view.fxml", "Income & Expense Front Office");
+    }
+
+    @FXML
+    private void handleLogout() {
+        openWindow("/pi/mains/login-view.fxml", "User Secure Login");
+    }
+
+    private void openWindow(String resource, String title) {
+        try {
+            if ("/pi/mains/admin-backend-view.fxml".equals(resource)) {
+                Stage stage = new Stage();
+                stage.setTitle(title);
+                stage.setUserData(currentUser);
+                AdminNavigation.showUsersManagement(stage, currentUser);
+                if (feedbackLabel != null && feedbackLabel.getScene() != null) {
+                    stage.initOwner(feedbackLabel.getScene().getWindow());
+                }
+                stage.show();
+                return;
+            }
+            Parent root = FXMLLoader.load(Main.class.getResource(resource));
+            Stage stage = new Stage();
+            stage.setTitle(title);
+            Scene scene = new Scene(root, 1460, 900);
+            if (resource != null && resource.contains("/pi/mains/transactions-management-view.fxml")) {
+                scene.getStylesheets().add(Main.class.getResource("/pi/styles/admin-backend.css").toExternalForm());
+                scene.getStylesheets().add(Main.class.getResource("/pi/styles/user-show.css").toExternalForm());
+                scene.getStylesheets().add(Main.class.getResource("/pi/styles/edit-user.css").toExternalForm());
+                scene.getStylesheets().add(Main.class.getResource("/pi/styles/transactions-management.css").toExternalForm());
+                ThemeManager.registerScene(scene);
+            }
+            stage.setScene(scene);
+            if (feedbackLabel != null && feedbackLabel.getScene() != null) {
+                stage.initOwner(feedbackLabel.getScene().getWindow());
+            }
+            stage.show();
+        } catch (IOException exception) {
+            if (feedbackLabel != null) {
+                feedbackLabel.setText("Unable to open: " + title);
+            }
+        }
     }
 
     private void loadInvestissements() {

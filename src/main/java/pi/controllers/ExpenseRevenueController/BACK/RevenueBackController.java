@@ -27,6 +27,7 @@ import pi.entities.User;
 import pi.mains.Main;
 import pi.services.RevenueExpenseService.RevenueService;
 import pi.services.UserTransactionService.TransactionService;
+import pi.tools.AdminNavigation;
 import pi.tools.ThemeManager;
 
 import java.io.IOException;
@@ -176,6 +177,8 @@ public class RevenueBackController {
                 openWindow("/back-office-view.fxml", "Unexpected Events & Real Cases");
             } else if ("Expenses".equalsIgnoreCase(key)) {
                 handleOpenExpenseInterface();
+            } else if ("Investments".equalsIgnoreCase(key)) {
+                openWindow("/Invest/admin.fxml", "Investments Back Office");
             }
         }
     }
@@ -187,8 +190,24 @@ public class RevenueBackController {
 
     private void openWindow(String resource, String title) {
         try {
+            if ("/pi/mains/admin-backend-view.fxml".equals(resource)) {
+                Stage stage;
+                if (feedbackLabel != null && feedbackLabel.getScene() != null && feedbackLabel.getScene().getWindow() instanceof Stage currentStage) {
+                    stage = currentStage;
+                } else {
+                    stage = new Stage();
+                }
+                User user = stage.getUserData() instanceof User u ? u : null;
+                AdminNavigation.showUsersManagement(stage, user);
+                return;
+            }
             Parent root = FXMLLoader.load(Main.class.getResource(resource));
-            Stage stage = new Stage();
+            Stage stage;
+            if (feedbackLabel != null && feedbackLabel.getScene() != null && feedbackLabel.getScene().getWindow() instanceof Stage currentStage) {
+                stage = currentStage;
+            } else {
+                stage = new Stage();
+            }
             stage.setTitle(title);
             Scene scene = new Scene(root, 1460, 900);
             if (resource != null && resource.contains("/pi/mains/transactions-management-view.fxml")) {
@@ -199,9 +218,6 @@ public class RevenueBackController {
                 ThemeManager.registerScene(scene);
             }
             stage.setScene(scene);
-            if (feedbackLabel != null && feedbackLabel.getScene() != null) {
-                stage.initOwner(feedbackLabel.getScene().getWindow());
-            }
             stage.show();
         } catch (IOException exception) {
             showError("Unable to open interface: " + exception.getMessage());

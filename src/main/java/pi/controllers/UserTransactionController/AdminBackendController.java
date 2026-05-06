@@ -35,8 +35,11 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.converter.DefaultStringConverter;
 import pi.controllers.CoursQuizController.AdminCoursesQuizBackOfficeFactory;
+import pi.controllers.AiQuizController.AdminAiQuizGeneratorFactory;
+import pi.controllers.AiQuizController.AiQuizGeneratorController;
 import pi.controllers.ExpenseRevenueController.BACK.AdminRevenueExpenseBackOfficeFactory;
 import pi.controllers.ImprevusCasreelController.AdminUnexpectedCasesBackOfficeFactory;
+import pi.controllers.InvestissementController.AdminController;
 import pi.entities.User;
 import pi.mains.Main;
 import pi.savings.ui.AdminSavingsBackOfficeFactory;
@@ -162,7 +165,8 @@ public class AdminBackendController {
     private Parent expenseWorkspace;
     private Parent unexpectedWorkspace;
     private Parent realCasesWorkspace;
-    private Parent transactionsWorkspace;
+    private Parent aiQuizWorkspace;
+    private AiQuizGeneratorController aiQuizController;
 
     @FXML
     public void initialize() {
@@ -214,9 +218,35 @@ public class AdminBackendController {
         }
 
         String menuKey = extractMenuKey(selectedRow);
-        if (!menuKey.isEmpty()) {
-            routeMenuSelection(menuKey);
+        if (menuKey.isEmpty()) {
+            return;
         }
+        System.out.println("[AdminBackend] menu click: " + menuKey);
+        try {
+            routeMenuSelection(menuKey);
+        } catch (RuntimeException e) {
+            System.err.println("[AdminBackend] menu routing failed for " + menuKey);
+            e.printStackTrace();
+            showError("Navigation", chainMessages(e));
+        }
+    }
+
+    @FXML
+    private void handleSavingsSidebarClick(MouseEvent event) {
+        if (event != null) {
+            event.consume();
+        }
+        activateSidebarRow(event);
+        showSavingsWorkspace();
+    }
+
+    @FXML
+    private void handleGoalsSidebarClick(MouseEvent event) {
+        if (event != null) {
+            event.consume();
+        }
+        activateSidebarRow(event);
+        showGoalsWorkspace();
     }
 
     @FXML
@@ -534,29 +564,40 @@ public class AdminBackendController {
     }
 
     private void showSavingsWorkspace() {
-        headerLabel.setText("Savings");
-        headerSubtitle.setText("Search, sort and monitor savings transactions while keeping the admin sidebar visible.");
-        if (addUserButton != null) {
-            addUserButton.setManaged(false);
-            addUserButton.setVisible(false);
+        try {
+            headerLabel.setText("Savings");
+            headerSubtitle.setText("Search, sort and monitor savings transactions while keeping the admin sidebar visible.");
+            if (addUserButton != null) {
+                addUserButton.setManaged(false);
+                addUserButton.setVisible(false);
+            }
+            if (savingsWorkspace == null) {
+                savingsWorkspace = AdminSavingsBackOfficeFactory.buildSavingsWorkspace();
+            }
+            replaceWorkspace(savingsWorkspace);
+        } catch (RuntimeException e) {
+            showError("Savings navigation", chainMessages(e));
         }
-        if (savingsWorkspace == null) {
-            savingsWorkspace = AdminSavingsBackOfficeFactory.buildSavingsWorkspace();
-        }
-        replaceWorkspace(savingsWorkspace);
     }
 
     private void showCourseQuizWorkspace() {
-        headerLabel.setText("Course & Quiz");
-        headerSubtitle.setText("Manage courses and quizzes in the shared admin workspace while keeping the same sidebar visible.");
-        if (addUserButton != null) {
-            addUserButton.setManaged(false);
-            addUserButton.setVisible(false);
+        try {
+            if (headerLabel != null && headerLabel.getScene() != null && headerLabel.getScene().getWindow() instanceof Stage stage) {
+                UiDialog.info(stage, "Navigation", "Course & Quiz clicked");
+            }
+            headerLabel.setText("Course & Quiz");
+            headerSubtitle.setText("Manage courses and quizzes in the shared admin workspace while keeping the same sidebar visible.");
+            if (addUserButton != null) {
+                addUserButton.setManaged(false);
+                addUserButton.setVisible(false);
+            }
+            if (courseQuizWorkspace == null) {
+                courseQuizWorkspace = AdminCoursesQuizBackOfficeFactory.buildWorkspace();
+            }
+            replaceWorkspace(courseQuizWorkspace);
+        } catch (RuntimeException e) {
+            showError("Course & Quiz", chainMessages(e));
         }
-        if (courseQuizWorkspace == null) {
-            courseQuizWorkspace = AdminCoursesQuizBackOfficeFactory.buildWorkspace();
-        }
-        replaceWorkspace(courseQuizWorkspace);
     }
 
     private void showRevenueWorkspace() {
@@ -612,16 +653,38 @@ public class AdminBackendController {
     }
 
     private void showGoalsWorkspace() {
-        headerLabel.setText("Goals");
-        headerSubtitle.setText("Search, sort and monitor financial goals while navigating from the same admin sidebar.");
-        if (addUserButton != null) {
-            addUserButton.setManaged(false);
-            addUserButton.setVisible(false);
+        try {
+            headerLabel.setText("Goals");
+            headerSubtitle.setText("Search, sort and monitor financial goals while navigating from the same admin sidebar.");
+            if (addUserButton != null) {
+                addUserButton.setManaged(false);
+                addUserButton.setVisible(false);
+            }
+            if (goalsWorkspace == null) {
+                goalsWorkspace = AdminSavingsBackOfficeFactory.buildGoalsWorkspace();
+            }
+            replaceWorkspace(goalsWorkspace);
+        } catch (RuntimeException e) {
+            showError("Goals navigation", chainMessages(e));
         }
-        if (goalsWorkspace == null) {
-            goalsWorkspace = AdminSavingsBackOfficeFactory.buildGoalsWorkspace();
+    }
+
+    private void showInvestmentsWorkspace() {
+        try {
+            FXMLLoader loader = FxmlResources.load(Main.class, "/Invest/admin.fxml");
+            Parent root = (Parent) loader.getRoot();
+            Object raw = loader.getController();
+            if (raw instanceof AdminController controller && currentUser != null) {
+                controller.setUser(currentUser);
+            }
+            Stage stage = (Stage) headerLabel.getScene().getWindow();
+            Scene scene = new Scene(root, 1460, 780);
+            stage.setTitle("Investments | Decide$");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            showError("Navigation", chainMessages(e));
         }
-        replaceWorkspace(goalsWorkspace);
     }
 
     private void routeMenuSelection(String menuKey) {
@@ -636,7 +699,9 @@ public class AdminBackendController {
             case "expenses" -> showExpenseWorkspace();
             case "savings" -> showSavingsWorkspace();
             case "goals" -> showGoalsWorkspace();
-            case "reports", "investments", "objectives", "reclamations", "statistics", "ai quiz generator" -> showPlaceholderWorkspace(menuKey);
+            case "investments" -> showInvestmentsWorkspace();
+            case "ai quiz generator" -> showAiQuizWorkspace();
+            case "reports", "objectives", "reclamations", "statistics" -> showPlaceholderWorkspace(menuKey);
             default -> showPlaceholderWorkspace(menuKey);
         }
     }
@@ -660,6 +725,20 @@ public class AdminBackendController {
             current = current.getParent();
         }
         return null;
+    }
+
+    private void activateSidebarRow(MouseEvent event) {
+        HBox selectedRow = resolveMenuRow(event);
+        if (selectedRow == null || menuList == null) {
+            return;
+        }
+        menuList.getChildren().stream()
+                .filter(HBox.class::isInstance)
+                .map(HBox.class::cast)
+                .forEach(row -> row.getStyleClass().remove("menu-row-active"));
+        if (!selectedRow.getStyleClass().contains("menu-row-active")) {
+            selectedRow.getStyleClass().add("menu-row-active");
+        }
     }
 
     private String extractMenuKey(HBox row) {
@@ -703,6 +782,34 @@ public class AdminBackendController {
                 }
         );
         ensureTransactionsStylesheet();
+    }
+
+    private void showAiQuizWorkspace() {
+        if (headerLabel != null && headerLabel.getScene() != null && headerLabel.getScene().getWindow() instanceof Stage stage) {
+            UiDialog.info(stage, "Navigation", "AI Quiz Generator clicked");
+        }
+        headerLabel.setText("AI Quiz Generator");
+        headerSubtitle.setText("Generate quizzes automatically from courses using OpenAI and save them to the database.");
+        if (addUserButton != null) {
+            addUserButton.setManaged(false);
+            addUserButton.setVisible(false);
+        }
+
+        if (aiQuizWorkspace == null) {
+            try {
+                FXMLLoader loader = AdminAiQuizGeneratorFactory.createLoader();
+                aiQuizWorkspace = loader.load();
+                aiQuizController = loader.getController();
+            } catch (Exception e) {
+                showError("AI Quiz Generator", "Impossible de charger l'interface:\n" + chainMessages(e));
+                return;
+            }
+        }
+
+        if (aiQuizController != null) {
+            aiQuizController.setContext(currentUser);
+        }
+        replaceWorkspace(aiQuizWorkspace);
     }
 
     private void showPlaceholderWorkspace(String key) {

@@ -88,6 +88,9 @@ final class GoalsBackOfficeView {
 
         BorderPane root = new BorderPane();
         root.getStyleClass().add("backoffice-root");
+        if (embeddedMode) {
+            root.getStyleClass().add("admin-embedded-workspace");
+        }
         root.getStylesheets().add(
                 GoalsBackOfficeView.class.getResource("/pi/savings/ui/goals-backoffice.css").toExternalForm()
         );
@@ -102,7 +105,7 @@ final class GoalsBackOfficeView {
         root.setCenter(page);
         if (embeddedMode) {
             page.setFillWidth(true);
-            page.setStyle("-fx-padding: 0;");
+            page.setStyle("-fx-padding: 10 14 14 14;");
         }
         selectInitialTab(initialTab);
         initializeDataAsync();

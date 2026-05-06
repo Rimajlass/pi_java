@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="12.0"
+      xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="pi.controllers.AiQuizController.AiQuizGeneratorController">
+
+    <padding>
+        <Insets bottom="8.0" left="2.0" right="2.0" top="2.0"/>
+    </padding>
+
+    <VBox spacing="10.0" styleClass="card">
+        <children>
+            <Label text="AI Quiz Generator" styleClass="card-title"/>
+            <Label text="Genere automatiquement des quiz a partir d’un cours (Gemini API)."
+                   styleClass="admin-subtitle" wrapText="true"/>
+
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <children>
+                    <Label text="Cours:" styleClass="filter-label"/>
+                    <ComboBox fx:id="courseCombo" prefWidth="420.0" styleClass="filter-field"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Rafraichir" onAction="#onRefreshCourses" styleClass="reset-button"/>
+                </children>
+            </HBox>
+
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <children>
+                    <Label text="Theme:" styleClass="filter-label"/>
+                    <TextField fx:id="topicField" promptText="Ex: investissement, budget, epargne..."
+                               styleClass="filter-field" HBox.hgrow="ALWAYS"/>
+                    <Label text="Questions:" styleClass="filter-label"/>
+                    <Spinner fx:id="countSpinner" prefWidth="110.0"/>
+                    <Label text="Difficulte:" styleClass="filter-label"/>
+                    <ComboBox fx:id="difficultyCombo" prefWidth="150.0" styleClass="filter-field"/>
+                </children>
+            </HBox>
+
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <children>
+                    <Label text="Model:" styleClass="filter-label"/>
+                    <ComboBox fx:id="modelCombo" prefWidth="200.0" styleClass="filter-field"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="generateButton" text="Generer" onAction="#onGenerate" styleClass="apply-button"/>
+                    <Button fx:id="saveButton" text="Enregistrer en BD" onAction="#onSave"
+                            styleClass="apply-button" disable="true"/>
+                </children>
+            </HBox>
+
+            <Label text="Apercu:" styleClass="filter-label"/>
+            <ScrollPane fitToWidth="true" prefViewportHeight="340.0" styleClass="content-scroll" VBox.vgrow="ALWAYS">
+                <content>
+                    <VBox fx:id="previewBox" spacing="10.0"/>
+                </content>
+            </ScrollPane>
+            <Label fx:id="statusLabel" text="" styleClass="admin-subtitle" wrapText="true"/>
+        </children>
+    </VBox>
+
+</VBox>
