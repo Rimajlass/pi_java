@@ -1,7 +1,9 @@
 package pi.mains;
 
+import pi.entities.Imprevus;
 import pi.entities.Transaction;
 import pi.entities.User;
+import pi.services.ImprevusCasreelService.ImprevusService;
 import pi.services.TransactionService;
 import pi.services.UserService;
 
@@ -11,6 +13,11 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
+        runImprevusDemo();
+        runUserTransactionDemo();
+    }
+
+    private static void runUserTransactionDemo() {
         try {
             UserService userService = new UserService();
             TransactionService transactionService = new TransactionService();
@@ -75,5 +82,30 @@ public class Main {
                 System.out.println("Cause: " + e.getCause().getMessage());
             }
         }
+    }
+
+    private static void runImprevusDemo() {
+        ImprevusService service = new ImprevusService();
+
+        Imprevus i1 = new Imprevus("Panne voiture", "Transport", 500.50, "Prevoir une epargne d'urgence");
+        service.ajouter(i1);
+
+        System.out.println("=== Liste des imprevus ===");
+        for (Imprevus i : service.afficher()) {
+            System.out.println(i);
+        }
+
+        Imprevus imp = service.getById(1);
+        if (imp != null) {
+            System.out.println("ID recupere = " + imp.getId());
+            System.out.println("Titre avant modif = " + imp.getTitre());
+            imp.setTitre("ok");
+            imp.setBudget(650);
+            service.modifier(imp);
+        } else {
+            System.out.println("Aucun imprevu avec id = 1");
+        }
+
+        service.supprimer(7);
     }
 }
