@@ -27,6 +27,7 @@ import pi.entities.User;
 import pi.mains.Main;
 import pi.services.RevenueExpenseService.RevenueService;
 import pi.services.UserTransactionService.TransactionService;
+import pi.tools.AdminNavigation;
 import pi.tools.ThemeManager;
 
 import java.io.IOException;
@@ -189,6 +190,17 @@ public class RevenueBackController {
 
     private void openWindow(String resource, String title) {
         try {
+            if ("/pi/mains/admin-backend-view.fxml".equals(resource)) {
+                Stage stage;
+                if (feedbackLabel != null && feedbackLabel.getScene() != null && feedbackLabel.getScene().getWindow() instanceof Stage currentStage) {
+                    stage = currentStage;
+                } else {
+                    stage = new Stage();
+                }
+                User user = stage.getUserData() instanceof User u ? u : null;
+                AdminNavigation.showUsersManagement(stage, user);
+                return;
+            }
             Parent root = FXMLLoader.load(Main.class.getResource(resource));
             Stage stage;
             if (feedbackLabel != null && feedbackLabel.getScene() != null && feedbackLabel.getScene().getWindow() instanceof Stage currentStage) {

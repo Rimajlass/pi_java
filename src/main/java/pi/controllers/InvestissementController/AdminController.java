@@ -27,6 +27,7 @@ import pi.entities.User;
 import pi.mains.Main;
 import pi.services.InvestissementService.InvestissementService;
 import pi.services.InvestissementService.ObjectifService;
+import pi.tools.AdminNavigation;
 import pi.tools.ThemeManager;
 
 import java.io.IOException;
@@ -231,6 +232,17 @@ public class AdminController {
 
     private void openWindow(String resource, String title) {
         try {
+            if ("/pi/mains/admin-backend-view.fxml".equals(resource)) {
+                Stage stage = new Stage();
+                stage.setTitle(title);
+                stage.setUserData(currentUser);
+                AdminNavigation.showUsersManagement(stage, currentUser);
+                if (feedbackLabel != null && feedbackLabel.getScene() != null) {
+                    stage.initOwner(feedbackLabel.getScene().getWindow());
+                }
+                stage.show();
+                return;
+            }
             Parent root = FXMLLoader.load(Main.class.getResource(resource));
             Stage stage = new Stage();
             stage.setTitle(title);
