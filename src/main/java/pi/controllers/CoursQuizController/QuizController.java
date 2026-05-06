@@ -3,27 +3,46 @@ package pi.controllers.CoursQuizController;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+import javafx.util.StringConverter;
 import pi.entities.Cours;
 import pi.entities.Quiz;
 import pi.entities.User;
+import pi.services.CoursQuizService.CoursService;
 import pi.services.CoursQuizService.QuizService;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 
 public class QuizController {
 
     @FXML
+    private StackPane heroBanner;
+
+    @FXML
+    private ImageView heroBannerImage;
+
+    @FXML
     private TableView<Quiz> quizTable;
     @FXML
-    private TableColumn<Quiz, Integer> idColumn;
-    @FXML
-    private TableColumn<Quiz, Integer> coursIdColumn;
-    @FXML
-    private TableColumn<Quiz, Integer> userIdColumn;
+    private TableColumn<Quiz, String> coursTitreColumn;
     @FXML
     private TableColumn<Quiz, String> questionColumn;
     @FXML
@@ -31,9 +50,7 @@ public class QuizController {
     @FXML
     private TextField idField;
     @FXML
-    private TextField coursIdField;
-    @FXML
-    private TextField userIdField;
+    private ComboBox<Cours> coursCombo;
     @FXML
     private TextArea questionField;
     @FXML
@@ -45,14 +62,21 @@ public class QuizController {
 
     @FXML
     private TextField searchField;
-    
+
+    @FXML
+    private ComboBox<String> sortCombo;
+
     private final QuizService quizService = new QuizService();
+    private final CoursService coursService = new CoursService();
+    private final Map<Integer, String> coursTitreById = new HashMap<>();
+    private final Map<Integer, Cours> coursById = new HashMap<>();
+    private final PauseTransition searchDebounce = new PauseTransition(Duration.millis(250));
 
     @FXML
     public void initialize() {
-        idColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getId()));
-        coursIdColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(extractCoursId(data.getValue())));
-        userIdColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(extractUserId(data.getValue())));
+        configureCoursCombo();
+        refreshCoursCache();
+        coursTitreColumn.setCellValueFactory(data -> new SimpleStringProperty(resolveCoursTitre(data.getValue())));
         questionColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getQuestion()));
         pointsColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getPointsValeur()));
 
@@ -62,7 +86,23 @@ public class QuizController {
             }
         });
 
+        if (searchField != null) {
+            searchDebounce.setOnFinished(e -> rechercherQuiz());
+            searchField.textProperty().addListener((obs, oldValue, newValue) -> searchDebounce.playFromStart());
+        }
+
+        configureSortCombo();
         actualiserTable();
+
+        javafx.application.Platform.runLater(this::bindHeroBannerImage);
+    }
+
+    private void bindHeroBannerImage() {
+        if (heroBanner == null || heroBannerImage == null) {
+            return;
+        }
+        heroBannerImage.fitWidthProperty().bind(heroBanner.widthProperty());
+        heroBannerImage.fitHeightProperty().bind(heroBanner.heightProperty());
     }
 
     @FXML
@@ -107,8 +147,10 @@ public class QuizController {
     @FXML
     private void viderFormulaire() {
         idField.clear();
-        coursIdField.clear();
-        userIdField.clear();
+        if (coursCombo != null) {
+            coursCombo.getSelectionModel().clearSelection();
+            coursCombo.setValue(null);
+        }
         questionField.clear();
         choixReponsesField.clear();
         reponseCorrecteField.clear();
@@ -118,12 +160,13 @@ public class QuizController {
 
     @FXML
     private void actualiserTable() {
-        quizTable.setItems(FXCollections.observableArrayList(quizService.afficher()));
+        refreshCoursTitreCache();
+        List<Quiz> items = quizService.afficher();
+        quizTable.setItems(FXCollections.observableArrayList(sortQuiz(items)));
     }
 
     private Quiz buildQuizFromForm(boolean requireId) {
-        String coursIdText = coursIdField.getText().trim();
-        String userIdText = userIdField.getText().trim();
+        Cours selectedCours = coursCombo != null ? coursCombo.getValue() : null;
         String question = questionField.getText().trim();
         if (!question.endsWith("?")) {
             throw new IllegalArgumentException("La question doit se terminer par un '?'.");
@@ -132,16 +175,15 @@ public class QuizController {
         String reponseCorrecte = reponseCorrecteField.getText().trim();
         String pointsText = pointsValeurField.getText().trim();
 
-        if (coursIdText.isEmpty() || userIdText.isEmpty() || question.isEmpty() || choixReponses.isEmpty()
-                || reponseCorrecte.isEmpty() || pointsText.isEmpty()) {
+        if (selectedCours == null || selectedCours.getId() <= 0 || question.isEmpty() || choixReponses.isEmpty() || reponseCorrecte.isEmpty() || pointsText.isEmpty()) {
             throw new IllegalArgumentException("Tous les champs sont obligatoires.");
         }
 
         Cours cours = new Cours();
-        cours.setId(parsePositiveInt(coursIdText, "L'identifiant du cours doit être un entier positif."));
+        cours.setId(selectedCours.getId());
 
         User user = new User();
-        user.setId(parsePositiveInt(userIdText, "L'identifiant utilisateur doit être un entier positif."));
+        user.setId(resolveAuthenticatedUserId());
 
         Quiz quiz = new Quiz(
                 cours,
@@ -165,8 +207,11 @@ public class QuizController {
 
     private void remplirFormulaire(Quiz quiz) {
         idField.setText(String.valueOf(quiz.getId()));
-        coursIdField.setText(String.valueOf(extractCoursId(quiz)));
-        userIdField.setText(String.valueOf(extractUserId(quiz)));
+        int coursId = extractCoursId(quiz);
+        if (coursCombo != null) {
+            Cours cours = coursById.get(coursId);
+            coursCombo.setValue(cours);
+        }
         questionField.setText(quiz.getQuestion());
         choixReponsesField.setText(quiz.getChoixReponses());
         reponseCorrecteField.setText(quiz.getReponseCorrecte());
@@ -189,8 +234,102 @@ public class QuizController {
         return quiz.getCours() != null ? quiz.getCours().getId() : 0;
     }
 
-    private int extractUserId(Quiz quiz) {
-        return quiz.getUser() != null ? quiz.getUser().getId() : 0;
+    private void refreshCoursTitreCache() {
+        refreshCoursCache();
+    }
+
+    private void refreshCoursCache() {
+        coursTitreById.clear();
+        coursById.clear();
+
+        List<Cours> coursList = coursService.afficher();
+        if (coursList == null) {
+            if (coursCombo != null) {
+                coursCombo.getItems().clear();
+            }
+            return;
+        }
+
+        List<Cours> sanitized = coursList.stream()
+                .filter(Objects::nonNull)
+                .toList();
+
+        for (Cours cours : sanitized) {
+            coursTitreById.put(cours.getId(), cours.getTitre());
+            coursById.put(cours.getId(), cours);
+        }
+
+        if (coursCombo != null) {
+            Cours selected = coursCombo.getValue();
+            coursCombo.setItems(FXCollections.observableArrayList(sanitized));
+            if (selected != null) {
+                coursCombo.setValue(coursById.get(selected.getId()));
+            }
+        }
+    }
+
+    private String resolveCoursTitre(Quiz quiz) {
+        int coursId = extractCoursId(quiz);
+        String titre = coursTitreById.get(coursId);
+        if (titre == null || titre.isBlank()) {
+            return coursId > 0 ? ("Cours #" + coursId) : "";
+        }
+        return titre;
+    }
+
+    private void configureCoursCombo() {
+        if (coursCombo == null) {
+            return;
+        }
+
+        coursCombo.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Cours cours) {
+                return cours == null ? "" : safe(cours.getTitre());
+            }
+
+            @Override
+            public Cours fromString(String string) {
+                return null;
+            }
+        });
+
+        coursCombo.setCellFactory(listView -> new ListCell<>() {
+            @Override
+            protected void updateItem(Cours item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "" : safe(item.getTitre()));
+            }
+        });
+
+        coursCombo.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(Cours item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "" : safe(item.getTitre()));
+            }
+        });
+    }
+
+    private int resolveAuthenticatedUserId() {
+        if (questionField == null || questionField.getScene() == null || questionField.getScene().getWindow() == null) {
+            throw new IllegalArgumentException("Aucun utilisateur connecté (fenêtre non initialisée).");
+        }
+
+        if (!(questionField.getScene().getWindow() instanceof Stage stage)) {
+            throw new IllegalArgumentException("Aucun utilisateur connecté (fenêtre invalide).");
+        }
+
+        Object data = stage.getUserData();
+        if (data instanceof User user && user.getId() > 0) {
+            return user.getId();
+        }
+
+        throw new IllegalArgumentException("Aucun utilisateur connecté. Veuillez vous authentifier.");
+    }
+
+    private String safe(String value) {
+        return value == null ? "" : value;
     }
 
     private void showInfo(String message) {
@@ -203,17 +342,67 @@ public class QuizController {
     @FXML
     private void rechercherQuiz() {
         String critere = searchField.getText() != null ? searchField.getText().trim() : "";
+        refreshCoursTitreCache();
         if (critere.isEmpty()) {
             actualiserTable();
         } else {
-            quizTable.setItems(FXCollections.observableArrayList(quizService.rechercher(critere)));
+            List<Quiz> items = quizService.rechercher(critere);
+            quizTable.setItems(FXCollections.observableArrayList(sortQuiz(items)));
         }
     }
-    
+
+    private void configureSortCombo() {
+        if (sortCombo == null) {
+            return;
+        }
+        sortCombo.getItems().setAll(
+                "Cours (A→Z)",
+                "Cours (Z→A)",
+                "Question (A→Z)",
+                "Question (Z→A)",
+                "Points (↑)",
+                "Points (↓)"
+        );
+        sortCombo.setValue("Question (A→Z)");
+        sortCombo.valueProperty().addListener((obs, oldValue, newValue) -> rechercherQuiz());
+    }
+
+    private List<Quiz> sortQuiz(List<Quiz> items) {
+        if (items == null) {
+            return List.of();
+        }
+        List<Quiz> sorted = new ArrayList<>(items);
+        String sort = sortCombo != null ? sortCombo.getValue() : null;
+
+        Comparator<Quiz> byCours = Comparator.comparing(q -> safeLower(resolveCoursTitre(q)));
+        Comparator<Quiz> byQuestion = Comparator.comparing(q -> safeLower(q != null ? q.getQuestion() : null));
+        Comparator<Quiz> byPoints = Comparator.comparingInt(q -> q != null ? q.getPointsValeur() : 0);
+
+        if ("Cours (Z→A)".equals(sort)) {
+            sorted.sort(byCours.reversed());
+        } else if ("Question (A→Z)".equals(sort)) {
+            sorted.sort(byQuestion);
+        } else if ("Question (Z→A)".equals(sort)) {
+            sorted.sort(byQuestion.reversed());
+        } else if ("Points (↑)".equals(sort)) {
+            sorted.sort(byPoints);
+        } else if ("Points (↓)".equals(sort)) {
+            sorted.sort(byPoints.reversed());
+        } else {
+            sorted.sort(byCours);
+        }
+
+        return sorted;
+    }
+
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setHeaderText("Validation");
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private String safeLower(String value) {
+        return value == null ? "" : value.toLowerCase(Locale.ROOT);
     }
 }

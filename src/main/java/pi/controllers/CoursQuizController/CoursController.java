@@ -1,34 +1,44 @@
 package pi.controllers.CoursQuizController;
 
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 import pi.entities.Cours;
 import pi.entities.User;
 import pi.services.CoursQuizService.CoursService;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+
 public class CoursController {
 
     @FXML
+    private StackPane heroBanner;
+
+    @FXML
+    private ImageView heroBannerImage;
+
+    @FXML
     private TableView<Cours> coursTable;
-    @FXML
-    private TableColumn<Cours, Integer> idColumn;
-    @FXML
-    private TableColumn<Cours, Integer> userIdColumn;
     @FXML
     private TableColumn<Cours, String> titreColumn;
     @FXML
     private TableColumn<Cours, String> typeMediaColumn;
     @FXML
     private TextField idField;
-    @FXML
-    private TextField userIdField;
     @FXML
     private TextField titreField;
     @FXML
@@ -40,13 +50,15 @@ public class CoursController {
 
     @FXML
     private TextField searchField;
-    
+
+    @FXML
+    private ComboBox<String> sortCombo;
+
     private final CoursService coursService = new CoursService();
+    private final PauseTransition searchDebounce = new PauseTransition(Duration.millis(250));
 
     @FXML
     public void initialize() {
-        idColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getId()));
-        userIdColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(extractUserId(data.getValue())));
         titreColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getTitre()));
         typeMediaColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getTypeMedia()));
 
@@ -56,7 +68,23 @@ public class CoursController {
             }
         });
 
+        if (searchField != null) {
+            searchDebounce.setOnFinished(e -> rechercherCours());
+            searchField.textProperty().addListener((obs, oldValue, newValue) -> searchDebounce.playFromStart());
+        }
+
+        configureSortCombo();
         actualiserTable();
+
+        javafx.application.Platform.runLater(this::bindHeroBannerImage);
+    }
+
+    private void bindHeroBannerImage() {
+        if (heroBanner == null || heroBannerImage == null) {
+            return;
+        }
+        heroBannerImage.fitWidthProperty().bind(heroBanner.widthProperty());
+        heroBannerImage.fitHeightProperty().bind(heroBanner.heightProperty());
     }
 
     @FXML
@@ -101,7 +129,6 @@ public class CoursController {
     @FXML
     private void viderFormulaire() {
         idField.clear();
-        userIdField.clear();
         titreField.clear();
         contenuField.clear();
         typeMediaField.clear();
@@ -111,22 +138,22 @@ public class CoursController {
 
     @FXML
     private void actualiserTable() {
-        coursTable.setItems(FXCollections.observableArrayList(coursService.afficher()));
+        List<Cours> items = coursService.afficher();
+        coursTable.setItems(FXCollections.observableArrayList(sortCours(items)));
     }
 
     private Cours buildCoursFromForm(boolean requireId) {
-        String userIdText = userIdField.getText().trim();
         String titre = titreField.getText().trim();
         String contenu = contenuField.getText().trim();
         String typeMedia = typeMediaField.getText().trim();
         String urlMedia = urlMediaField.getText().trim();
 
-        if (userIdText.isEmpty() || titre.isEmpty() || contenu.isEmpty() || typeMedia.isEmpty() || urlMedia.isEmpty()) {
+        if (titre.isEmpty() || contenu.isEmpty() || typeMedia.isEmpty() || urlMedia.isEmpty()) {
             throw new IllegalArgumentException("Tous les champs sont obligatoires.");
         }
 
         User user = new User();
-        user.setId(parsePositiveInt(userIdText, "L'identifiant utilisateur doit être un entier positif."));
+        user.setId(resolveAuthenticatedUserId());
 
         Cours cours = new Cours();
         cours.setUser(user);
@@ -150,7 +177,6 @@ public class CoursController {
 
     private void remplirFormulaire(Cours cours) {
         idField.setText(String.valueOf(cours.getId()));
-        userIdField.setText(String.valueOf(extractUserId(cours)));
         titreField.setText(cours.getTitre());
         contenuField.setText(cours.getContenuTexte());
         typeMediaField.setText(cours.getTypeMedia());
@@ -169,8 +195,21 @@ public class CoursController {
         }
     }
 
-    private int extractUserId(Cours cours) {
-        return cours.getUser() != null ? cours.getUser().getId() : 0;
+    private int resolveAuthenticatedUserId() {
+        if (titreField == null || titreField.getScene() == null || titreField.getScene().getWindow() == null) {
+            throw new IllegalArgumentException("Aucun utilisateur connecté (fenêtre non initialisée).");
+        }
+
+        if (!(titreField.getScene().getWindow() instanceof Stage stage)) {
+            throw new IllegalArgumentException("Aucun utilisateur connecté (fenêtre invalide).");
+        }
+
+        Object data = stage.getUserData();
+        if (data instanceof User user && user.getId() > 0) {
+            return user.getId();
+        }
+
+        throw new IllegalArgumentException("Aucun utilisateur connecté. Veuillez vous authentifier.");
     }
 
     private void showInfo(String message) {
@@ -186,10 +225,52 @@ public class CoursController {
         if (critere.isEmpty()) {
             actualiserTable();
         } else {
-            coursTable.setItems(FXCollections.observableArrayList(coursService.rechercher(critere)));
+            List<Cours> items = coursService.rechercher(critere);
+            coursTable.setItems(FXCollections.observableArrayList(sortCours(items)));
         }
     }
-    
+
+    private void configureSortCombo() {
+        if (sortCombo == null) {
+            return;
+        }
+        sortCombo.getItems().setAll(
+                "Titre (A→Z)",
+                "Titre (Z→A)",
+                "Type media (A→Z)",
+                "Type media (Z→A)"
+        );
+        sortCombo.setValue("Titre (A→Z)");
+        sortCombo.valueProperty().addListener((obs, oldValue, newValue) -> rechercherCours());
+    }
+
+    private List<Cours> sortCours(List<Cours> items) {
+        if (items == null) {
+            return List.of();
+        }
+        List<Cours> sorted = new ArrayList<>(items);
+        String sort = sortCombo != null ? sortCombo.getValue() : null;
+
+        Comparator<Cours> byTitre = Comparator.comparing(c -> safeLower(c != null ? c.getTitre() : null));
+        Comparator<Cours> byType = Comparator.comparing(c -> safeLower(c != null ? c.getTypeMedia() : null));
+
+        if ("Titre (Z→A)".equals(sort)) {
+            sorted.sort(byTitre.reversed());
+        } else if ("Type media (A→Z)".equals(sort)) {
+            sorted.sort(byType);
+        } else if ("Type media (Z→A)".equals(sort)) {
+            sorted.sort(byType.reversed());
+        } else {
+            sorted.sort(byTitre);
+        }
+
+        return sorted;
+    }
+
+    private String safeLower(String value) {
+        return value == null ? "" : value.toLowerCase(Locale.ROOT);
+    }
+
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setHeaderText("Validation");

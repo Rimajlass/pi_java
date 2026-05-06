@@ -4,37 +4,60 @@ import pi.entities.Cours;
 import pi.entities.Quiz;
 import pi.entities.User;
 import pi.interfaces.IQuizService;
+import pi.services.MailingService.LearningNotificationMailer;
 import pi.tools.MyDatabase;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class QuizService implements IQuizService {
 
-    Connection cnx;
+    private final Connection cnx;
+    private final LearningNotificationMailer notificationMailer = LearningNotificationMailer.defaultInstance();
 
     public QuizService() {
-        cnx = MyDatabase.getInstance().getCnx();
+        this.cnx = MyDatabase.getInstance().getCnx();
     }
 
     @Override
     public void ajouter(Quiz quiz) {
-        String sql = "INSERT INTO quiz (cours_id, user_id, question, choix_reponses, reponse_correcte, points_valeur) VALUES (?, ?, ?, ?, ?, ?)";
-
         try {
-            PreparedStatement ps = cnx.prepareStatement(sql);
+            boolean ok = ajouterWithResult(quiz);
+            if (!ok) {
+                throw new IllegalStateException("Insertion quiz échouée.");
+            }
+            System.out.println("Quiz ajouté avec succès !");
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de l'ajout du quiz: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Variante de {@link #ajouter(Quiz)} avec retour succès/échec et propagation des erreurs SQL.
+     */
+    public boolean ajouterWithResult(Quiz quiz) throws SQLException {
+        String sql = "INSERT INTO quiz (cours_id, user_id, question, choix_reponses, reponse_correcte, points_valeur) VALUES (?, ?, ?, ?, ?, ?)";
+        if (quiz == null || quiz.getCours() == null || quiz.getUser() == null) {
+            throw new SQLException("Quiz invalide (cours/user manquant).");
+        }
+
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, quiz.getCours().getId());
             ps.setInt(2, quiz.getUser().getId());
             ps.setString(3, quiz.getQuestion());
             ps.setString(4, quiz.getChoixReponses());
             ps.setString(5, quiz.getReponseCorrecte());
             ps.setInt(6, quiz.getPointsValeur());
-
-            ps.executeUpdate();
-            System.out.println("Quiz ajouté avec succès !");
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            boolean ok = ps.executeUpdate() > 0;
+            if (ok) {
+                notificationMailer.notifyQuizAddedAsync(quiz, null);
+            }
+            return ok;
         }
     }
 
@@ -42,8 +65,7 @@ public class QuizService implements IQuizService {
     public void modifier(Quiz quiz) {
         String sql = "UPDATE quiz SET cours_id=?, user_id=?, question=?, choix_reponses=?, reponse_correcte=?, points_valeur=? WHERE id=?";
 
-        try {
-            PreparedStatement ps = cnx.prepareStatement(sql);
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, quiz.getCours().getId());
             ps.setInt(2, quiz.getUser().getId());
             ps.setString(3, quiz.getQuestion());
@@ -55,7 +77,7 @@ public class QuizService implements IQuizService {
             ps.executeUpdate();
             System.out.println("Quiz modifié avec succès !");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new RuntimeException("Erreur lors de la modification du quiz: " + e.getMessage(), e);
         }
     }
 
@@ -63,14 +85,12 @@ public class QuizService implements IQuizService {
     public void supprimer(int id) {
         String sql = "DELETE FROM quiz WHERE id=?";
 
-        try {
-            PreparedStatement ps = cnx.prepareStatement(sql);
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, id);
-
             ps.executeUpdate();
             System.out.println("Quiz supprimé avec succès !");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new RuntimeException("Erreur lors de la suppression du quiz: " + e.getMessage(), e);
         }
     }
 
@@ -79,10 +99,8 @@ public class QuizService implements IQuizService {
         List<Quiz> list = new ArrayList<>();
         String sql = "SELECT * FROM quiz";
 
-        try {
-            Statement st = cnx.createStatement();
-            ResultSet rs = st.executeQuery(sql);
-
+        try (Statement st = cnx.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 Cours cours = new Cours();
                 cours.setId(rs.getInt("cours_id"));
@@ -103,7 +121,7 @@ public class QuizService implements IQuizService {
                 list.add(q);
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new RuntimeException("Erreur lors du chargement des quiz: " + e.getMessage(), e);
         }
 
         return list;
@@ -114,30 +132,29 @@ public class QuizService implements IQuizService {
         String sql = "SELECT * FROM quiz WHERE id=?";
         Quiz quiz = null;
 
-        try {
-            PreparedStatement ps = cnx.prepareStatement(sql);
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Cours cours = new Cours();
+                    cours.setId(rs.getInt("cours_id"));
 
-            if (rs.next()) {
-                Cours cours = new Cours();
-                cours.setId(rs.getInt("cours_id"));
+                    User user = new User();
+                    user.setId(rs.getInt("user_id"));
 
-                User user = new User();
-                user.setId(rs.getInt("user_id"));
-
-                quiz = new Quiz(
-                        rs.getInt("id"),
-                        cours,
-                        user,
-                        rs.getString("question"),
-                        rs.getString("choix_reponses"),
-                        rs.getString("reponse_correcte"),
-                        rs.getInt("points_valeur")
-                );
+                    quiz = new Quiz(
+                            rs.getInt("id"),
+                            cours,
+                            user,
+                            rs.getString("question"),
+                            rs.getString("choix_reponses"),
+                            rs.getString("reponse_correcte"),
+                            rs.getInt("points_valeur")
+                    );
+                }
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new RuntimeException("Erreur lors du chargement du quiz: " + e.getMessage(), e);
         }
 
         return quiz;
@@ -146,34 +163,33 @@ public class QuizService implements IQuizService {
     @Override
     public List<Quiz> rechercher(String critere) {
         List<Quiz> list = new ArrayList<>();
-        String sql = "SELECT * FROM quiz WHERE question LIKE ?";
+        String sql = "SELECT * FROM quiz WHERE question LIKE ? ORDER BY question ASC";
 
-        try {
-            PreparedStatement ps = cnx.prepareStatement(sql);
-            ps.setString(1, "%" + critere + "%");
-            ResultSet rs = ps.executeQuery();
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setString(1, "%" + (critere == null ? "" : critere) + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Cours cours = new Cours();
+                    cours.setId(rs.getInt("cours_id"));
 
-            while (rs.next()) {
-                Cours cours = new Cours();
-                cours.setId(rs.getInt("cours_id"));
+                    User user = new User();
+                    user.setId(rs.getInt("user_id"));
 
-                User user = new User();
-                user.setId(rs.getInt("user_id"));
+                    Quiz q = new Quiz(
+                            rs.getInt("id"),
+                            cours,
+                            user,
+                            rs.getString("question"),
+                            rs.getString("choix_reponses"),
+                            rs.getString("reponse_correcte"),
+                            rs.getInt("points_valeur")
+                    );
 
-                Quiz q = new Quiz(
-                        rs.getInt("id"),
-                        cours,
-                        user,
-                        rs.getString("question"),
-                        rs.getString("choix_reponses"),
-                        rs.getString("reponse_correcte"),
-                        rs.getInt("points_valeur")
-                );
-
-                list.add(q);
+                    list.add(q);
+                }
             }
         } catch (SQLException e) {
-            System.out.println("Erreur recherche Quiz : " + e.getMessage());
+            throw new RuntimeException("Erreur recherche quiz: " + e.getMessage(), e);
         }
 
         return list;

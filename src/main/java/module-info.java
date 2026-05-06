@@ -4,9 +4,12 @@ module Pidev3A47 {
     requires javafx.swing;
     requires javafx.web;
     requires com.fasterxml.jackson.databind;
+    requires com.fasterxml.jackson.core;
+    requires com.fasterxml.jackson.annotation;
     requires com.google.gson;
     requires com.google.zxing;
     requires jakarta.mail;
+    requires jakarta.activation;
     requires java.desktop;
     requires java.net.http;
     requires java.prefs;
@@ -37,6 +40,8 @@ module Pidev3A47 {
     opens pi.controllers.ExpenseRevenueController.UPDATE to javafx.fxml;
     opens pi.controllers.ImprevusCasreelController to javafx.fxml;
     opens pi.controllers.CoursQuizController to javafx.fxml;
+    opens pi.controllers.AiQuizController to javafx.fxml;
     opens pi.savings.ui to javafx.fxml;
     opens pi.tools to javafx.fxml;
+    opens pi.services.AiQuizService to com.fasterxml.jackson.databind;
 }
