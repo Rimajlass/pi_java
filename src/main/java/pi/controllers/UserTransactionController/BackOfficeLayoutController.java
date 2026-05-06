@@ -73,6 +73,15 @@ public class BackOfficeLayoutController {
             return;
         }
         System.out.println("[BackOfficeLayout] menu click: " + key);
+        String normalized = key.trim().toLowerCase(Locale.ROOT);
+        if (normalized.equals("course & quiz") || normalized.equals("cours & quiz") || normalized.equals("ai quiz generator")) {
+            try {
+                if (contentHost != null && contentHost.getScene() != null && contentHost.getScene().getWindow() instanceof Stage stage) {
+                    UiDialog.info(stage, "Debug", "Click menu: " + key);
+                }
+            } catch (Exception ignored) {
+            }
+        }
         if (!handleCoreNavigation(key)) {
             menuSelectionHandler.accept(key);
         }
