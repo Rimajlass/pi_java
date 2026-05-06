@@ -48,6 +48,7 @@ import pi.entities.FearGreedSnapshot;
 import pi.entities.FiatRatesSnapshot;
 import pi.entities.GlobalMarketSnapshot;
 import pi.entities.Investissement;
+import pi.entities.User;
 import pi.services.InvestissementService.CoinGeckoGlobalService;
 import pi.services.InvestissementService.CryptoApiService;
 import pi.services.InvestissementService.CryptoChartService;
@@ -204,6 +205,7 @@ public class CryptoController {
     private boolean darkThemeActive;
     private String cachedDarkStylesheetUrl;
     private boolean globalRefreshKeysRegistered;
+    private User currentUser;
 
     private static final List<String> FNG_METER_ZONES = List.of(
             "fng-meter-extreme-fear",
@@ -284,6 +286,24 @@ public class CryptoController {
         Platform.runLater(this::registerGlobalRefreshKeysOnce);
 
         setupInvestmentAssistantChat();
+        attachUserFromStageIfAvailable();
+    }
+
+    public void setUser(User user) {
+        this.currentUser = user;
+        loadInvestissements();
+        refreshObjectifsBadge();
+    }
+
+    private void attachUserFromStageIfAvailable() {
+        if (investTable == null) {
+            return;
+        }
+        investTable.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null && newScene.getWindow() instanceof Stage stage && stage.getUserData() instanceof User user) {
+                setUser(user);
+            }
+        });
     }
 
     private void setupInvestmentAssistantChat() {
@@ -369,7 +389,7 @@ public class CryptoController {
                             return;
                         }
                         double qty = r.amountUsd / price;
-                        Investissement inv = new Investissement(live, null, null, r.amountUsd, price, qty, LocalDate.now());
+                        Investissement inv = new Investissement(live, null, currentUser, r.amountUsd, price, qty, LocalDate.now());
                         investissementService.add(inv);
                         loadInvestissements();
                         appendInvestChat("Assistant", r.text);
@@ -1034,7 +1054,9 @@ public class CryptoController {
 
     private void loadInvestissements() {
         try {
-            List<Investissement> list = investissementService.getAll();
+            List<Investissement> list = (currentUser != null && currentUser.getId() > 0)
+                    ? investissementService.getAllByUser(currentUser.getId())
+                    : List.of();
             investBackingList.setAll(list);
             updatePortfolioSummaryFromBacking();
         } catch (Exception e) {
@@ -1049,7 +1071,9 @@ public class CryptoController {
 
     private void refreshObjectifsBadge() {
         try {
-            int n = new ObjectifService().getAll().size();
+            int n = (currentUser != null && currentUser.getId() > 0)
+                    ? new ObjectifService().getAllByUser(currentUser.getId()).size()
+                    : 0;
             objectifsBadgeLabel.setText("Objectifs : " + n);
         } catch (Exception e) {
             objectifsBadgeLabel.setText("Objectifs : —");
@@ -1257,6 +1281,7 @@ public class CryptoController {
             Stage stage = new Stage();
             stage.setTitle("Investir");
             stage.setScene(scene);
+            stage.setUserData(currentUser);
             stage.show();
 
         } catch (Exception e) {
@@ -1269,10 +1294,15 @@ public class CryptoController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/invest/admin.fxml"));
             Scene scene = new Scene(loader.load());
+            AdminController controller = loader.getController();
+            if (currentUser != null) {
+                controller.setUser(currentUser);
+            }
 
             Stage stage = new Stage();
             stage.setTitle("Admin");
             stage.setScene(scene);
+            stage.setUserData(currentUser);
             stage.show();
 
         } catch (Exception e) {
@@ -1285,10 +1315,15 @@ public class CryptoController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/invest/objectif.fxml"));
             Scene scene = new Scene(loader.load());
+            ObjectifController controller = loader.getController();
+            if (currentUser != null) {
+                controller.setUser(currentUser);
+            }
 
             Stage stage = new Stage();
             stage.setTitle("Objectifs");
             stage.setScene(scene);
+            stage.setUserData(currentUser);
             stage.show();
 
         } catch (Exception e) {

@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import pi.entities.Investissement;
 import pi.entities.Objectif;
+import pi.entities.User;
 import pi.services.InvestissementService.InvestissementService;
 import pi.services.InvestissementService.ObjectifMetrics;
 import pi.services.InvestissementService.ObjectifService;
@@ -41,6 +42,12 @@ public class CreateObjectifController {
 
     private final InvestissementService investissementService = new InvestissementService();
     private final ObjectifService objectifService = new ObjectifService();
+    private User currentUser;
+
+    public void setUser(User user) {
+        this.currentUser = user;
+        refreshUnlinkedInvestments();
+    }
 
     @FXML
     public void initialize() {
@@ -80,18 +87,28 @@ public class CreateObjectifController {
             }
         });
 
-        try {
-            List<Investissement> unlinked = investissementService.getUnlinked();
-            investList.getItems().addAll(unlinked);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        refreshUnlinkedInvestments();
 
         investList.getSelectionModel().getSelectedItems().addListener(
                 (javafx.collections.ListChangeListener<Investissement>) change -> updateLabels()
         );
 
         multiplierField.textProperty().addListener((obs, oldVal, newVal) -> updateLabels());
+    }
+
+    private void refreshUnlinkedInvestments() {
+        if (investList == null) {
+            return;
+        }
+        try {
+            List<Investissement> unlinked =
+                    (currentUser != null && currentUser.getId() > 0)
+                            ? investissementService.getUnlinkedByUser(currentUser.getId())
+                            : List.of();
+            investList.getItems().setAll(unlinked);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void updateLabels() {
@@ -149,7 +166,11 @@ public class CreateObjectifController {
             objectifService.add(objectif);
 
             for (Investissement inv : selected) {
-                objectifService.linkInvestissement(objectif.getId(), inv.getId());
+                if (currentUser != null && currentUser.getId() > 0) {
+                    objectifService.linkInvestissementForUser(objectif.getId(), inv.getId(), currentUser.getId());
+                } else {
+                    objectifService.linkInvestissement(objectif.getId(), inv.getId());
+                }
             }
 
             showAlert("Succès", "Objectif créé avec succès.");

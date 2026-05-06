@@ -221,12 +221,19 @@ public class ServiceController {
     @FXML
     private void handleOpenInvestissement(MouseEvent event) {
         try {
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Object userData = currentStage.getUserData();
             FXMLLoader loader = new FXMLLoader(
                     ServiceController.class.getResource("/Invest/Crypto.fxml"));
             Scene scene = new Scene(loader.load(), 900, 700);
+            Object controller = loader.getController();
+            if (userData instanceof User user && controller instanceof pi.controllers.InvestissementController.CryptoController cryptoController) {
+                cryptoController.setUser(user);
+            }
             Stage stage = new Stage();
             stage.setTitle("Investissement");
             stage.setScene(scene);
+            stage.setUserData(userData);
             stage.show();
         } catch (Exception e) {
             throw new RuntimeException("Impossible d'ouvrir l'interface Investissement.", e);

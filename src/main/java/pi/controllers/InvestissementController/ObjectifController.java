@@ -40,6 +40,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import pi.entities.Investissement;
 import pi.entities.Objectif;
+import pi.entities.User;
 import pi.services.InvestissementService.GroqAiService;
 import pi.services.InvestissementService.ObjectifMetrics;
 import pi.services.InvestissementService.ObjectifMonteCarloService;
@@ -147,6 +148,7 @@ public class ObjectifController {
     private final ObservableList<Objectif> objectifBackingList = FXCollections.observableArrayList();
     private FilteredList<Objectif> filteredObjectifs;
     private Map<Integer, Double> currentValueCache = new HashMap<>();
+    private User currentUser;
 
     @FXML
     public void initialize() {
@@ -240,7 +242,24 @@ public class ObjectifController {
             prioriteBarChart.setLegendVisible(false);
         }
 
+        attachUserFromStageIfAvailable();
         loadObjectifs();
+    }
+
+    public void setUser(User user) {
+        this.currentUser = user;
+        loadObjectifs();
+    }
+
+    private void attachUserFromStageIfAvailable() {
+        if (objectifTable == null) {
+            return;
+        }
+        objectifTable.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null && newScene.getWindow() instanceof Stage stage && stage.getUserData() instanceof User user) {
+                setUser(user);
+            }
+        });
     }
 
     private double currentFor(Objectif o) {
@@ -322,6 +341,9 @@ public class ObjectifController {
                         Scene scene = new Scene(loader.load());
 
                         ModifyObjectifController controller = loader.getController();
+                        if (currentUser != null) {
+                            controller.setUser(currentUser);
+                        }
                         controller.setObjectif(obj);
 
                         Stage stage = new Stage();
@@ -367,7 +389,11 @@ public class ObjectifController {
                     }
 
                     try {
-                        objectifService.delete(obj.getId());
+                        if (currentUser != null && currentUser.getId() > 0) {
+                            objectifService.deleteForUser(obj.getId(), currentUser.getId());
+                        } else {
+                            objectifService.delete(obj.getId());
+                        }
                         loadObjectifs();
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -581,7 +607,10 @@ public class ObjectifController {
         Task<String> task = new Task<>() {
             @Override
             protected String call() throws Exception {
-                List<Investissement> linkedInvestments = objectifService.getLinked(objectif.getId());
+                List<Investissement> linkedInvestments =
+                        (currentUser != null && currentUser.getId() > 0)
+                                ? objectifService.getLinkedByUser(objectif.getId(), currentUser.getId())
+                                : objectifService.getLinked(objectif.getId());
                 return groqAiService.analyzeObjective(objectif, linkedInvestments);
             }
         };
@@ -611,14 +640,24 @@ public class ObjectifController {
 
     private void loadObjectifs() {
         try {
-            List<Objectif> list = objectifService.getAll();
+            List<Objectif> list = (currentUser != null && currentUser.getId() > 0)
+                    ? objectifService.getAllByUser(currentUser.getId())
+                    : List.of();
 
             for (Objectif obj : list) {
-                objectifService.checkAndMarkCompleted(obj.getId());
+                if (currentUser != null && currentUser.getId() > 0) {
+                    objectifService.checkAndMarkCompletedForUser(obj.getId(), currentUser.getId());
+                } else {
+                    objectifService.checkAndMarkCompleted(obj.getId());
+                }
             }
 
-            list = objectifService.getAll();
-            currentValueCache = objectifService.getCurrentValuesAll();
+            list = (currentUser != null && currentUser.getId() > 0)
+                    ? objectifService.getAllByUser(currentUser.getId())
+                    : List.of();
+            currentValueCache = (currentUser != null && currentUser.getId() > 0)
+                    ? objectifService.getCurrentValuesAllByUser(currentUser.getId())
+                    : Map.of();
             objectifBackingList.setAll(list);
             objectifTable.refresh();
             updateExecutiveSummary();
@@ -727,10 +766,15 @@ public class ObjectifController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/invest/createObjectif.fxml"));
             Scene scene = new Scene(loader.load());
+            CreateObjectifController controller = loader.getController();
+            if (currentUser != null) {
+                controller.setUser(currentUser);
+            }
 
             Stage stage = new Stage();
             stage.setTitle("Créer un objectif");
             stage.setScene(scene);
+            stage.setUserData(currentUser);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
 

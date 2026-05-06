@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import pi.entities.Investissement;
 import pi.entities.Objectif;
+import pi.entities.User;
 import pi.services.InvestissementService.InvestissementService;
 import pi.services.InvestissementService.ObjectifMetrics;
 import pi.services.InvestissementService.ObjectifService;
@@ -42,6 +43,14 @@ public class ModifyObjectifController {
     private Objectif objectif;
     private final InvestissementService investissementService = new InvestissementService();
     private final ObjectifService objectifService = new ObjectifService();
+    private User currentUser;
+
+    public void setUser(User user) {
+        this.currentUser = user;
+        if (objectif != null) {
+            loadInvestments();
+        }
+    }
 
     public void setObjectif(Objectif objectif) {
         this.objectif = objectif;
@@ -99,8 +108,14 @@ public class ModifyObjectifController {
 
     private void loadInvestments() {
         try {
-            List<Investissement> linked = objectifService.getLinked(objectif.getId());
-            List<Investissement> unlinked = investissementService.getUnlinked();
+            List<Investissement> linked =
+                    (currentUser != null && currentUser.getId() > 0)
+                            ? objectifService.getLinkedByUser(objectif.getId(), currentUser.getId())
+                            : objectifService.getLinked(objectif.getId());
+            List<Investissement> unlinked =
+                    (currentUser != null && currentUser.getId() > 0)
+                            ? investissementService.getUnlinkedByUser(currentUser.getId())
+                            : investissementService.getUnlinked();
 
             List<Investissement> all = new ArrayList<>();
             all.addAll(linked);
@@ -176,11 +191,20 @@ public class ModifyObjectifController {
             String prio = prioriteCombo.getSelectionModel().getSelectedItem();
             objectif.setPriorite(prio != null ? prio : Objectif.P_NORMALE);
 
-            objectifService.unlinkAll(objectif.getId());
-            objectifService.update(objectif);
+            if (currentUser != null && currentUser.getId() > 0) {
+                objectifService.unlinkAllForUser(objectif.getId(), currentUser.getId());
+                objectifService.updateForUser(objectif, currentUser.getId());
+            } else {
+                objectifService.unlinkAll(objectif.getId());
+                objectifService.update(objectif);
+            }
 
             for (Investissement inv : selected) {
-                objectifService.linkInvestissement(objectif.getId(), inv.getId());
+                if (currentUser != null && currentUser.getId() > 0) {
+                    objectifService.linkInvestissementForUser(objectif.getId(), inv.getId(), currentUser.getId());
+                } else {
+                    objectifService.linkInvestissement(objectif.getId(), inv.getId());
+                }
             }
 
             showAlert("Succès", "Objectif modifié avec succès.");

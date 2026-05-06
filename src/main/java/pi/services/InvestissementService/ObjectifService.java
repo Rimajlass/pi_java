@@ -78,12 +78,37 @@ public class ObjectifService {
         pst.executeUpdate();
     }
 
+    public void linkInvestissementForUser(int objectifId, int investissementId, int userId) throws Exception {
+        String sql = "UPDATE investissement SET objectif_id = ? WHERE id = ? AND user_id = ?";
+        PreparedStatement pst = cnx().prepareStatement(sql);
+        pst.setInt(1, objectifId);
+        pst.setInt(2, investissementId);
+        pst.setInt(3, userId);
+        pst.executeUpdate();
+    }
+
     public List<Objectif> getAll() throws Exception {
         List<Objectif> list = new ArrayList<>();
         String sql = "SELECT * FROM objectif";
         Statement st = cnx().createStatement();
         ResultSet rs = st.executeQuery(sql);
 
+        while (rs.next()) {
+            list.add(mapRow(rs));
+        }
+        return list;
+    }
+
+    public List<Objectif> getAllByUser(int userId) throws Exception {
+        List<Objectif> list = new ArrayList<>();
+        String sql = "SELECT DISTINCT o.* "
+                + "FROM objectif o "
+                + "JOIN investissement i ON i.objectif_id = o.id "
+                + "WHERE i.user_id = ? "
+                + "ORDER BY o.created_at DESC, o.id DESC";
+        PreparedStatement pst = cnx().prepareStatement(sql);
+        pst.setInt(1, userId);
+        ResultSet rs = pst.executeQuery();
         while (rs.next()) {
             list.add(mapRow(rs));
         }
@@ -120,10 +145,42 @@ public class ObjectifService {
         return map;
     }
 
+    public Map<Integer, Double> getCurrentValuesAllByUser(int userId) throws Exception {
+        Map<Integer, Double> map = new HashMap<>();
+        String sql = "SELECT o.id, COALESCE(SUM(c.currentprice * i.quantity), 0) AS v "
+                + "FROM objectif o "
+                + "JOIN investissement i ON i.objectif_id = o.id "
+                + "LEFT JOIN crypto c ON i.crypto_id = c.id "
+                + "WHERE i.user_id = ? "
+                + "GROUP BY o.id";
+        PreparedStatement pst = cnx().prepareStatement(sql);
+        pst.setInt(1, userId);
+        ResultSet rs = pst.executeQuery();
+        while (rs.next()) {
+            map.put(rs.getInt("id"), rs.getDouble("v"));
+        }
+        return map;
+    }
+
     public double getCurrentValue(int objectifId) throws Exception {
         String sql = "SELECT SUM(c.currentprice * i.quantity) FROM investissement i JOIN crypto c ON i.crypto_id = c.id WHERE i.objectif_id = ?";
         PreparedStatement pst = cnx().prepareStatement(sql);
         pst.setInt(1, objectifId);
+        ResultSet rs = pst.executeQuery();
+        if (rs.next()) {
+            return rs.getDouble(1);
+        }
+        return 0;
+    }
+
+    public double getCurrentValueByUser(int objectifId, int userId) throws Exception {
+        String sql = "SELECT SUM(c.currentprice * i.quantity) "
+                + "FROM investissement i "
+                + "JOIN crypto c ON i.crypto_id = c.id "
+                + "WHERE i.objectif_id = ? AND i.user_id = ?";
+        PreparedStatement pst = cnx().prepareStatement(sql);
+        pst.setInt(1, objectifId);
+        pst.setInt(2, userId);
         ResultSet rs = pst.executeQuery();
         if (rs.next()) {
             return rs.getDouble(1);
@@ -140,6 +197,28 @@ public class ObjectifService {
         if (rs.next()) {
             double targetAmount = rs.getDouble("target_amount");
             double currentValue = getCurrentValue(objectifId);
+
+            if (currentValue >= targetAmount) {
+                String sqlUpdate = "UPDATE objectif SET is_completed = 1 WHERE id = ?";
+                PreparedStatement pst2 = cnx().prepareStatement(sqlUpdate);
+                pst2.setInt(1, objectifId);
+                pst2.executeUpdate();
+            }
+        }
+    }
+
+    public void checkAndMarkCompletedForUser(int objectifId, int userId) throws Exception {
+        if (!isOwnedByUser(objectifId, userId)) {
+            return;
+        }
+        String sqlGet = "SELECT target_amount FROM objectif WHERE id = ?";
+        PreparedStatement pst = cnx().prepareStatement(sqlGet);
+        pst.setInt(1, objectifId);
+        ResultSet rs = pst.executeQuery();
+
+        if (rs.next()) {
+            double targetAmount = rs.getDouble("target_amount");
+            double currentValue = getCurrentValueByUser(objectifId, userId);
 
             if (currentValue >= targetAmount) {
                 String sqlUpdate = "UPDATE objectif SET is_completed = 1 WHERE id = ?";
@@ -183,10 +262,52 @@ public class ObjectifService {
         return list;
     }
 
+    public List<Investissement> getLinkedByUser(int objectifId, int userId) throws Exception {
+        List<Investissement> list = new ArrayList<>();
+        String sql = "SELECT i.id, i.amount_invested, i.buy_price, i.quantity, i.created_at, "
+                + "c.id AS crypto_id, c.name, c.symbol, c.apiid, c.currentprice "
+                + "FROM investissement i "
+                + "JOIN crypto c ON i.crypto_id = c.id "
+                + "WHERE i.objectif_id = ? AND i.user_id = ?";
+        PreparedStatement pst = cnx().prepareStatement(sql);
+        pst.setInt(1, objectifId);
+        pst.setInt(2, userId);
+        ResultSet rs = pst.executeQuery();
+        while (rs.next()) {
+            Crypto crypto = new Crypto(
+                    rs.getInt("crypto_id"),
+                    rs.getString("name"),
+                    rs.getString("symbol"),
+                    rs.getString("apiid"),
+                    rs.getDouble("currentprice")
+            );
+            Investissement inv = new Investissement(
+                    rs.getInt("id"),
+                    crypto,
+                    null,
+                    null,
+                    rs.getDouble("amount_invested"),
+                    rs.getDouble("buy_price"),
+                    rs.getDouble("quantity"),
+                    rs.getDate("created_at").toLocalDate()
+            );
+            list.add(inv);
+        }
+        return list;
+    }
+
     public void unlinkAll(int objectifId) throws Exception {
         String sql = "UPDATE investissement SET objectif_id = NULL WHERE objectif_id = ?";
         PreparedStatement pst = cnx().prepareStatement(sql);
         pst.setInt(1, objectifId);
+        pst.executeUpdate();
+    }
+
+    public void unlinkAllForUser(int objectifId, int userId) throws Exception {
+        String sql = "UPDATE investissement SET objectif_id = NULL WHERE objectif_id = ? AND user_id = ?";
+        PreparedStatement pst = cnx().prepareStatement(sql);
+        pst.setInt(1, objectifId);
+        pst.setInt(2, userId);
         pst.executeUpdate();
     }
 
@@ -202,6 +323,13 @@ public class ObjectifService {
         pst.executeUpdate();
     }
 
+    public void updateForUser(Objectif obj, int userId) throws Exception {
+        if (!isOwnedByUser(obj.getId(), userId)) {
+            throw new SQLException("Vous ne pouvez pas modifier cet objectif.");
+        }
+        update(obj);
+    }
+
     public void delete(int id) throws Exception {
         String sqlUnlink = "UPDATE investissement SET objectif_id = NULL WHERE objectif_id = ?";
         PreparedStatement pst1 = cnx().prepareStatement(sqlUnlink);
@@ -212,5 +340,34 @@ public class ObjectifService {
         PreparedStatement pst2 = cnx().prepareStatement(sqlDelete);
         pst2.setInt(1, id);
         pst2.executeUpdate();
+    }
+
+    public void deleteForUser(int id, int userId) throws Exception {
+        if (!isOwnedByUser(id, userId)) {
+            throw new SQLException("Vous ne pouvez pas supprimer cet objectif.");
+        }
+
+        unlinkAllForUser(id, userId);
+
+        String sqlCount = "SELECT COUNT(*) FROM investissement WHERE objectif_id = ?";
+        PreparedStatement countPst = cnx().prepareStatement(sqlCount);
+        countPst.setInt(1, id);
+        ResultSet rs = countPst.executeQuery();
+        int remaining = rs.next() ? rs.getInt(1) : 0;
+        if (remaining == 0) {
+            String sqlDelete = "DELETE FROM objectif WHERE id = ?";
+            PreparedStatement pst2 = cnx().prepareStatement(sqlDelete);
+            pst2.setInt(1, id);
+            pst2.executeUpdate();
+        }
+    }
+
+    private boolean isOwnedByUser(int objectifId, int userId) throws SQLException {
+        String sql = "SELECT 1 FROM investissement WHERE objectif_id = ? AND user_id = ? LIMIT 1";
+        PreparedStatement pst = cnx().prepareStatement(sql);
+        pst.setInt(1, objectifId);
+        pst.setInt(2, userId);
+        ResultSet rs = pst.executeQuery();
+        return rs.next();
     }
 }

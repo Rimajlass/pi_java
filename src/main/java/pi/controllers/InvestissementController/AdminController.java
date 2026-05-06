@@ -19,6 +19,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import pi.entities.Investissement;
 import pi.entities.Objectif;
+import pi.entities.User;
 import pi.services.InvestissementService.InvestissementService;
 import pi.services.InvestissementService.ObjectifService;
 
@@ -54,6 +55,7 @@ public class AdminController {
 
     private final InvestissementService investissementService = new InvestissementService();
     private final ObjectifService objectifService = new ObjectifService();
+    private User currentUser;
 
     private Map<Integer, Double> objectifCurrentValueCache = new HashMap<>();
 
@@ -113,6 +115,9 @@ public class AdminController {
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("/invest/modifyObjectif.fxml"));
                         Scene scene = new Scene(loader.load());
                         ModifyObjectifController controller = loader.getController();
+                        if (currentUser != null) {
+                            controller.setUser(currentUser);
+                        }
                         controller.setObjectif(obj);
 
                         Stage stage = new Stage();
@@ -142,7 +147,11 @@ public class AdminController {
                 btn.setOnAction(e -> {
                     Objectif obj = getTableView().getItems().get(getIndex());
                     try {
-                        objectifService.delete(obj.getId());
+                        if (currentUser != null && currentUser.getId() > 0) {
+                            objectifService.deleteForUser(obj.getId(), currentUser.getId());
+                        } else {
+                            objectifService.delete(obj.getId());
+                        }
                         loadObjectifs();
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -161,9 +170,17 @@ public class AdminController {
         loadObjectifs();
     }
 
+    public void setUser(User user) {
+        this.currentUser = user;
+        loadInvestissements();
+        loadObjectifs();
+    }
+
     private void loadInvestissements() {
         try {
-            List<Investissement> list = investissementService.getAll();
+            List<Investissement> list = (currentUser != null && currentUser.getId() > 0)
+                    ? investissementService.getAllByUser(currentUser.getId())
+                    : investissementService.getAll();
 
             totalInvestLabel.setText(String.valueOf(list.size()));
             double totalAmount = list.stream().mapToDouble(Investissement::getAmountInvested).sum();
@@ -187,13 +204,23 @@ public class AdminController {
 
     private void loadObjectifs() {
         try {
-            List<Objectif> list = objectifService.getAll();
+            List<Objectif> list = (currentUser != null && currentUser.getId() > 0)
+                    ? objectifService.getAllByUser(currentUser.getId())
+                    : objectifService.getAll();
             for (Objectif obj : list) {
-                objectifService.checkAndMarkCompleted(obj.getId());
+                if (currentUser != null && currentUser.getId() > 0) {
+                    objectifService.checkAndMarkCompletedForUser(obj.getId(), currentUser.getId());
+                } else {
+                    objectifService.checkAndMarkCompleted(obj.getId());
+                }
             }
-            list = objectifService.getAll();
+            list = (currentUser != null && currentUser.getId() > 0)
+                    ? objectifService.getAllByUser(currentUser.getId())
+                    : objectifService.getAll();
 
-            objectifCurrentValueCache = objectifService.getCurrentValuesAll();
+            objectifCurrentValueCache = (currentUser != null && currentUser.getId() > 0)
+                    ? objectifService.getCurrentValuesAllByUser(currentUser.getId())
+                    : objectifService.getCurrentValuesAll();
 
             totalObjLabel.setText(String.valueOf(list.size()));
             long completed = list.stream().filter(Objectif::isCompleted).count();

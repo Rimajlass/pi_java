@@ -15,6 +15,8 @@ module Pidev3A47 {
     requires jdk.jsobject;
     requires mysql.connector.j;
     requires okhttp3;
+    requires kotlin.stdlib;
+    requires com.github.librepdf.openpdf;
     requires org.apache.pdfbox;
     requires vosk;
     requires webcam.capture;
@@ -29,6 +31,7 @@ module Pidev3A47 {
 
     opens pi.mains to javafx.fxml;
     opens pi.controllers.UserTransactionController to javafx.fxml;
+    opens pi.controllers.InvestissementController to javafx.fxml;
     opens pi.controllers.ExpenseRevenueController.BACK to javafx.fxml;
     opens pi.controllers.ExpenseRevenueController.FRONT to javafx.fxml;
     opens pi.controllers.ExpenseRevenueController.UPDATE to javafx.fxml;
