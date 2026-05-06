@@ -25,6 +25,7 @@ import pi.controllers.InvestissementController.AdminController;
 import pi.entities.User;
 import pi.mains.Main;
 import pi.savings.ui.AdminSavingsBackOfficeFactory;
+import pi.controllers.UserTransactionController.UsersManagementController;
 import pi.tools.FxmlResources;
 import pi.tools.AdminNavigation;
 import pi.tools.ThemeManager;
@@ -73,6 +74,15 @@ public class BackOfficeLayoutController {
             return;
         }
         System.out.println("[BackOfficeLayout] menu click: " + key);
+        String normalized = key.trim().toLowerCase(Locale.ROOT);
+        if (normalized.equals("course & quiz") || normalized.equals("cours & quiz") || normalized.equals("ai quiz generator")) {
+            try {
+                if (contentHost != null && contentHost.getScene() != null && contentHost.getScene().getWindow() instanceof Stage stage) {
+                    UiDialog.info(stage, "Debug", "Click menu: " + key);
+                }
+            } catch (Exception ignored) {
+            }
+        }
         if (!handleCoreNavigation(key)) {
             menuSelectionHandler.accept(key);
         }
@@ -395,8 +405,8 @@ public class BackOfficeLayoutController {
 
     private boolean loadUsersContentDirect() {
         return loadContentFromFxml(
-                "/pi/mains/admin-backend-view.fxml",
-                AdminBackendController.class,
+                "/pi/mains/users-management-view.fxml",
+                UsersManagementController.class,
                 controller -> {
                     User user = resolveCurrentUser();
                     if (user != null) {

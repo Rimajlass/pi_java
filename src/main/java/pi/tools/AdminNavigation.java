@@ -15,7 +15,7 @@ import javafx.stage.Stage;
 import pi.controllers.CoursQuizController.AdminCoursesQuizBackOfficeFactory;
 import pi.controllers.ExpenseRevenueController.BACK.AdminRevenueExpenseBackOfficeFactory;
 import pi.controllers.ImprevusCasreelController.AdminUnexpectedCasesBackOfficeFactory;
-import pi.controllers.UserTransactionController.AdminBackendController;
+import pi.controllers.UserTransactionController.UsersManagementController;
 import pi.controllers.UserTransactionController.AddUserController;
 import pi.controllers.UserTransactionController.BackOfficeLayoutController;
 import pi.controllers.UserTransactionController.EditUserController;
@@ -43,12 +43,11 @@ public final class AdminNavigation {
         try {
             LayoutContext layout = ensureLayout(stage);
 
-            ContentBundle<AdminBackendController> bundle = loadContentBundle(
-                    "/pi/mains/admin-backend-view.fxml",
-                    AdminBackendController.class
+            ContentBundle<UsersManagementController> bundle = loadContentBundle(
+                    "/pi/mains/users-management-view.fxml",
+                    UsersManagementController.class
             );
             layout.controller().setContent(bundle.contentNode());
-            layout.controller().setUser(currentUser);
             layout.controller().setActiveMenu("Users");
             layout.controller().setMenuSelectionHandler(key -> routeMenuSelection(stage, currentUser, key));
             layout.controller().setLogoutHandler(() -> showLogin(stage));
@@ -297,8 +296,19 @@ public final class AdminNavigation {
         if (contentNode == null) {
             throw new IllegalStateException("content-wrapper not found");
         }
+        if (contentNode == root) {
+            AnchorPane.setTopAnchor(contentNode, 0.0);
+            AnchorPane.setRightAnchor(contentNode, 0.0);
+            AnchorPane.setBottomAnchor(contentNode, 0.0);
+            AnchorPane.setLeftAnchor(contentNode, 0.0);
+            return contentNode;
+        }
         if (!(contentNode.getParent() instanceof Pane parentPane)) {
-            throw new IllegalStateException("Unsupported parent for content-wrapper");
+            AnchorPane.setTopAnchor(contentNode, 0.0);
+            AnchorPane.setRightAnchor(contentNode, 0.0);
+            AnchorPane.setBottomAnchor(contentNode, 0.0);
+            AnchorPane.setLeftAnchor(contentNode, 0.0);
+            return contentNode;
         }
         parentPane.getChildren().remove(contentNode);
         AnchorPane.setTopAnchor(contentNode, 0.0);
