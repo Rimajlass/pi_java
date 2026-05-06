@@ -582,6 +582,9 @@ public class AdminBackendController {
 
     private void showCourseQuizWorkspace() {
         try {
+            if (headerLabel != null && headerLabel.getScene() != null && headerLabel.getScene().getWindow() instanceof Stage stage) {
+                UiDialog.info(stage, "Navigation", "Course & Quiz clicked");
+            }
             headerLabel.setText("Course & Quiz");
             headerSubtitle.setText("Manage courses and quizzes in the shared admin workspace while keeping the same sidebar visible.");
             if (addUserButton != null) {
@@ -783,6 +786,9 @@ public class AdminBackendController {
     }
 
     private void showAiQuizWorkspace() {
+        if (headerLabel != null && headerLabel.getScene() != null && headerLabel.getScene().getWindow() instanceof Stage stage) {
+            UiDialog.info(stage, "Navigation", "AI Quiz Generator clicked");
+        }
         headerLabel.setText("AI Quiz Generator");
         headerSubtitle.setText("Generate quizzes automatically from courses using OpenAI and save them to the database.");
         if (addUserButton != null) {
