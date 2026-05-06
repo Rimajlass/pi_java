@@ -66,13 +66,13 @@
                                         <Label styleClass="menu-text" text="Real Cases" />
                                     </children>
                                 </HBox>
-                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleRevenuesMenuClick" spacing="10.0" styleClass="menu-row menu-row-nav">
                                     <children>
                                         <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4B0;" /></children></StackPane>
                                         <Label styleClass="menu-text" text="Revenues" />
                                     </children>
                                 </HBox>
-                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleExpensesMenuClick" spacing="10.0" styleClass="menu-row menu-row-nav">
                                     <children>
                                         <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4B3;" /></children></StackPane>
                                         <Label styleClass="menu-text" text="Expenses" />

@@ -870,24 +870,15 @@ public class LoginController {
     }
 
     private void validateOAuthConfigurationOnStartup() {
-        boolean googleReady = socialAuthService().isGoogleConfigured();
-        boolean facebookReady = socialAuthService().isFacebookConfigured();
-        socialAuthReady = googleReady || facebookReady;
-
-        googleButton.setDisable(!googleReady);
-        facebookButton.setDisable(!facebookReady);
-
-        if (!socialAuthReady) {
-            showError("OAuth non configure. Definissez les variables GOOGLE_OAUTH_* et/ou FACEBOOK_OAUTH_*.");
-            return;
-        }
-
-        if (!googleReady || !facebookReady) {
-            feedbackLabel.getStyleClass().remove("feedback-error");
-            if (!feedbackLabel.getStyleClass().contains("feedback-success")) {
-                feedbackLabel.getStyleClass().add("feedback-success");
-            }
-            feedbackLabel.setText("OAuth partiel: seul le fournisseur configure est actif.");
+        try {
+            socialAuthService().validateStartupConfiguration();
+            socialAuthReady = true;
+            googleButton.setDisable(false);
+            facebookButton.setDisable(false);
+        } catch (Exception e) {
+            socialAuthReady = false;
+            googleButton.setDisable(true);
+            facebookButton.setDisable(true);
         }
     }
 

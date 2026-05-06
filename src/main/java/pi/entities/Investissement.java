@@ -70,4 +70,7 @@ public class Investissement {
     public String toString() {
         return "Investissement{" + "id=" + this.id + ", amountInvested=" + this.amountInvested + '}';
     }
+    public double getProfitLoss() {
+        return (crypto.getCurrentprice() - buyPrice) * quantity;
+    }
 }

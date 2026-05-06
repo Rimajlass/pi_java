@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+
+<VBox spacing="16" styleClass="dialog-root"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="pi.controllers.InvestissementController.ModifyObjectifController"
+      prefWidth="440" prefHeight="560"
+      style="-fx-padding: 30;">
+    <stylesheets>
+        <URL value="@admin-style.css"/>
+    </stylesheets>
+
+    <Label text="Modifier l'Objectif" styleClass="dialog-title"/>
+    <Label text="Ajustez la priorité métier, les investissements liés ou le multiplicateur." styleClass="dialog-subtitle"/>
+
+    <Separator/>
+
+    <Label text="Nom de l'objectif" styleClass="field-label"/>
+    <TextField fx:id="nameField" promptText="Nom de l'objectif" styleClass="text-field"/>
+
+    <Label text="Priorité métier" styleClass="field-label"/>
+    <ComboBox fx:id="prioriteCombo" prefWidth="1.7976931348623157E308"/>
+
+    <Label text="Multiplicateur" styleClass="field-label"/>
+    <TextField fx:id="multiplierField" promptText="Ex: 2" styleClass="text-field"/>
+
+    <Label text="Investissements" styleClass="field-label"/>
+    <ListView fx:id="investList" prefHeight="160" styleClass="history-table"/>
+
+    <HBox spacing="16">
+        <Label fx:id="totalLabel" text="Total: 0.00 USD" styleClass="card-caption" HBox.hgrow="ALWAYS"/>
+        <Label fx:id="targetLabel" text="Objectif: 0.00 USD" styleClass="amount-label"/>
+    </HBox>
+
+    <Button text="Confirmer" onAction="#confirm" styleClass="action-button-primary" maxWidth="1.7976931348623157E308"/>
+
+</VBox>

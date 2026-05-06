@@ -12,6 +12,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import java.lang.String?>
 
 <AnchorPane prefHeight="900.0" prefWidth="1460.0"
             styleClass="service-root"
@@ -76,7 +77,7 @@
                                                         <Button text="Service"
                                                                 mnemonicParsing="false"
                                                                 styleClass="nav-button-active"
-                                                                disable="true" />
+                                                                onAction="#handleOpenServiceAction" />
                                                         <Button text="Contact"
                                                                 mnemonicParsing="false"
                                                                 styleClass="nav-button"
@@ -96,12 +97,20 @@
                                                         </HBox>
                                                         <Button text="To Start"
                                                                 mnemonicParsing="false"
-                                                                styleClass="header-button start-button"
-                                                                onAction="#handleBackToHomeAction" />
+                                                                onAction="#handleBackToHomeAction">
+                                                            <styleClass>
+                                                                <String fx:value="header-button" />
+                                                                <String fx:value="start-button" />
+                                                            </styleClass>
+                                                        </Button>
                                                         <Button text="Logout"
                                                                 mnemonicParsing="false"
-                                                                styleClass="header-button logout-button"
-                                                                onAction="#handleLogout" />
+                                                                onAction="#handleLogout">
+                                                            <styleClass>
+                                                                <String fx:value="header-button" />
+                                                                <String fx:value="logout-button" />
+                                                            </styleClass>
+                                                        </Button>
                                                     </children>
                                                 </HBox>
                                             </children>
@@ -185,7 +194,7 @@
                                             </children>
                                         </VBox>
 
-                                        <VBox spacing="10.0" prefWidth="430.0" styleClass="service-card">
+                                        <VBox spacing="10.0" prefWidth="430.0" styleClass="service-card" onMouseClicked="#handleOpenInvestissement">
                                             <children>
                                                 <Label text="Investissement" styleClass="service-title" />
                                                 <Label text="Start your investment journey and monitor market trends."

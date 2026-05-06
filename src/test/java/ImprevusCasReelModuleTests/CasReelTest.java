@@ -4,12 +4,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import pi.entities.CasRelles;
+import pi.entities.User;
 import pi.services.ImprevusCasreelService.CasReelService;
 import pi.tools.MyDatabase;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,14 +27,21 @@ public class CasReelTest {
 
     private static CasReelService casReelService;
     private static Connection connection;
+    private static int testUserId = 1;
 
     private final List<Integer> idsToDelete = new ArrayList<>();
 
     @BeforeAll
-    static void setUp() {
+    static void setUp() throws SQLException {
         casReelService = new CasReelService();
         connection = MyDatabase.getInstance().getCnx();
         assertNotNull(connection);
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery("SELECT id FROM `user` ORDER BY id ASC LIMIT 1")) {
+            if (rs.next()) {
+                testUserId = rs.getInt(1);
+            }
+        }
     }
 
     @AfterEach
@@ -45,17 +55,21 @@ public class CasReelTest {
     @Test
     void testAjouterCasReel() {
         String uniqueTitre = "TestCasAdd_" + UUID.randomUUID();
-        CasRelles casReel = new CasRelles(null, uniqueTitre, "Description test", "Depense",
-                "Manuel", 180.0, "Solution A", LocalDate.now(), "justif.pdf");
-        casReel.setResultat(CasReelService.STATUT_EN_ATTENTE);
+        CasRelles casReel = new CasRelles(null, uniqueTitre, "Description test", "Gain",
+                "Manuel", 50.0, "Solution A", LocalDate.now(), "justif.pdf");
+        User u = new User();
+        u.setId(testUserId);
+        casReel.setUser(u);
 
-        casReelService.ajouter(casReel);
+        CasReelService.CaseInsertOutcome outcome = casReelService.ajouter(casReel);
+        assertTrue(outcome.caseId() > 0);
 
         CasRelles savedCasReel = findCasReelByTitre(uniqueTitre);
         assertNotNull(savedCasReel);
         assertEquals(uniqueTitre, savedCasReel.getTitre());
-        assertEquals("Depense", savedCasReel.getType());
-        assertEquals(180.0, savedCasReel.getMontant());
+        assertEquals("Gain", savedCasReel.getType());
+        assertEquals(50.0, savedCasReel.getMontant());
+        assertEquals(CasReelService.STATUT_EN_ATTENTE, savedCasReel.getResultat());
 
         idsToDelete.add(savedCasReel.getId());
     }
@@ -65,7 +79,9 @@ public class CasReelTest {
         String uniqueTitre = "TestCasList_" + UUID.randomUUID();
         CasRelles casReel = new CasRelles(null, uniqueTitre, "Description list", "Gain",
                 "Manuel", 250.0, "Solution B", LocalDate.now(), "preuve.png");
-        casReel.setResultat(CasReelService.STATUT_EN_ATTENTE);
+        User u = new User();
+        u.setId(testUserId);
+        casReel.setUser(u);
         casReelService.ajouter(casReel);
 
         CasRelles savedCasReel = findCasReelByTitre(uniqueTitre);
@@ -80,9 +96,11 @@ public class CasReelTest {
     @Test
     void testModifierCasReel() {
         String uniqueTitre = "TestCasUpdate_" + UUID.randomUUID();
-        CasRelles casReel = new CasRelles(null, uniqueTitre, "Avant modification", "Depense",
+        CasRelles casReel = new CasRelles(null, uniqueTitre, "Avant modification", "Gain",
                 "Manuel", 320.0, "Solution C", LocalDate.now(), "file.txt");
-        casReel.setResultat(CasReelService.STATUT_EN_ATTENTE);
+        User u = new User();
+        u.setId(testUserId);
+        casReel.setUser(u);
         casReelService.ajouter(casReel);
 
         CasRelles savedCasReel = findCasReelByTitre(uniqueTitre);
@@ -107,9 +125,11 @@ public class CasReelTest {
     @Test
     void testSupprimerCasReel() {
         String uniqueTitre = "TestCasDelete_" + UUID.randomUUID();
-        CasRelles casReel = new CasRelles(null, uniqueTitre, "Description delete", "Depense",
-                "Manuel", 410.0, "Solution D", LocalDate.now(), "delete.pdf");
-        casReel.setResultat(CasReelService.STATUT_EN_ATTENTE);
+        CasRelles casReel = new CasRelles(null, uniqueTitre, "Description delete", "Gain",
+                "Manuel", 10.0, "Solution D", LocalDate.now(), "delete.pdf");
+        User u = new User();
+        u.setId(testUserId);
+        casReel.setUser(u);
         casReelService.ajouter(casReel);
 
         CasRelles savedCasReel = findCasReelByTitre(uniqueTitre);

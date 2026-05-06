@@ -29,16 +29,14 @@ final class SavingsReportExporter {
         Path file = exportDirectory.resolve("savings-history-" + LocalDateTime.now().format(FILE_STAMP) + ".csv");
 
         List<String> lines = new ArrayList<>();
-        lines.add("id,date,type,amount,description,module_source,user_id");
+        lines.add("date,type,amount,description,module_source");
         for (SavingsTransactionRepository.TransactionRow row : rows) {
             lines.add(String.join(",",
-                    csv(row.id()),
                     csv(row.date()),
-                    csv(row.type()),
+                    csv(friendlyTransactionType(row.type())),
                     csv(row.amount()),
                     csv(row.description()),
-                    csv(row.moduleSource()),
-                    csv(row.userId())
+                    csv(friendlyModuleSource(row.moduleSource()))
             ));
         }
 
@@ -71,8 +69,8 @@ final class SavingsReportExporter {
         ));
         pdf.drawSectionTitle("Transactions");
         pdf.drawTable(
-                List.of("ID", "Date", "Type", "Amount", "Description", "Module", "User"),
-                List.of(32f, 84f, 92f, 68f, 152f, 64f, 35f),
+                List.of("Date", "Type", "Amount", "Description", "Source"),
+                List.of(88f, 100f, 72f, 194f, 73f),
                 toHistoryRows(rows)
         );
 
@@ -88,10 +86,9 @@ final class SavingsReportExporter {
         Path file = exportDirectory.resolve("goals-" + LocalDateTime.now().format(FILE_STAMP) + ".csv");
 
         List<String> lines = new ArrayList<>();
-        lines.add("id,name,target,current,deadline,priority,progress_percent");
+        lines.add("name,target,current,deadline,priority,progress_percent");
         for (SavingsModuleService.GoalSnapshot goal : goals) {
             lines.add(String.join(",",
-                    csv(goal.id()),
                     csv(goal.name()),
                     csv(goal.target()),
                     csv(goal.current()),
@@ -130,8 +127,8 @@ final class SavingsReportExporter {
         ));
         pdf.drawSectionTitle("Goals");
         pdf.drawTable(
-                List.of("ID", "Name", "Target", "Current", "Remaining", "Deadline", "Priority", "Progress"),
-                List.of(28f, 120f, 58f, 58f, 64f, 74f, 52f, 48f),
+                List.of("Goal", "Target", "Current", "Remaining", "Deadline", "Priority", "Progress"),
+                List.of(146f, 62f, 62f, 68f, 86f, 52f, 51f),
                 toGoalRows(goals)
         );
 
@@ -143,13 +140,11 @@ final class SavingsReportExporter {
         List<List<String>> data = new ArrayList<>();
         for (SavingsTransactionRepository.TransactionRow row : rows) {
             data.add(List.of(
-                    String.valueOf(row.id()),
                     row.date().format(HISTORY_DATE),
-                    safe(row.type()),
+                    friendlyTransactionType(row.type()),
                     money(row.amount()),
                     safe(row.description()),
-                    safe(row.moduleSource()),
-                    String.valueOf(row.userId())
+                    friendlyModuleSource(row.moduleSource())
             ));
         }
         return data;
@@ -160,7 +155,6 @@ final class SavingsReportExporter {
         for (SavingsModuleService.GoalSnapshot goal : goals) {
             BigDecimal remaining = goal.target().subtract(goal.current()).max(BigDecimal.ZERO);
             data.add(List.of(
-                    String.valueOf(goal.id()),
                     safe(goal.name()),
                     money(goal.target()),
                     money(goal.current()),
@@ -184,6 +178,27 @@ final class SavingsReportExporter {
 
     private static String safe(String value) {
         return value == null ? "" : value;
+    }
+
+    private static String friendlyTransactionType(String value) {
+        if (value == null || value.isBlank()) {
+            return "Transaction";
+        }
+        return switch (value.trim().toUpperCase(Locale.ROOT)) {
+            case "EPARGNE" -> "Deposit";
+            case "GOAL_CONTRIBUTION" -> "Goal Contribution";
+            default -> value.replace('_', ' ');
+        };
+    }
+
+    private static String friendlyModuleSource(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+        return switch (value.trim().toUpperCase(Locale.ROOT)) {
+            case "SAVINGS" -> "Savings";
+            default -> value.replace('_', ' ');
+        };
     }
 
     private record MetricCard(String label, String value) {

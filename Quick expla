@@ -1,0 +1,63 @@
+Crypto.fxml
+    contains TableView and colChart
+
+CryptoController.java
+    receives colChart using @FXML
+    setupChartColumn() adds "Show Chart" button to each row
+    button gets selected Crypto object
+    button calls openCryptoChartWindow(crypto)
+
+openCryptoChartWindow()
+    opens new JavaFX Stage
+    shows loading spinner
+    starts Task<List<CryptoPricePoint>>
+
+Task
+    calls CryptoChartService.getMarketChart(crypto.getApiid(), 30, "usd")
+
+CryptoChartService.java
+    builds CoinGecko URL
+    sends HTTP GET request
+    receives JSON response
+    extracts "prices"
+    converts timestamps to LocalDateTime
+    creates List<CryptoPricePoint>
+
+CryptoPricePoint.java
+    stores one chart point: dateTime + price
+
+CryptoController.java
+    receives List<CryptoPricePoint>
+    creates CategoryAxis and NumberAxis
+    creates LineChart<String, Number>
+    converts each CryptoPricePoint into XYChart.Data
+    adds all data to XYChart.Series
+    adds series to LineChart
+    replaces loading screen with the chart
+
+
+ NEWS FUNCTION
+
+
+ Crypto.fxml
+     adds colNews
+
+ CryptoController.java
+     creates News button per crypto row
+     gets selected Crypto object
+     opens news window
+     starts JavaFX Task
+
+ CryptoNewsService.java
+     reads GNEWS_API_KEY from .env.local
+     calls GNews Search API
+     parses JSON articles with Jackson
+     returns List<CryptoNewsArticle>
+
+ CryptoNewsArticle.java
+     stores title, description, url, imageUrl, publishedAt, sourceName
+
+ CryptoController.java
+     creates JavaFX cards
+     loads article images into ImageView
+     displays cards in ScrollPane

@@ -198,6 +198,36 @@ class SavingsUiControllerTest {
     }
 
     @Test
+    void shouldPaginateAndClampRequestedPage() {
+        SavingsUiController controller = new SavingsUiController(new FakeSavingsModuleService(
+                dashboardSnapshot(
+                        new BigDecimal("1000.00"),
+                        new BigDecimal("2.50"),
+                        List.of(
+                                goalSnapshot(1, "Bike", "1000", "100", LocalDate.of(2026, 7, 1), 3, 10),
+                                goalSnapshot(2, "Laptop", "2000", "300", LocalDate.of(2026, 6, 1), 3, 15),
+                                goalSnapshot(3, "Trip", "1500", "500", LocalDate.of(2026, 5, 1), 5, 33)
+                        ),
+                        List.of()
+                ),
+                null, null, null, null, null, null
+        ));
+        controller.initialize();
+
+        SavingsUiController.PageSlice<SavingsModuleService.GoalSnapshot> firstPage =
+                controller.paginate(controller.filterAndSortGoals("", "Name", "Ascending"), 0, 2);
+        SavingsUiController.PageSlice<SavingsModuleService.GoalSnapshot> clampedPage =
+                controller.paginate(controller.filterAndSortGoals("", "Name", "Ascending"), 9, 2);
+
+        assertEquals(List.of(1, 2), firstPage.items().stream().map(SavingsModuleService.GoalSnapshot::id).toList());
+        assertEquals(0, firstPage.pageIndex());
+        assertEquals(2, firstPage.pageCount());
+        assertEquals(List.of(3), clampedPage.items().stream().map(SavingsModuleService.GoalSnapshot::id).toList());
+        assertEquals(1, clampedPage.pageIndex());
+        assertEquals(3, clampedPage.totalItems());
+    }
+
+    @Test
     void shouldExportFilteredHistory() throws Exception {
         SavingsUiController controller = new SavingsUiController(new FakeSavingsModuleService(
                 dashboardSnapshot(

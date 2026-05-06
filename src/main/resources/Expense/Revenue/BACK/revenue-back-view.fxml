@@ -186,7 +186,7 @@
                                                 <TextArea fx:id="revenueDescriptionArea" prefHeight="110.0" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="7" />
                                             </children>
                                         </GridPane>
-                                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleAddRevenue" styleClass="primary-button" text="Add Revenue" />
+                                        <Button fx:id="revenueSubmitButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleAddRevenue" styleClass="primary-button" text="Add Revenue" />
                                     </children>
                                 </VBox>
 
@@ -200,7 +200,7 @@
                                                 <TableColumn fx:id="revenueAmountColumn" prefWidth="130.0" text="Amount" />
                                                 <TableColumn fx:id="revenueTypeColumn" prefWidth="150.0" text="Type" />
                                                 <TableColumn fx:id="revenueDescriptionColumn" prefWidth="250.0" text="Description" />
-                                                <TableColumn fx:id="revenueActionColumn" prefWidth="180.0" text="Actions" />
+                                                <TableColumn fx:id="revenueActionColumn" prefWidth="110.0" text="Actions" />
                                             </columns>
                                         </TableView>
                                     </children>

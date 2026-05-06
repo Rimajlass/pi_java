@@ -38,7 +38,8 @@ build/
 ### Mac OS ###
 .DS_Store
 
-# Local SMTP secrets
-mail.properties
+### Local secrets ###
 .env
 .env.local
+mail.properties
+config.properties

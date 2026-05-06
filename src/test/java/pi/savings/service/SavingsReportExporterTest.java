@@ -28,7 +28,8 @@ class SavingsReportExporterTest {
 
         String content = Files.readString(csv, StandardCharsets.UTF_8);
 
-        assertTrue(content.contains("id,date,type,amount,description,module_source,user_id"));
+        assertTrue(content.contains("date,type,amount,description,module_source"));
+        assertTrue(!content.contains("user_id"));
         assertTrue(content.contains("\"salary bonus, april\""));
         assertTrue(content.contains("\"goal \"\"bike\"\"\""));
     }
@@ -89,6 +90,7 @@ class SavingsReportExporterTest {
         String pdfContent = new String(Files.readAllBytes(pdf), StandardCharsets.ISO_8859_1);
 
         assertTrue(csvContent.contains("progress_percent"));
+        assertTrue(!csvContent.contains("id,name"));
         assertTrue(csvContent.contains("\"null\""));
         assertTrue(pdfContent.contains("Goals Report"));
         assertTrue(pdfContent.contains("Laptop Fund"));
