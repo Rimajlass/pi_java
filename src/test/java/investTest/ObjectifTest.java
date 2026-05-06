@@ -122,8 +122,6 @@ public class ObjectifTest {
     @Test
     @Order(5)
     void testCheckAndMarkCompletedDoesNotMarkWhenBelowTarget() throws Exception {
-        // Objectif with a very high target — no investments linked so currentValue = 0
-        // checkAndMarkCompleted should leave is_completed = false
         String uniqueName = "Objectif Check " + System.nanoTime();
         Objectif obj = new Objectif(uniqueName, 2.0, 1000.0, 9999999.0, false, LocalDate.now());
         objectifService.add(obj);
@@ -142,19 +140,33 @@ public class ObjectifTest {
             ps.setString(1, name);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new Objectif(
-                            rs.getInt("id"),
-                            rs.getString("name"),
-                            rs.getDouble("target_multiplier"),
-                            rs.getDouble("initial_amount"),
-                            rs.getDouble("target_amount"),
-                            rs.getBoolean("is_completed"),
-                            rs.getDate("created_at").toLocalDate()
-                    );
+                    return mapObjectifRow(rs);
                 }
             }
         }
         return null;
+    }
+
+    private Objectif mapObjectifRow(ResultSet rs) throws SQLException {
+        String priorite = Objectif.P_NORMALE;
+        try {
+            String p = rs.getString("priorite");
+            if (p != null && !p.isBlank()) {
+                priorite = p;
+            }
+        } catch (SQLException ignored) {
+            //
+        }
+        return new Objectif(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getDouble("target_multiplier"),
+                rs.getDouble("initial_amount"),
+                rs.getDouble("target_amount"),
+                rs.getBoolean("is_completed"),
+                rs.getDate("created_at").toLocalDate(),
+                priorite
+        );
     }
 
     private Objectif findObjectifById(int id) throws SQLException {
@@ -163,15 +175,7 @@ public class ObjectifTest {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new Objectif(
-                            rs.getInt("id"),
-                            rs.getString("name"),
-                            rs.getDouble("target_multiplier"),
-                            rs.getDouble("initial_amount"),
-                            rs.getDouble("target_amount"),
-                            rs.getBoolean("is_completed"),
-                            rs.getDate("created_at").toLocalDate()
-                    );
+                    return mapObjectifRow(rs);
                 }
             }
         }

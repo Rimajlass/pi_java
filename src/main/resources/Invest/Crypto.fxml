@@ -1,56 +1,456 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
 <?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
-<ScrollPane fitToWidth="true" styleClass="page-scroll" prefWidth="900" prefHeight="700"
-            xmlns:fx="http://javafx.com/fxml"
+<ScrollPane fx:id="rootScroll" fitToWidth="true" hbarPolicy="NEVER" prefHeight="900.0" prefWidth="1400.0"
+            styleClass="page-scroll"
+            vbarPolicy="AS_NEEDED"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="pi.controllers.InvestissementController.CryptoController">
     <stylesheets>
-        <URL value="@admin-style.css"/>
+        <URL value="@../styles/RevenueExpenseFRONT/salary-expense.css"/>
+        <URL value="@crypto-pro.css"/>
     </stylesheets>
+    <content>
+        <VBox styleClass="page-root">
+            <children>
 
-    <VBox styleClass="page-root" spacing="0">
+                <!-- Accent line -->
+                <Pane styleClass="accent-bar" />
 
-        <HBox styleClass="top-nav" alignment="CENTER_LEFT" spacing="16">
-            <Label text="InvestTracker" styleClass="brand-mark"/>
-            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS" spacing="10">
-                <Button text="Rafraîchir" onAction="#refresh" styleClass="ghost-round-button"/>
-                <Button text="Investir" onAction="#goToInvest" styleClass="cyan-pill-button"/>
-                <Button text="Objectifs" onAction="#goToObjectifs" styleClass="action-button-secondary"/>
-                <Button text="Admin" onAction="#goToAdmin" styleClass="outline-pill-button"/>
-            </HBox>
-        </HBox>
+                <!-- TOP SHELL -->
+                <VBox styleClass="top-shell">
+                    <children>
 
-        <VBox styleClass="content-shell">
+                        <!-- Nav -->
+                        <HBox alignment="CENTER_LEFT" styleClass="top-nav">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label styleClass="brand-badge" text="DS" />
+                                        <Label styleClass="brand-mark" text="Decide$" />
+                                    </children>
+                                </HBox>
+                                <Region HBox.hgrow="ALWAYS" />
+                                <HBox alignment="CENTER" spacing="4.0" styleClass="nav-links">
+                                    <children>
+                                        <Button mnemonicParsing="false" onAction="#refresh"
+                                                styleClass="nav-button" text="Rafraîchir" />
+                                        <Button mnemonicParsing="false" onAction="#goToInvest"
+                                                styleClass="nav-button" text="Investir" />
+                                        <Button mnemonicParsing="false" onAction="#goToObjectifs"
+                                                styleClass="nav-button" text="Objectifs" />
+                                        <Button mnemonicParsing="false" onAction="#goToAdmin"
+                                                styleClass="nav-button nav-button-active" text="Admin" />
+                                        <Button fx:id="themeToggleButton" mnemonicParsing="false" onAction="#toggleTheme"
+                                                styleClass="nav-button" text="Thème sombre" />
+                                    </children>
+                                </HBox>
+                                <Region HBox.hgrow="ALWAYS" />
+                                <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                                    <children>
+                                        <HBox alignment="CENTER" spacing="8.0" styleClass="profile-pill">
+                                            <children>
+                                                <Label styleClass="profile-icon" text="U" />
+                                                <Label styleClass="profile-name" text="Investor" />
+                                            </children>
+                                        </HBox>
+                                        <Button mnemonicParsing="false"
+                                                styleClass="header-button logout-button" text="Logout" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </HBox>
 
-            <Label text="MARCHÉ" styleClass="section-tag"/>
-            <Label text="Prix des Cryptos" styleClass="section-title"/>
+                        <!-- Status bar -->
+                        <HBox styleClass="status-bar" alignment="CENTER_LEFT" spacing="14.0">
+                            <children>
+                                <Label styleClass="live-badge" text="● LIVE" />
+                                <Pane styleClass="status-sep" />
+                                <Label styleClass="status-tag" text="CoinGecko API" />
+                                <Pane styleClass="status-sep" />
+                                <Label styleClass="status-tag" text="Fear &amp; Greed — Alternative.me" />
+                                <Pane styleClass="status-sep" />
+                                <Label styleClass="status-tag" text="Frankfurter (BCE)" />
+                                <Pane styleClass="status-sep" />
+                                <Label styleClass="status-tag" text="8 marchés actifs" />
+                                <Pane styleClass="status-sep" />
+                                <Label fx:id="lastMarketRefreshLabel" styleClass="status-tag" text="Marché: —" />
+                                <Pane styleClass="status-sep" />
+                                <Label fx:id="objectifsBadgeLabel" styleClass="status-tag" text="Objectifs: —" />
+                                <Pane styleClass="status-sep" />
+                                <Label styleClass="status-tag" text="F5 / Ctrl+R · rafraîchir" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label styleClass="status-tag" text="Decide$ Invest Module" />
+                            </children>
+                        </HBox>
 
-            <TableView fx:id="table" styleClass="history-table" prefHeight="220" maxWidth="1.7976931348623157E308">
-                <columns>
-                    <TableColumn fx:id="colName" text="Nom" prefWidth="250"/>
-                    <TableColumn fx:id="colPrice" text="Prix (USD)" prefWidth="250"/>
-                </columns>
-            </TableView>
+                        <!-- Hero -->
+                        <VBox styleClass="hero-banner" spacing="10.0">
+                            <children>
+                                <Label styleClass="hero-tag" text="DECIDE$ MODULE" />
+                                <Label styleClass="hero-title" text="Crypto Portfolio" />
+                                <Label styleClass="hero-subtitle"
+                                       text="Monitor live market prices and manage your investment portfolio." />
+                            </children>
+                        </VBox>
 
-            <Label text="MES INVESTISSEMENTS" styleClass="section-tag"/>
-            <Label text="Portefeuille" styleClass="section-title"/>
+                    </children>
+                </VBox>
 
-            <TextField fx:id="investSearch" promptText="Rechercher par crypto..." styleClass="text-field" maxWidth="300"/>
+                <!-- CONTENT SHELL -->
+                <VBox alignment="TOP_CENTER" spacing="22.0" styleClass="content-shell">
+                    <children>
 
-            <TableView fx:id="investTable" styleClass="history-table" prefHeight="250" maxWidth="1.7976931348623157E308">
-                <columns>
-                    <TableColumn fx:id="colCrypto" text="Crypto" prefWidth="130"/>
-                    <TableColumn fx:id="colAmount" text="Montant" prefWidth="120"/>
-                    <TableColumn fx:id="colQuantity" text="Quantité" prefWidth="120"/>
-                    <TableColumn fx:id="colProfitLoss" text="Gain/Perte (USD)" prefWidth="130"/>
-                    <TableColumn fx:id="colModify" text="Modifier" prefWidth="100"/>
-                    <TableColumn fx:id="colDelete" text="Supprimer" prefWidth="100"/>
-                </columns>
-            </TableView>
+                        <!-- Section header -->
+                        <VBox spacing="6.0">
+                            <children>
+                                <Label styleClass="section-tag" text="TABLEAU DE BORD" />
+                                <Label styleClass="section-title" text="Vue d'ensemble" />
+                                <Label styleClass="section-subtitle"
+                                       text="Track your positions, gains and live market data." />
+                            </children>
+                        </VBox>
 
+                        <!-- Summary cards -->
+                        <HBox alignment="CENTER" spacing="18.0">
+                            <children>
+                                <VBox prefWidth="280.0" styleClass="summary-card fng-summary-card">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT">
+                                            <children>
+                                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label styleClass="card-title" text="Fear &amp; Greed Index" />
+                                                        <Label styleClass="card-caption" text="Sentiment marché crypto (24h)" />
+                                                    </children>
+                                                </VBox>
+                                                <Label styleClass="card-icon-circle" text="FG" />
+                                            </children>
+                                        </HBox>
+                                        <ProgressBar fx:id="fearGreedMeter" maxWidth="1.7976931348623157E308"
+                                                   prefHeight="8.0" progress="0.0" styleClass="fng-meter" />
+                                        <Label fx:id="fearGreedValue" styleClass="amount-label" text="—" />
+                                        <Label fx:id="fearGreedClassification" styleClass="fng-classification" text="Chargement…" />
+                                        <Label fx:id="fearGreedUpdated" styleClass="card-caption" text="" wrapText="true" />
+                                    </children>
+                                </VBox>
+
+                                <VBox prefWidth="240.0" styleClass="summary-card">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT">
+                                            <children>
+                                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label styleClass="card-title" text="Total Investi" />
+                                                        <Label styleClass="card-caption" text="Montant total engagé" />
+                                                    </children>
+                                                </VBox>
+                                                <Label styleClass="card-icon-circle" text="\$" />
+                                            </children>
+                                        </HBox>
+                                        <Label fx:id="summaryTotalLabel" styleClass="amount-label" text="—" />
+                                        <Label fx:id="summaryApproxEurLabel" styleClass="card-caption"
+                                               text="" wrapText="true" />
+                                    </children>
+                                </VBox>
+
+                                <VBox prefWidth="240.0" styleClass="summary-card">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT">
+                                            <children>
+                                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label styleClass="card-title" text="Gain / Perte" />
+                                                        <Label styleClass="card-caption" text="Performance globale" />
+                                                    </children>
+                                                </VBox>
+                                                <Label styleClass="card-icon-circle" text="+/-" />
+                                            </children>
+                                        </HBox>
+                                        <Label fx:id="summaryPnLLabel" styleClass="amount-label" text="—" />
+                                    </children>
+                                </VBox>
+
+                                <VBox prefWidth="240.0" styleClass="summary-card">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT">
+                                            <children>
+                                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label styleClass="card-title" text="Positions actives" />
+                                                        <Label styleClass="card-caption" text="Investissements en cours" />
+                                                    </children>
+                                                </VBox>
+                                                <Label styleClass="card-icon-circle" text="P" />
+                                            </children>
+                                        </HBox>
+                                        <Label fx:id="summaryPositionsLabel" styleClass="amount-label" text="—" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <!-- Global market + fiat rates -->
+                        <VBox styleClass="panel-card">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                    <children>
+                                        <Label styleClass="panel-icon" text="M" />
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label styleClass="panel-title" text="Macro et devises" />
+                                                <Label styleClass="card-caption"
+                                                       text="Vue globale CoinGecko — taux indicatifs Frankfurter (USD)" />
+                                            </children>
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                    </children>
+                                </HBox>
+                                <Separator />
+                                <HBox alignment="TOP_LEFT" spacing="28.0">
+                                    <children>
+                                        <VBox spacing="10.0" HBox.hgrow="ALWAYS" prefWidth="400.0">
+                                            <children>
+                                                <Label styleClass="section-tag" text="MARCHE GLOBAL" />
+                                                <Label fx:id="globalMarketCapLabel" styleClass="macro-value" text="…" wrapText="true" />
+                                                <Label fx:id="globalVolumeLabel" styleClass="macro-value" text="…" wrapText="true" />
+                                                <Label fx:id="globalBtcDomLabel" styleClass="macro-value" text="…" wrapText="true" />
+                                                <Label fx:id="globalMetaLabel" styleClass="card-caption" text="" wrapText="true" />
+                                            </children>
+                                        </VBox>
+                                        <Separator orientation="VERTICAL" valignment="TOP" prefHeight="160.0" />
+                                        <VBox spacing="10.0" HBox.hgrow="ALWAYS" prefWidth="360.0">
+                                            <children>
+                                                <Label styleClass="section-tag" text="TAUX INDICATIFS" />
+                                                <Label fx:id="fiatEurLabel" styleClass="macro-value" text="…" wrapText="true" />
+                                                <Label fx:id="fiatGbpLabel" styleClass="macro-value" text="…" wrapText="true" />
+                                                <Label fx:id="fiatDisclaimerLabel" styleClass="card-caption" wrapText="true"
+                                                       text="Données Frankfurter (BCE). Le TND n'est pas disponible dans cette API ; EUR et GBP seulement." />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <!-- Quick tools -->
+                        <VBox styleClass="panel-card">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                    <children>
+                                        <Label styleClass="panel-icon" text="T" />
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label styleClass="panel-title" text="Outils rapides" />
+                                                <Label styleClass="card-caption"
+                                                       text="Simulateur d'achat (prix du tableau marché) — sans enregistrer en base" />
+                                            </children>
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                    </children>
+                                </HBox>
+                                <Separator />
+                                <HBox alignment="CENTER_LEFT" spacing="14.0">
+                                    <children>
+                                        <Label styleClass="card-caption" text="Crypto" />
+                                        <ComboBox fx:id="calcCryptoCombo" prefWidth="220.0" promptText="Choisir…" />
+                                        <Label styleClass="card-caption" text="Montant USD" />
+                                        <TextField fx:id="calcAmountField" prefWidth="120.0" promptText="ex: 500" />
+                                        <Button mnemonicParsing="false" onAction="#runQuickCalculator"
+                                                styleClass="action-button-secondary" text="Calculer" />
+                                        <Label fx:id="calcResultLabel" styleClass="macro-value" text="" wrapText="true" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <!-- Market panel -->
+                        <VBox styleClass="panel-card">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                    <children>
+                                        <Label styleClass="panel-icon" text="C" />
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label styleClass="panel-title" text="Marché des Cryptos" />
+                                                <Label styleClass="card-caption" text="Prix en temps réel" />
+                                            </children>
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label styleClass="live-badge" text="● EN DIRECT" />
+                                        <Button mnemonicParsing="false" onAction="#refresh"
+                                                styleClass="action-button-secondary" text="Rafraîchir" />
+                                    </children>
+                                </HBox>
+                                <Separator />
+                                <TableView fx:id="table" styleClass="history-table"
+                                           prefHeight="220" maxWidth="1.7976931348623157E308">
+                                    <columns>
+                                        <TableColumn fx:id="colName" text="Nom" prefWidth="280" />
+                                        <TableColumn fx:id="colPrice" text="Prix (USD)" prefWidth="220" />
+                                        <TableColumn fx:id="colChart" text="Graphique" prefWidth="120" />
+                                        <TableColumn fx:id="colNews" text="Actualités" prefWidth="110" />
+                                        <TableColumn fx:id="colGroqAnalysis" text="Analyse IA" prefWidth="110" />
+                                    </columns>
+                                </TableView>
+                            </children>
+                        </VBox>
+
+                        <!-- Assistant chat (ajout d'investissement en langage naturel) -->
+                        <VBox styleClass="panel-card">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                    <children>
+                                        <Label styleClass="panel-icon" text="A" />
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label styleClass="panel-title" text="Assistant investissement" />
+                                                <Label styleClass="card-caption"
+                                                       text="Demandez d’ajouter un montant en USD sur une des cryptos du marché (ex. « Ajoute 300 USD sur Solana »). Groq si .env.local ; sinon reconnaissance locale." />
+                                            </children>
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <ProgressIndicator fx:id="investChatBusy" maxHeight="28.0" maxWidth="28.0"
+                                                           prefHeight="28.0" prefWidth="28.0" visible="false" />
+                                    </children>
+                                </HBox>
+                                <Separator />
+                                <TextArea fx:id="investChatArea" editable="false" focusTraversable="false"
+                                          prefHeight="160.0" prefWidth="720.0" wrapText="true"
+                                          promptText="Conversation…"
+                                          style="-fx-font-family: system-ui; -fx-font-size: 13px;" />
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <TextField fx:id="investChatInput" prefWidth="560.0"
+                                                   promptText="Votre message…"
+                                                   styleClass="text-field" HBox.hgrow="ALWAYS" />
+                                        <Button mnemonicParsing="false" onAction="#sendInvestmentAssistantMessage"
+                                                fx:id="investChatSendButton"
+                                                styleClass="action-button-primary" text="Envoyer" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <!-- Portfolio panel -->
+                        <VBox styleClass="panel-card">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                    <children>
+                                        <Label styleClass="panel-icon" text="P" />
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label styleClass="panel-title" text="Mon Portefeuille" />
+                                                <Label styleClass="card-caption" text="Vos investissements actifs" />
+                                            </children>
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <TextField fx:id="investSearch"
+                                                   promptText="Rechercher par crypto..."
+                                                   styleClass="text-field" prefWidth="220" />
+                                        <Button mnemonicParsing="false" onAction="#clearInvestSearch"
+                                                styleClass="action-button-secondary" text="Effacer" />
+                                        <Button mnemonicParsing="false" onAction="#exportPortfolioCsv"
+                                                styleClass="action-button-secondary" text="Export CSV" />
+                                        <Button mnemonicParsing="false" onAction="#copyPortfolioSummary"
+                                                styleClass="action-button-secondary" text="Copier résumé" />
+                                        <Button mnemonicParsing="false" onAction="#goToInvest"
+                                                styleClass="action-button-primary" text="+ Investir" />
+                                    </children>
+                                </HBox>
+                                <Separator />
+                                <TableView fx:id="investTable" styleClass="history-table"
+                                           prefHeight="300" maxWidth="1.7976931348623157E308">
+                                    <columns>
+                                        <TableColumn fx:id="colCrypto" text="Crypto" prefWidth="150" />
+                                        <TableColumn fx:id="colAmount" text="Montant" prefWidth="140" />
+                                        <TableColumn fx:id="colQuantity" text="Quantité" prefWidth="130" />
+                                        <TableColumn fx:id="colProfitLoss" text="Gain/Perte (USD)" prefWidth="160" />
+                                        <TableColumn fx:id="colModify" text="Modifier" prefWidth="120" />
+                                        <TableColumn fx:id="colDelete" text="Supprimer" prefWidth="120" />
+                                    </columns>
+                                </TableView>
+                            </children>
+                        </VBox>
+
+                        <!-- Footer -->
+                        <VBox styleClass="page-footer">
+                            <children>
+                                <HBox alignment="TOP_CENTER" spacing="140.0" styleClass="footer-content">
+                                    <children>
+                                        <VBox prefWidth="340.0" spacing="16.0">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                    <children>
+                                                        <Label styleClass="footer-brand-icon" text="DS" />
+                                                        <Label styleClass="footer-brand-text" text="Decide$" />
+                                                    </children>
+                                                </HBox>
+                                                <Label prefWidth="340.0" styleClass="footer-description" wrapText="true"
+                                                       text="Decide$ helps you manage your salary, control expenses, and build a secure financial future with confidence." />
+                                            </children>
+                                        </VBox>
+                                        <VBox alignment="TOP_CENTER" spacing="14.0">
+                                            <children>
+                                                <Label styleClass="footer-heading" text="Quick Links" />
+                                                <VBox alignment="TOP_CENTER" spacing="10.0">
+                                                    <children>
+                                                        <Label styleClass="footer-link" text="Home" />
+                                                        <Label styleClass="footer-link" text="About" />
+                                                        <Label styleClass="footer-link" text="Services" />
+                                                        <Label styleClass="footer-link" text="Investissement" />
+                                                        <Label styleClass="footer-link" text="Contact" />
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </VBox>
+                                        <VBox alignment="TOP_CENTER" spacing="14.0">
+                                            <children>
+                                                <Label styleClass="footer-heading" text="Connect with us" />
+                                                <HBox alignment="CENTER" spacing="12.0">
+                                                    <children>
+                                                        <Label styleClass="footer-social" text="in" />
+                                                        <Label styleClass="footer-social" text="gh" />
+                                                        <Label styleClass="footer-social" text="tw" />
+                                                        <Label styleClass="footer-social" text="\@" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                                <Separator styleClass="footer-separator" />
+                                <Label alignment="CENTER" maxWidth="1.7976931348623157E308"
+                                       styleClass="footer-copy"
+                                       text="&#169; 2026 Decide$ — All rights reserved" />
+                            </children>
+                        </VBox>
+
+                    </children>
+                </VBox>
+
+            </children>
+            <padding>
+                <Insets bottom="0.0" />
+            </padding>
         </VBox>
-    </VBox>
+    </content>
 </ScrollPane>

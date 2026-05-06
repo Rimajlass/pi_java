@@ -1,11 +1,19 @@
 package pi.controllers.InvestissementController;
 
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import pi.entities.Investissement;
 import pi.entities.Objectif;
 import pi.services.InvestissementService.InvestissementService;
+import pi.services.InvestissementService.ObjectifMetrics;
 import pi.services.InvestissementService.ObjectifService;
 
 import java.util.ArrayList;
@@ -15,6 +23,9 @@ public class ModifyObjectifController {
 
     @FXML
     private TextField nameField;
+
+    @FXML
+    private ComboBox<String> prioriteCombo;
 
     @FXML
     private TextField multiplierField;
@@ -36,11 +47,35 @@ public class ModifyObjectifController {
         this.objectif = objectif;
         nameField.setText(objectif.getName());
         multiplierField.setText(String.valueOf(objectif.getTargetMultiplier()));
+        if (prioriteCombo != null) {
+            prioriteCombo.getSelectionModel().select(objectif.getPriorite());
+        }
         loadInvestments();
     }
 
     @FXML
     public void initialize() {
+        prioriteCombo.setItems(FXCollections.observableArrayList(
+                Objectif.P_BASSE,
+                Objectif.P_NORMALE,
+                Objectif.P_HAUTE,
+                Objectif.P_CRITIQUE
+        ));
+        prioriteCombo.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : ObjectifMetrics.prioriteLabel(item));
+            }
+        });
+        prioriteCombo.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : ObjectifMetrics.prioriteLabel(item));
+            }
+        });
+
         investList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         investList.setCellFactory(lv -> new ListCell<Investissement>() {
@@ -73,7 +108,6 @@ public class ModifyObjectifController {
 
             investList.getItems().setAll(all);
 
-            // pre-select currently linked investments
             for (Investissement inv : linked) {
                 for (int i = 0; i < investList.getItems().size(); i++) {
                     if (investList.getItems().get(i).getId() == inv.getId()) {
@@ -139,6 +173,8 @@ public class ModifyObjectifController {
             objectif.setTargetMultiplier(multiplier);
             objectif.setInitialAmount(initialAmount);
             objectif.setTargetAmount(targetAmount);
+            String prio = prioriteCombo.getSelectionModel().getSelectedItem();
+            objectif.setPriorite(prio != null ? prio : Objectif.P_NORMALE);
 
             objectifService.unlinkAll(objectif.getId());
             objectifService.update(objectif);

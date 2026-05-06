@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import java.net.URL?>
 
-<ScrollPane fitToWidth="true" styleClass="page-scroll" prefWidth="900" prefHeight="650"
+<ScrollPane fitToWidth="true" styleClass="page-scroll" prefWidth="1180" prefHeight="760"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="pi.controllers.InvestissementController.ObjectifController">
     <stylesheets>
@@ -15,27 +16,92 @@
 
         <HBox styleClass="top-nav" alignment="CENTER_LEFT" spacing="16">
             <Label text="Mes Objectifs" styleClass="brand-mark"/>
-            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER_RIGHT" spacing="10" HBox.hgrow="ALWAYS">
+                <Button text="Rafraîchir" onAction="#refreshObjectifs" styleClass="cyan-pill-button"/>
+                <Button text="Export PDF" onAction="#exportObjectifsPdf" styleClass="cyan-pill-button"/>
                 <Button text="Créer un objectif" onAction="#goToCreate" styleClass="cyan-pill-button"/>
             </HBox>
         </HBox>
 
-        <VBox styleClass="content-shell">
+        <VBox styleClass="content-shell" spacing="14">
 
             <Label text="OBJECTIFS" styleClass="section-tag"/>
-            <Label text="Suivi des Objectifs" styleClass="section-title"/>
+            <Label text="Pilotage et indicateurs métier" styleClass="section-title"/>
 
-            <TextField fx:id="objectifSearch" promptText="Rechercher par nom..." styleClass="text-field" maxWidth="300"/>
+            <VBox spacing="6" style="-fx-padding: 12; -fx-background-color: rgba(8,187,231,0.08); -fx-background-radius: 12;">
+                <children>
+                    <Label styleClass="section-tag" text="SYNTHÈSE EXÉCUTIVE"/>
+                    <Label fx:id="summaryLine1" wrapText="true" styleClass="card-caption"/>
+                    <Label fx:id="summaryLine2" wrapText="true" styleClass="card-caption"/>
+                    <Label fx:id="summaryLine3" wrapText="true" styleClass="card-caption"/>
+                </children>
+            </VBox>
+
+            <Label styleClass="section-tag" text="INDICATEURS CLÉS"/>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <VBox spacing="4" minWidth="148" style="-fx-padding:12; -fx-background-color:white; -fx-background-radius:10;">
+                    <Label text="Complétion" styleClass="card-caption"/>
+                    <Label fx:id="statCompletionPct" style="-fx-font-size:20px; -fx-font-weight:bold"/>
+                </VBox>
+                <VBox spacing="4" minWidth="168" style="-fx-padding:12; -fx-background-color:white; -fx-background-radius:10;">
+                    <Label text="Progression moy. (en cours)" styleClass="card-caption"/>
+                    <Label fx:id="statAvgProgress" style="-fx-font-size:20px; -fx-font-weight:bold"/>
+                </VBox>
+                <VBox spacing="4" minWidth="148" style="-fx-padding:12; -fx-background-color:white; -fx-background-radius:10;">
+                    <Label text="ROI moy. pondéré" styleClass="card-caption"/>
+                    <Label fx:id="statWeightedRoi" style="-fx-font-size:20px; -fx-font-weight:bold"/>
+                </VBox>
+                <VBox spacing="4" minWidth="148" style="-fx-padding:12; -fx-background-color:white; -fx-background-radius:10;">
+                    <Label text="Montants initiaux (Σ)" styleClass="card-caption"/>
+                    <Label fx:id="statSumInitial" style="-fx-font-size:20px; -fx-font-weight:bold"/>
+                </VBox>
+                <VBox spacing="4" minWidth="148" style="-fx-padding:12; -fx-background-color:white; -fx-background-radius:10;">
+                    <Label text="Reste à gagner (Σ)" styleClass="card-caption"/>
+                    <Label fx:id="statSumRemaining" style="-fx-font-size:20px; -fx-font-weight:bold"/>
+                </VBox>
+            </HBox>
+
+            <Label styleClass="section-tag" text="VISUALISATIONS"/>
+            <HBox spacing="20" alignment="TOP_LEFT">
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="Répartition par statut" styleClass="field-label"/>
+                    <PieChart fx:id="statusPieChart" prefHeight="260" legendSide="BOTTOM"/>
+                </VBox>
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="Répartition par priorité" styleClass="field-label"/>
+                    <BarChart fx:id="prioriteBarChart" prefHeight="260" animated="false">
+                        <xAxis>
+                            <CategoryAxis side="BOTTOM"/>
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis side="LEFT" minorTickCount="0"/>
+                        </yAxis>
+                    </BarChart>
+                </VBox>
+            </HBox>
+
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <TextField fx:id="objectifSearch" promptText="Rechercher par nom..." styleClass="text-field" maxWidth="260"/>
+                <ComboBox fx:id="statusFilter" prefWidth="160" promptText="Statut"/>
+                <ComboBox fx:id="prioriteFilter" prefWidth="180" promptText="Priorité métier"/>
+            </HBox>
 
             <TableView fx:id="objectifTable" styleClass="history-table" prefHeight="400" maxWidth="1.7976931348623157E308">
                 <columns>
-                    <TableColumn fx:id="colName" text="Nom" prefWidth="150"/>
-                    <TableColumn fx:id="colInitial" text="Montant initial" prefWidth="130"/>
-                    <TableColumn fx:id="colTarget" text="Objectif" prefWidth="130"/>
-                    <TableColumn fx:id="colCurrent" text="Valeur actuelle" prefWidth="130"/>
-                    <TableColumn fx:id="colCompleted" text="Statut" prefWidth="100"/>
-                    <TableColumn fx:id="colModify" text="Modifier" prefWidth="100"/>
-                    <TableColumn fx:id="colDelete" text="Supprimer" prefWidth="100"/>
+                    <TableColumn fx:id="colName" text="Nom" prefWidth="130"/>
+                    <TableColumn fx:id="colPriorite" text="Priorité" prefWidth="88"/>
+                    <TableColumn fx:id="colInitial" text="Montant initial" prefWidth="100"/>
+                    <TableColumn fx:id="colTarget" text="Objectif USD" prefWidth="100"/>
+                    <TableColumn fx:id="colCurrent" text="Valeur actuelle" prefWidth="110"/>
+                    <TableColumn fx:id="colRemaining" text="Reste (USD)" prefWidth="100"/>
+                    <TableColumn fx:id="colProgress" text="Progression" prefWidth="160"/>
+                    <TableColumn fx:id="colRoi" text="ROI %" prefWidth="72"/>
+                    <TableColumn fx:id="colAlerte" text="Alerte métier" prefWidth="140"/>
+                    <TableColumn fx:id="colCompleted" text="Statut" prefWidth="96"/>
+                    <TableColumn fx:id="colMonteCarlo" text="Monte Carlo" prefWidth="100"/>
+                    <TableColumn fx:id="colModify" text="Modifier" prefWidth="82"/>
+                    <TableColumn fx:id="colDelete" text="Supprimer" prefWidth="82"/>
+                    <TableColumn fx:id="colAiAnalysis" prefWidth="102.0" text="AI Analysis" />
                 </columns>
             </TableView>
 

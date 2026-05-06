@@ -6,17 +6,54 @@ import pi.entities.Objectif;
 import pi.tools.MyDatabase;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ObjectifService {
+
+    public ObjectifService() {
+        ensurePrioriteColumn();
+    }
 
     private Connection cnx() {
         return MyDatabase.getInstance().getCnx();
     }
 
+    private void ensurePrioriteColumn() {
+        try {
+            Connection c = cnx();
+            if (c == null) {
+                return;
+            }
+            DatabaseMetaData md = c.getMetaData();
+            try (ResultSet cols = md.getColumns(null, null, "objectif", "priorite")) {
+                if (!cols.next()) {
+                    try (Statement st = c.createStatement()) {
+                        st.executeUpdate(
+                                "ALTER TABLE objectif ADD COLUMN priorite VARCHAR(20) NOT NULL DEFAULT 'NORMALE'");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("ensurePrioriteColumn: " + e.getMessage());
+        }
+    }
+
+    private static String readPriorite(ResultSet rs) {
+        try {
+            String p = rs.getString("priorite");
+            return p != null && !p.isBlank() ? p : Objectif.P_NORMALE;
+        } catch (SQLException e) {
+            return Objectif.P_NORMALE;
+        }
+    }
+
     public void add(Objectif obj) throws Exception {
-        String sql = "INSERT INTO objectif (name, target_multiplier, initial_amount, target_amount, is_completed, created_at) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO objectif (name, target_multiplier, initial_amount, target_amount, is_completed, created_at, priorite) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement pst = cnx().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         pst.setString(1, obj.getName());
         pst.setDouble(2, obj.getTargetMultiplier());
@@ -24,6 +61,7 @@ public class ObjectifService {
         pst.setDouble(4, obj.getTargetAmount());
         pst.setBoolean(5, obj.isCompleted());
         pst.setDate(6, Date.valueOf(obj.getCreatedAt()));
+        pst.setString(7, obj.getPriorite());
         pst.executeUpdate();
 
         ResultSet keys = pst.getGeneratedKeys();
@@ -47,18 +85,39 @@ public class ObjectifService {
         ResultSet rs = st.executeQuery(sql);
 
         while (rs.next()) {
-            Objectif obj = new Objectif(
-                    rs.getInt("id"),
-                    rs.getString("name"),
-                    rs.getDouble("target_multiplier"),
-                    rs.getDouble("initial_amount"),
-                    rs.getDouble("target_amount"),
-                    rs.getBoolean("is_completed"),
-                    rs.getDate("created_at").toLocalDate()
-            );
-            list.add(obj);
+            list.add(mapRow(rs));
         }
         return list;
+    }
+
+    private Objectif mapRow(ResultSet rs) throws SQLException {
+        LocalDate created = rs.getDate("created_at").toLocalDate();
+        String priorite = readPriorite(rs);
+        return new Objectif(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getDouble("target_multiplier"),
+                rs.getDouble("initial_amount"),
+                rs.getDouble("target_amount"),
+                rs.getBoolean("is_completed"),
+                created,
+                priorite
+        );
+    }
+
+    public Map<Integer, Double> getCurrentValuesAll() throws Exception {
+        Map<Integer, Double> map = new HashMap<>();
+        String sql = "SELECT o.id, COALESCE(SUM(c.currentprice * i.quantity), 0) AS v "
+                + "FROM objectif o "
+                + "LEFT JOIN investissement i ON i.objectif_id = o.id "
+                + "LEFT JOIN crypto c ON i.crypto_id = c.id "
+                + "GROUP BY o.id";
+        Statement st = cnx().createStatement();
+        ResultSet rs = st.executeQuery(sql);
+        while (rs.next()) {
+            map.put(rs.getInt("id"), rs.getDouble("v"));
+        }
+        return map;
     }
 
     public double getCurrentValue(int objectifId) throws Exception {
@@ -90,6 +149,7 @@ public class ObjectifService {
             }
         }
     }
+
     public List<Investissement> getLinked(int objectifId) throws Exception {
         List<Investissement> list = new ArrayList<>();
         String sql = "SELECT i.id, i.amount_invested, i.buy_price, i.quantity, i.created_at, "
@@ -131,13 +191,14 @@ public class ObjectifService {
     }
 
     public void update(Objectif obj) throws Exception {
-        String sql = "UPDATE objectif SET name=?, target_multiplier=?, initial_amount=?, target_amount=? WHERE id=?";
+        String sql = "UPDATE objectif SET name=?, target_multiplier=?, initial_amount=?, target_amount=?, priorite=? WHERE id=?";
         PreparedStatement pst = cnx().prepareStatement(sql);
         pst.setString(1, obj.getName());
         pst.setDouble(2, obj.getTargetMultiplier());
         pst.setDouble(3, obj.getInitialAmount());
         pst.setDouble(4, obj.getTargetAmount());
-        pst.setInt(5, obj.getId());
+        pst.setString(5, obj.getPriorite());
+        pst.setInt(6, obj.getId());
         pst.executeUpdate();
     }
 
@@ -152,5 +213,4 @@ public class ObjectifService {
         pst2.setInt(1, id);
         pst2.executeUpdate();
     }
-
 }

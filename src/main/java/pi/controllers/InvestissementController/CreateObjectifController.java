@@ -1,11 +1,19 @@
 package pi.controllers.InvestissementController;
 
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import pi.entities.Investissement;
 import pi.entities.Objectif;
 import pi.services.InvestissementService.InvestissementService;
+import pi.services.InvestissementService.ObjectifMetrics;
 import pi.services.InvestissementService.ObjectifService;
 
 import java.time.LocalDate;
@@ -15,6 +23,9 @@ public class CreateObjectifController {
 
     @FXML
     private TextField nameField;
+
+    @FXML
+    private ComboBox<String> prioriteCombo;
 
     @FXML
     private TextField multiplierField;
@@ -33,6 +44,28 @@ public class CreateObjectifController {
 
     @FXML
     public void initialize() {
+        prioriteCombo.setItems(FXCollections.observableArrayList(
+                Objectif.P_BASSE,
+                Objectif.P_NORMALE,
+                Objectif.P_HAUTE,
+                Objectif.P_CRITIQUE
+        ));
+        prioriteCombo.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : ObjectifMetrics.prioriteLabel(item));
+            }
+        });
+        prioriteCombo.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : ObjectifMetrics.prioriteLabel(item));
+            }
+        });
+        prioriteCombo.getSelectionModel().select(Objectif.P_NORMALE);
+
         investList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         investList.setCellFactory(lv -> new ListCell<Investissement>() {
@@ -54,7 +87,6 @@ public class CreateObjectifController {
             e.printStackTrace();
         }
 
-        // update total and target labels when selection or multiplier changes
         investList.getSelectionModel().getSelectedItems().addListener(
                 (javafx.collections.ListChangeListener<Investissement>) change -> updateLabels()
         );
@@ -108,7 +140,12 @@ public class CreateObjectifController {
                     .mapToDouble(Investissement::getAmountInvested).sum();
             double targetAmount = initialAmount * multiplier;
 
-            Objectif objectif = new Objectif(name, multiplier, initialAmount, targetAmount, false, LocalDate.now());
+            String prio = prioriteCombo.getSelectionModel().getSelectedItem();
+            if (prio == null) {
+                prio = Objectif.P_NORMALE;
+            }
+
+            Objectif objectif = new Objectif(name, multiplier, initialAmount, targetAmount, false, LocalDate.now(), prio);
             objectifService.add(objectif);
 
             for (Investissement inv : selected) {

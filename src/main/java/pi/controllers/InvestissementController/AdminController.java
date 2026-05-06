@@ -22,7 +22,9 @@ import pi.entities.Objectif;
 import pi.services.InvestissementService.InvestissementService;
 import pi.services.InvestissementService.ObjectifService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AdminController {
 
@@ -52,6 +54,8 @@ public class AdminController {
 
     private final InvestissementService investissementService = new InvestissementService();
     private final ObjectifService objectifService = new ObjectifService();
+
+    private Map<Integer, Double> objectifCurrentValueCache = new HashMap<>();
 
     @FXML
     public void initialize() {
@@ -94,13 +98,8 @@ public class AdminController {
                 new SimpleDoubleProperty(data.getValue().getInitialAmount()));
         colTarget.setCellValueFactory(data ->
                 new SimpleDoubleProperty(data.getValue().getTargetAmount()));
-        colCurrent.setCellValueFactory(data -> {
-            try {
-                return new SimpleDoubleProperty(objectifService.getCurrentValue(data.getValue().getId()));
-            } catch (Exception e) {
-                return new SimpleDoubleProperty(0);
-            }
-        });
+        colCurrent.setCellValueFactory(data ->
+                new SimpleDoubleProperty(objectifCurrentValueCache.getOrDefault(data.getValue().getId(), 0.0)));
         colCompleted.setCellValueFactory(data ->
                 new SimpleStringProperty(data.getValue().isCompleted() ? "✅ Complété" : "⏳ En cours"));
 
@@ -194,6 +193,8 @@ public class AdminController {
             }
             list = objectifService.getAll();
 
+            objectifCurrentValueCache = objectifService.getCurrentValuesAll();
+
             totalObjLabel.setText(String.valueOf(list.size()));
             long completed = list.stream().filter(Objectif::isCompleted).count();
             long incomplete = list.size() - completed;
@@ -218,6 +219,7 @@ public class AdminController {
             );
 
             objectifTable.setItems(filtered);
+            objectifTable.refresh();
         } catch (Exception e) {
             e.printStackTrace();
         }
