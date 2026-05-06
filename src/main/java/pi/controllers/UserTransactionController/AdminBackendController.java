@@ -217,8 +217,16 @@ public class AdminBackendController {
         }
 
         String menuKey = extractMenuKey(selectedRow);
-        if (!menuKey.isEmpty()) {
+        if (menuKey.isEmpty()) {
+            return;
+        }
+        System.out.println("[AdminBackend] menu click: " + menuKey);
+        try {
             routeMenuSelection(menuKey);
+        } catch (RuntimeException e) {
+            System.err.println("[AdminBackend] menu routing failed for " + menuKey);
+            e.printStackTrace();
+            showError("Navigation", chainMessages(e));
         }
     }
 
@@ -572,16 +580,20 @@ public class AdminBackendController {
     }
 
     private void showCourseQuizWorkspace() {
-        headerLabel.setText("Course & Quiz");
-        headerSubtitle.setText("Manage courses and quizzes in the shared admin workspace while keeping the same sidebar visible.");
-        if (addUserButton != null) {
-            addUserButton.setManaged(false);
-            addUserButton.setVisible(false);
+        try {
+            headerLabel.setText("Course & Quiz");
+            headerSubtitle.setText("Manage courses and quizzes in the shared admin workspace while keeping the same sidebar visible.");
+            if (addUserButton != null) {
+                addUserButton.setManaged(false);
+                addUserButton.setVisible(false);
+            }
+            if (courseQuizWorkspace == null) {
+                courseQuizWorkspace = AdminCoursesQuizBackOfficeFactory.buildWorkspace();
+            }
+            replaceWorkspace(courseQuizWorkspace);
+        } catch (RuntimeException e) {
+            showError("Course & Quiz", chainMessages(e));
         }
-        if (courseQuizWorkspace == null) {
-            courseQuizWorkspace = AdminCoursesQuizBackOfficeFactory.buildWorkspace();
-        }
-        replaceWorkspace(courseQuizWorkspace);
     }
 
     private void showRevenueWorkspace() {
