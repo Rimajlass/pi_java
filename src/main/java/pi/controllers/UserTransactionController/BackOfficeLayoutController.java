@@ -20,6 +20,7 @@ import javafx.util.Duration;
 import pi.controllers.AiQuizController.AiQuizGeneratorController;
 import pi.controllers.CoursQuizController.CoursQuizDashboardController;
 import pi.controllers.ExpenseRevenueController.BACK.AdminRevenueExpenseBackOfficeFactory;
+import pi.controllers.InvestissementController.AdminController;
 import pi.entities.User;
 import pi.mains.Main;
 import pi.savings.ui.AdminSavingsBackOfficeFactory;
@@ -139,6 +140,17 @@ public class BackOfficeLayoutController {
         activateMenuByKey("Goals");
         if (!loadGoalsWorkspaceDirect()) {
             menuSelectionHandler.accept("Goals");
+        }
+    }
+
+    @FXML
+    private void handleInvestmentsMenuClick(MouseEvent event) {
+        if (event != null) {
+            event.consume();
+        }
+        activateMenuByKey("Investments");
+        if (!loadInvestmentsWorkspaceDirect()) {
+            menuSelectionHandler.accept("Investments");
         }
     }
 
@@ -324,6 +336,15 @@ public class BackOfficeLayoutController {
                     yield true;
                 }
                 yield false;
+            }
+            case "revenues" -> loadRevenueWorkspaceDirect();
+            case "expenses" -> loadExpenseWorkspaceDirect();
+            case "savings" -> loadSavingsWorkspaceDirect();
+            case "goals" -> loadGoalsWorkspaceDirect();
+            case "investments" -> loadInvestmentsWorkspaceDirect();
+            default -> false;
+        };
+    }
               }
               case "revenues" -> loadRevenueWorkspaceDirect();
               case "expenses" -> loadExpenseWorkspaceDirect();
@@ -437,6 +458,37 @@ public class BackOfficeLayoutController {
             e.printStackTrace();
             return false;
         }
+    }
+
+    private boolean loadInvestmentsWorkspaceDirect() {
+        boolean loaded = loadContentFromFxml(
+                "/Invest/admin.fxml",
+                AdminController.class,
+                controller -> {
+                    User user = resolveCurrentUser();
+                    if (user != null) {
+                        controller.setUser(user);
+                    }
+                }
+        );
+        if (loaded) {
+            return true;
+        }
+
+        loaded = loadContentFromFxml(
+                "/invest/admin.fxml",
+                AdminController.class,
+                controller -> {
+                    User user = resolveCurrentUser();
+                    if (user != null) {
+                        controller.setUser(user);
+                    }
+                }
+        );
+        if (!loaded && roleStatusLabel != null) {
+            roleStatusLabel.setText("Investments view load failed");
+        }
+        return loaded;
     }
 
     private <T> boolean loadContentFromFxml(String fxmlPath, Class<T> controllerClass, Consumer<T> initializer) {
