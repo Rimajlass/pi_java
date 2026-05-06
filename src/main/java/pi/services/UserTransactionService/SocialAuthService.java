@@ -82,6 +82,14 @@ public class SocialAuthService {
         validateRedirectUri(requireConfig(FACEBOOK_REDIRECT_URI_KEY), FACEBOOK_REDIRECT_URI_KEY);
     }
 
+    public boolean isGoogleConfigured() {
+        return isProviderConfigured(GOOGLE_CLIENT_ID_KEY, GOOGLE_CLIENT_SECRET_KEY, GOOGLE_REDIRECT_URI_KEY);
+    }
+
+    public boolean isFacebookConfigured() {
+        return isProviderConfigured(FACEBOOK_CLIENT_ID_KEY, FACEBOOK_CLIENT_SECRET_KEY, FACEBOOK_REDIRECT_URI_KEY);
+    }
+
     public User authenticateWithGoogle() {
         String clientId = requireConfig(GOOGLE_CLIENT_ID_KEY);
         String clientSecret = requireConfig(GOOGLE_CLIENT_SECRET_KEY);
@@ -257,6 +265,21 @@ public class SocialAuthService {
         String value = readConfig(key);
         if (value == null || value.isBlank()) {
             missingKeys.add(key);
+        }
+    }
+
+    private boolean isProviderConfigured(String clientIdKey, String clientSecretKey, String redirectUriKey) {
+        String clientId = readConfig(clientIdKey);
+        String clientSecret = readConfig(clientSecretKey);
+        String redirectUri = readConfig(redirectUriKey);
+        if (clientId == null || clientId.isBlank() || clientSecret == null || clientSecret.isBlank() || redirectUri == null || redirectUri.isBlank()) {
+            return false;
+        }
+        try {
+            validateRedirectUri(redirectUri, redirectUriKey);
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 
