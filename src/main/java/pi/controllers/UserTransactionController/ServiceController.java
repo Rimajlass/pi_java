@@ -218,6 +218,21 @@ public class ServiceController {
         stage.show();
     }
 
+    @FXML
+    private void handleOpenInvestissement(MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    ServiceController.class.getResource("/Invest/Crypto.fxml"));
+            Scene scene = new Scene(loader.load(), 900, 700);
+            Stage stage = new Stage();
+            stage.setTitle("Investissement");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            throw new RuntimeException("Impossible d'ouvrir l'interface Investissement.", e);
+        }
+    }
+
     private void openUnexpectedRealCases(Node source) throws IOException {
         Stage stage = (Stage) source.getScene().getWindow();
         Object userData = stage.getUserData();

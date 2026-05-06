@@ -22,6 +22,10 @@ public class Main extends Application {
     private static final String SPLASH_SUBTITLE = "Encrypted access | Smart insights | Trusted financial control";
     private static final String SPLASH_LOGO = "/pi/images/chat.png";
 
+    public static void main(String[] args) {
+        launch(args);
+    }
+
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader splashLoader = FxmlResources.load(Main.class, "/pi/mains/splash-view.fxml");

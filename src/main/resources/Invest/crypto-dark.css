@@ -1,0 +1,84 @@
+/* Dark theme — loaded after crypto-pro.css when user toggles */
+.page-scroll,
+.page-root {
+    -fx-background-color: #0f172a;
+}
+
+.top-nav {
+    -fx-background-color: rgba(30, 41, 59, 0.95);
+    -fx-border-color: rgba(56, 189, 248, 0.15) transparent rgba(56, 189, 248, 0.1) transparent;
+}
+
+.status-bar {
+    -fx-background-color: rgba(30, 41, 59, 0.9);
+}
+
+.status-tag,
+.brand-mark,
+.card-title,
+.panel-title,
+.section-title,
+.hero-title,
+.fng-classification,
+.macro-value {
+    -fx-text-fill: #e2e8f0;
+}
+
+.card-caption,
+.section-subtitle,
+.hero-subtitle {
+    -fx-text-fill: #94a3b8;
+}
+
+.summary-card,
+.panel-card {
+    -fx-background-color: #1e293b;
+    -fx-border-color: rgba(56, 189, 248, 0.2);
+}
+
+.amount-label {
+    -fx-text-fill: #38bdf8;
+}
+
+.nav-button {
+    -fx-text-fill: #cbd5e1;
+}
+
+.nav-button:hover {
+    -fx-text-fill: #38bdf8;
+}
+
+.hero-banner {
+    -fx-background-color: linear-gradient(to bottom right, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.9));
+}
+
+.history-table {
+    -fx-background-color: #1e293b;
+}
+
+.history-table .table-row-cell {
+    -fx-background-color: #1e293b;
+    -fx-text-fill: #e2e8f0;
+}
+
+.history-table .table-row-cell:selected {
+    -fx-background-color: rgba(56, 189, 248, 0.25);
+}
+
+.text-field {
+    -fx-background-color: #334155;
+    -fx-text-fill: #f1f5f9;
+    -fx-prompt-text-fill: #64748b;
+}
+
+.combo-box {
+    -fx-background-color: #334155;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: #f1f5f9;
+}
+
+.page-footer {
+    -fx-background-color: #020617;
+}

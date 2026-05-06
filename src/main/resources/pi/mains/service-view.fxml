@@ -194,7 +194,7 @@
                                             </children>
                                         </VBox>
 
-                                        <VBox spacing="10.0" prefWidth="430.0" styleClass="service-card">
+                                        <VBox spacing="10.0" prefWidth="430.0" styleClass="service-card" onMouseClicked="#handleOpenInvestissement">
                                             <children>
                                                 <Label text="Investissement" styleClass="service-title" />
                                                 <Label text="Start your investment journey and monitor market trends."
