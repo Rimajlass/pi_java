@@ -1,0 +1,9 @@
+# Copiez ce fichier en `ai.properties` et remplacez les valeurs.
+# (Ne committez pas `ai.properties` : il est ignoré par .gitignore)
+
+# Google Gemini (AI Studio)
+gemini.api.key=YOUR_GEMINI_API_KEY
+
+# Optionnel: modèle par défaut
+gemini.model=gemini-2.5-flash
+

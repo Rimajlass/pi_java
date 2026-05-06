@@ -91,6 +91,31 @@ public class UserService {
         return null;
     }
 
+    public List<String> findLearningNotificationRecipients() {
+        String sql = """
+                SELECT DISTINCT email
+                FROM `user`
+                WHERE email IS NOT NULL
+                  AND TRIM(email) <> ''
+                  AND is_blocked = 0
+                """;
+
+        List<String> emails = new ArrayList<>();
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String email = rs.getString("email");
+                    if (email != null && !email.isBlank()) {
+                        emails.add(email.trim().toLowerCase(Locale.ROOT));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors du chargement des destinataires email : " + e.getMessage(), e);
+        }
+        return emails;
+    }
+
     public void updateSoldeTotal(int userId, double soldeTotal) {
         String sql = "UPDATE `user` SET solde_total = ? WHERE id = ?";
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {

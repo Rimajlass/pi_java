@@ -4,15 +4,15 @@ import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import pi.controllers.UserTransactionController.SplashScreenController;
 import pi.tools.FxmlResources;
 import pi.tools.ThemeManager;
-
-import java.io.IOException;
 
 public class UserLoginApp {
 
@@ -34,15 +34,21 @@ public class UserLoginApp {
             Parent splashRoot = splashLoader.getRoot();
             SplashScreenController splashController = splashLoader.getController();
 
-            Scene scene = new Scene(splashRoot, 1460, 780);
+            Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+            double width = Math.min(1100, bounds.getWidth() * 0.9);
+            double height = Math.min(720, bounds.getHeight() * 0.9);
+
+            Scene scene = new Scene(splashRoot, width, height);
             FxmlResources.addStylesheet(scene, UserLoginApp.class, "/pi/styles/splash.css");
 
             stage.setTitle("User Secure Login");
-            stage.setMinWidth(1200);
-            stage.setMinHeight(720);
+            stage.setFullScreen(false);
+            stage.setMaximized(false);
+            stage.setMinWidth(Math.min(900, width));
+            stage.setMinHeight(Math.min(600, height));
             stage.setScene(scene);
             ThemeManager.registerStage(stage);
-            stage.setMaximized(true);
+            stage.centerOnScreen();
             stage.show();
 
             splashController.setContent(SPLASH_TITLE, SPLASH_SUBTITLE, SPLASH_LOGO);

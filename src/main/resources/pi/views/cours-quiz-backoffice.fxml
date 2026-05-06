@@ -29,8 +29,6 @@
 
         <Region HBox.hgrow="ALWAYS"/>
 
-        <Button text="Retour Front" onAction="#onBackToFront"
-                styleClass="pill-button"/>
     </HBox>
 
     <TabPane tabClosingPolicy="UNAVAILABLE"
@@ -52,4 +50,3 @@
     </TabPane>
 
 </VBox>
-

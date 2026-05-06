@@ -17,6 +17,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import pi.controllers.AiQuizController.AiQuizGeneratorController;
+import pi.controllers.CoursQuizController.CoursQuizDashboardController;
 import pi.controllers.ExpenseRevenueController.BACK.AdminRevenueExpenseBackOfficeFactory;
 import pi.controllers.InvestissementController.AdminController;
 import pi.entities.User;
@@ -25,6 +27,7 @@ import pi.savings.ui.AdminSavingsBackOfficeFactory;
 import pi.tools.FxmlResources;
 import pi.tools.AdminNavigation;
 import pi.tools.ThemeManager;
+import pi.tools.UiDialog;
 
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -68,6 +71,7 @@ public class BackOfficeLayoutController {
         if (key.isEmpty()) {
             return;
         }
+        System.out.println("[BackOfficeLayout] menu click: " + key);
         if (!handleCoreNavigation(key)) {
             menuSelectionHandler.accept(key);
         }
@@ -311,10 +315,10 @@ public class BackOfficeLayoutController {
         if (contentHost == null || contentHost.getScene() == null || !(contentHost.getScene().getWindow() instanceof Stage stage)) {
             return false;
         }
-        String normalized = key.trim().toLowerCase(Locale.ROOT);
-        return switch (normalized) {
-            case "users" -> {
-                if (loadUsersContentDirect()) {
+          String normalized = key.trim().toLowerCase(Locale.ROOT);
+          return switch (normalized) {
+              case "users" -> {
+                  if (loadUsersContentDirect()) {
                     yield true;
                 }
                 if (stage.getUserData() instanceof User currentUser) {
@@ -341,6 +345,37 @@ public class BackOfficeLayoutController {
             default -> false;
         };
     }
+              }
+              case "revenues" -> loadRevenueWorkspaceDirect();
+              case "expenses" -> loadExpenseWorkspaceDirect();
+              case "savings" -> loadSavingsWorkspaceDirect();
+              case "goals" -> loadGoalsWorkspaceDirect();
+              case "course & quiz", "cours & quiz" -> {
+                  if (loadContentFromFxml("/pi/views/dashboard.fxml", CoursQuizDashboardController.class, null)) {
+                      if (contentHost.getScene().getWindow() instanceof Stage currentStage) {
+                          currentStage.setTitle("Course & Quiz | Decide$");
+                      }
+                      yield true;
+                  }
+                  yield false;
+              }
+              case "ai quiz generator" -> {
+                  User user = resolveCurrentUser();
+                  if (loadContentFromFxml(
+                          "/pi/views/ai-quiz-generator.fxml",
+                          AiQuizGeneratorController.class,
+                          controller -> controller.setContext(user)
+                  )) {
+                      if (contentHost.getScene().getWindow() instanceof Stage currentStage) {
+                          currentStage.setTitle("AI Quiz Generator | Decide$");
+                      }
+                      yield true;
+                  }
+                  yield false;
+              }
+              default -> false;
+          };
+      }
 
     private boolean loadUsersContentDirect() {
         return loadContentFromFxml(
@@ -462,6 +497,9 @@ public class BackOfficeLayoutController {
             Parent root = loader.getRoot();
             Object rawController = loader.getController();
             if (!controllerClass.isInstance(rawController)) {
+                System.err.println("[BackOfficeLayout] Unexpected controller for " + fxmlPath + ": " +
+                        (rawController == null ? "null" : rawController.getClass().getName()));
+                showLoadError("Navigation", "Controller inattendu pour " + fxmlPath);
                 return false;
             }
             T controller = controllerClass.cast(rawController);
@@ -474,8 +512,39 @@ public class BackOfficeLayoutController {
         } catch (Exception e) {
             System.err.println("[BackOfficeLayout] Failed to load content: " + fxmlPath);
             e.printStackTrace();
+            showLoadError("Navigation", "Impossible de charger " + fxmlPath + ":\n" + chainMessages(e));
             return false;
         }
+    }
+
+    private void showLoadError(String title, String details) {
+        try {
+            if (contentHost != null && contentHost.getScene() != null && contentHost.getScene().getWindow() instanceof Stage stage) {
+                UiDialog.error(stage, title, details);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private String chainMessages(Throwable error) {
+        if (error == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        Throwable current = error;
+        int hops = 0;
+        while (current != null && hops < 8) {
+            String message = current.getMessage();
+            if (message != null && !message.isBlank()) {
+                if (!sb.isEmpty()) {
+                    sb.append("\n");
+                }
+                sb.append(message.trim());
+            }
+            current = current.getCause();
+            hops++;
+        }
+        return sb.isEmpty() ? error.getClass().getSimpleName() : sb.toString();
     }
 
     private Node detachContentWrapper(Parent root) {

@@ -35,6 +35,8 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.converter.DefaultStringConverter;
 import pi.controllers.CoursQuizController.AdminCoursesQuizBackOfficeFactory;
+import pi.controllers.AiQuizController.AdminAiQuizGeneratorFactory;
+import pi.controllers.AiQuizController.AiQuizGeneratorController;
 import pi.controllers.ExpenseRevenueController.BACK.AdminRevenueExpenseBackOfficeFactory;
 import pi.controllers.ImprevusCasreelController.AdminUnexpectedCasesBackOfficeFactory;
 import pi.controllers.InvestissementController.AdminController;
@@ -163,7 +165,8 @@ public class AdminBackendController {
     private Parent expenseWorkspace;
     private Parent unexpectedWorkspace;
     private Parent realCasesWorkspace;
-    private Parent transactionsWorkspace;
+    private Parent aiQuizWorkspace;
+    private AiQuizGeneratorController aiQuizController;
 
     @FXML
     public void initialize() {
@@ -215,8 +218,16 @@ public class AdminBackendController {
         }
 
         String menuKey = extractMenuKey(selectedRow);
-        if (!menuKey.isEmpty()) {
+        if (menuKey.isEmpty()) {
+            return;
+        }
+        System.out.println("[AdminBackend] menu click: " + menuKey);
+        try {
             routeMenuSelection(menuKey);
+        } catch (RuntimeException e) {
+            System.err.println("[AdminBackend] menu routing failed for " + menuKey);
+            e.printStackTrace();
+            showError("Navigation", chainMessages(e));
         }
     }
 
@@ -570,16 +581,20 @@ public class AdminBackendController {
     }
 
     private void showCourseQuizWorkspace() {
-        headerLabel.setText("Course & Quiz");
-        headerSubtitle.setText("Manage courses and quizzes in the shared admin workspace while keeping the same sidebar visible.");
-        if (addUserButton != null) {
-            addUserButton.setManaged(false);
-            addUserButton.setVisible(false);
+        try {
+            headerLabel.setText("Course & Quiz");
+            headerSubtitle.setText("Manage courses and quizzes in the shared admin workspace while keeping the same sidebar visible.");
+            if (addUserButton != null) {
+                addUserButton.setManaged(false);
+                addUserButton.setVisible(false);
+            }
+            if (courseQuizWorkspace == null) {
+                courseQuizWorkspace = AdminCoursesQuizBackOfficeFactory.buildWorkspace();
+            }
+            replaceWorkspace(courseQuizWorkspace);
+        } catch (RuntimeException e) {
+            showError("Course & Quiz", chainMessages(e));
         }
-        if (courseQuizWorkspace == null) {
-            courseQuizWorkspace = AdminCoursesQuizBackOfficeFactory.buildWorkspace();
-        }
-        replaceWorkspace(courseQuizWorkspace);
     }
 
     private void showRevenueWorkspace() {
@@ -683,6 +698,8 @@ public class AdminBackendController {
             case "goals" -> showGoalsWorkspace();
             case "investments" -> showInvestmentsWorkspace();
             case "reports", "objectives", "reclamations", "statistics", "ai quiz generator" -> showPlaceholderWorkspace(menuKey);
+            case "ai quiz generator" -> showAiQuizWorkspace();
+            case "reports", "investments", "objectives", "reclamations", "statistics" -> showPlaceholderWorkspace(menuKey);
             default -> showPlaceholderWorkspace(menuKey);
         }
     }
@@ -763,6 +780,31 @@ public class AdminBackendController {
                 }
         );
         ensureTransactionsStylesheet();
+    }
+
+    private void showAiQuizWorkspace() {
+        headerLabel.setText("AI Quiz Generator");
+        headerSubtitle.setText("Generate quizzes automatically from courses using OpenAI and save them to the database.");
+        if (addUserButton != null) {
+            addUserButton.setManaged(false);
+            addUserButton.setVisible(false);
+        }
+
+        if (aiQuizWorkspace == null) {
+            try {
+                FXMLLoader loader = AdminAiQuizGeneratorFactory.createLoader();
+                aiQuizWorkspace = loader.load();
+                aiQuizController = loader.getController();
+            } catch (Exception e) {
+                showError("AI Quiz Generator", "Impossible de charger l'interface:\n" + chainMessages(e));
+                return;
+            }
+        }
+
+        if (aiQuizController != null) {
+            aiQuizController.setContext(currentUser);
+        }
+        replaceWorkspace(aiQuizWorkspace);
     }
 
     private void showPlaceholderWorkspace(String key) {

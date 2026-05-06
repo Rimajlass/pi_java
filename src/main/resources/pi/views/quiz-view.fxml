@@ -7,7 +7,10 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -19,7 +22,7 @@
 <ScrollPane fitToWidth="true"
             hbarPolicy="NEVER"
             vbarPolicy="AS_NEEDED"
-            pannable="true"
+            pannable="false"
             styleClass="page-scroll"
             stylesheets="@../styles/learning-dashboard.css"
             xmlns="http://javafx.com/javafx/21"
@@ -32,15 +35,26 @@
                 <Insets top="20.0" right="28.0" bottom="28.0" left="28.0"/>
             </padding>
 
-            <StackPane styleClass="hero-card">
-                <Label text="Gestion des quiz" styleClass="hero-title-centered"/>
+            <StackPane fx:id="heroBanner" styleClass="hero-card hero-banner">
+                <ImageView fx:id="heroBannerImage" managed="false" mouseTransparent="true"
+                           preserveRatio="false" smooth="true" cache="true" styleClass="hero-banner-image">
+                    <image>
+                        <Image url="@../../images/salary-hero.png" backgroundLoading="true"/>
+                    </image>
+                </ImageView>
+                <Region styleClass="hero-banner-overlay"/>
+                <VBox alignment="CENTER" spacing="12.0" maxWidth="980.0" styleClass="hero-banner-content">
+                    <Label text="Espace d'administration" styleClass="hero-eyebrow"/>
+                    <Label text="Gestion des quiz" styleClass="hero-title-centered"/>
+                    <Label text="Créez des quiz et associez-les aux cours pour évaluer les apprenants." styleClass="hero-text-centered" wrapText="true"/>
+                    <Label text="Home / Back Office / Quiz" styleClass="hero-breadcrumb-centered"/>
+                </VBox>
             </StackPane>
 
             <VBox spacing="18.0" styleClass="content-card">
                     <HBox alignment="CENTER_LEFT">
                         <VBox spacing="4.0">
-                            <Label text="Creer ou modifier un quiz" styleClass="section-title"/>
-                            <Label text="Chaque champ est mieux aligne pour rendre le formulaire plus professionnel." styleClass="section-subtitle"/>
+                            <Label text="Ajouter ou modifier un quiz" styleClass="section-title"/>
                         </VBox>
                     </HBox>
 
@@ -76,13 +90,8 @@
                         </VBox>
 
                         <VBox spacing="6.0" GridPane.rowIndex="3" GridPane.columnIndex="0">
-                            <Label text="Cours associe (ID)" styleClass="field-label"/>
-                            <TextField fx:id="coursIdField" promptText="Ex: 2" styleClass="text-input"/>
-                        </VBox>
-
-                        <VBox spacing="6.0" GridPane.rowIndex="3" GridPane.columnIndex="1">
-                            <Label text="Cree par (User ID)" styleClass="field-label"/>
-                            <TextField fx:id="userIdField" promptText="Ex: 1" styleClass="text-input"/>
+                            <Label text="Cours associe" styleClass="field-label"/>
+                            <ComboBox fx:id="coursCombo" promptText="Selectionnez un cours" styleClass="text-input"/>
                         </VBox>
                     </GridPane>
 
@@ -99,12 +108,12 @@
                 <HBox alignment="CENTER_LEFT">
                     <VBox spacing="4.0">
                         <Label text="Liste des quiz" styleClass="section-title"/>
-                        <Label text="Consultez rapidement les questions en profitant d'un tableau plus propre." styleClass="section-subtitle"/>
                     </VBox>
                 </HBox>
 
                 <HBox alignment="CENTER_LEFT" spacing="12.0">
                     <TextField fx:id="searchField" promptText="Rechercher une question..." styleClass="text-input search-input"/>
+                    <ComboBox fx:id="sortCombo" prefWidth="220.0" promptText="Trier par" styleClass="text-input"/>
                     <Button text="Rechercher" onAction="#rechercherQuiz" styleClass="action-button" style="-fx-background-color: linear-gradient(to right, #0a4f7a, #178bb5); -fx-text-fill: white;"/>
                     <Region HBox.hgrow="ALWAYS"/>
                     <Button text="Actualiser liste" onAction="#actualiserTable" styleClass="action-button" style="-fx-background-color: #14a36f; -fx-text-fill: white;"/>
@@ -112,9 +121,7 @@
 
                 <TableView fx:id="quizTable" prefHeight="320.0" styleClass="premium-table">
                     <columns>
-                        <TableColumn fx:id="idColumn" prefWidth="70.0" text="ID" />
-                        <TableColumn fx:id="coursIdColumn" prefWidth="100.0" text="Cours ID" />
-                        <TableColumn fx:id="userIdColumn" prefWidth="100.0" text="User ID" />
+                        <TableColumn fx:id="coursTitreColumn" prefWidth="220.0" text="Cours" />
                         <TableColumn fx:id="questionColumn" prefWidth="500.0" text="Question" />
                         <TableColumn fx:id="pointsColumn" prefWidth="100.0" text="Points" />
                     </columns>
