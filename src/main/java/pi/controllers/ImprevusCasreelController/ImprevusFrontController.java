@@ -66,6 +66,13 @@ import java.awt.TrayIcon;
 import java.awt.Toolkit;
 import java.awt.Image;
 public class ImprevusFrontController {
+    private static final String MONTHLY_REMINDER_BUTTON_STYLE = "-fx-background-color: linear-gradient(to right, #ecfdf3, #dff7e8);"
+            + "-fx-text-fill: #166a4a;"
+            + "-fx-border-color: #bfe8d0;"
+            + "-fx-border-radius: 999;"
+            + "-fx-background-radius: 999;"
+            + "-fx-font-weight: 800;";
+
     @FXML private ScrollPane pageScrollPane;
     @FXML private VBox caseFormCard;
     @FXML private VBox historyCard;
@@ -1062,6 +1069,7 @@ public class ImprevusFrontController {
             appointmentCalendarButton.setManaged(active);
             appointmentCalendarButton.setDisable(!active);
             appointmentCalendarButton.setText(actionText);
+            appointmentCalendarButton.setStyle(active ? MONTHLY_REMINDER_BUTTON_STYLE : "");
         }
     }
 
@@ -1511,6 +1519,7 @@ public class ImprevusFrontController {
         }
         if (reminderNode != null) {
             reminderNode.setDisable(true);
+            reminderNode.setStyle(MONTHLY_REMINDER_BUTTON_STYLE);
         }
 
         String risk = inferRiskCategory(cas);
@@ -1608,6 +1617,7 @@ public class ImprevusFrontController {
             reminderNode.setDisable(!showReminder);
             reminderNode.setVisible(showReminder);
             reminderNode.setManaged(showReminder);
+            reminderNode.setStyle(MONTHLY_REMINDER_BUTTON_STYLE);
         }
 
         dialog.getDialogPane().requestLayout();

@@ -170,6 +170,11 @@
                                                         <Label fx:id="preventionAdviceLabel" maxWidth="1.7976931348623157E308" styleClass="prevention-plan-line prevention-plan-advice" text="Conseil: -" wrapText="true" />
                                                     </children>
                                                 </VBox>
+                                                <HBox fx:id="appointmentActionRow" alignment="CENTER_LEFT" managed="false" spacing="10.0" visible="false">
+                                                    <children>
+                                                        <Button fx:id="appointmentCalendarButton" managed="false" onAction="#handleOpenAppointmentCalendar" styleClass="calendar-action-button" text="Programmer un controle mensuel" visible="false" />
+                                                    </children>
+                                                </HBox>
                                             </children>
                                         </VBox>
                                         <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="location-action-row">
