@@ -1,0 +1,13 @@
+mail.enabled=true
+mail.debug=true
+
+mail.smtp.host=smtp.gmail.com
+mail.smtp.port=587
+mail.smtp.starttls=true
+mail.smtp.ssl=false
+
+mail.smtp.username=boussettamedaziz@gmail.com
+mail.smtp.password=kiswsvgfdpajjkik
+
+mail.from=boussettamedaziz@gmail.com
+mail.fromName=Pi App

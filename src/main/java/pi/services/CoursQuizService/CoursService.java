@@ -3,37 +3,57 @@ package pi.services.CoursQuizService;
 import pi.entities.Cours;
 import pi.entities.User;
 import pi.interfaces.ICoursService;
+import pi.services.MailingService.LearningNotificationMailer;
 import pi.tools.MyDatabase;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CoursService implements ICoursService {
 
-    Connection cnx;
+    private final Connection cnx;
+    private final LearningNotificationMailer notificationMailer = LearningNotificationMailer.defaultInstance();
 
     public CoursService() {
-        cnx = MyDatabase.getInstance().getCnx();
+        this.cnx = MyDatabase.getInstance().getCnx();
     }
 
     @Override
     public void ajouter(Cours cours) {
-        cours.validate();
-        String sql = "INSERT INTO cours (user_id, titre, contenu_texte, type_media, url_media) VALUES (?, ?, ?, ?, ?)";
-
         try {
-            PreparedStatement ps = cnx.prepareStatement(sql);
+            boolean ok = ajouterWithResult(cours);
+            if (!ok) {
+                throw new IllegalStateException("Insertion cours échouée.");
+            }
+            System.out.println("Cours ajouté avec succès !");
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de l'ajout du cours: " + e.getMessage(), e);
+        }
+    }
+
+    public boolean ajouterWithResult(Cours cours) throws SQLException {
+        if (cours == null || cours.getUser() == null) {
+            throw new SQLException("Cours invalide (user manquant).");
+        }
+        cours.validate();
+
+        String sql = "INSERT INTO cours (user_id, titre, contenu_texte, type_media, url_media) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, cours.getUser().getId());
             ps.setString(2, cours.getTitre());
             ps.setString(3, cours.getContenuTexte());
             ps.setString(4, cours.getTypeMedia());
             ps.setString(5, cours.getUrlMedia());
-
-            ps.executeUpdate();
-            System.out.println("Cours ajouté avec succès !");
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            boolean ok = ps.executeUpdate() > 0;
+            if (ok) {
+                notificationMailer.notifyCourseAddedAsync(cours);
+            }
+            return ok;
         }
     }
 
@@ -42,8 +62,7 @@ public class CoursService implements ICoursService {
         cours.validate();
         String sql = "UPDATE cours SET user_id=?, titre=?, contenu_texte=?, type_media=?, url_media=? WHERE id=?";
 
-        try {
-            PreparedStatement ps = cnx.prepareStatement(sql);
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, cours.getUser().getId());
             ps.setString(2, cours.getTitre());
             ps.setString(3, cours.getContenuTexte());
@@ -54,7 +73,7 @@ public class CoursService implements ICoursService {
             ps.executeUpdate();
             System.out.println("Cours modifié avec succès !");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new RuntimeException("Erreur lors de la modification du cours: " + e.getMessage(), e);
         }
     }
 
@@ -62,14 +81,12 @@ public class CoursService implements ICoursService {
     public void supprimer(int id) {
         String sql = "DELETE FROM cours WHERE id=?";
 
-        try {
-            PreparedStatement ps = cnx.prepareStatement(sql);
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, id);
-
             ps.executeUpdate();
             System.out.println("Cours supprimé avec succès !");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new RuntimeException("Erreur lors de la suppression du cours: " + e.getMessage(), e);
         }
     }
 
@@ -78,10 +95,8 @@ public class CoursService implements ICoursService {
         List<Cours> list = new ArrayList<>();
         String sql = "SELECT * FROM cours";
 
-        try {
-            Statement st = cnx.createStatement();
-            ResultSet rs = st.executeQuery(sql);
-
+        try (Statement st = cnx.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 User user = new User();
                 user.setId(rs.getInt("user_id"));
@@ -98,7 +113,7 @@ public class CoursService implements ICoursService {
                 list.add(c);
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new RuntimeException("Erreur lors du chargement des cours: " + e.getMessage(), e);
         }
 
         return list;
@@ -109,26 +124,25 @@ public class CoursService implements ICoursService {
         String sql = "SELECT * FROM cours WHERE id=?";
         Cours cours = null;
 
-        try {
-            PreparedStatement ps = cnx.prepareStatement(sql);
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    User user = new User();
+                    user.setId(rs.getInt("user_id"));
 
-            if (rs.next()) {
-                User user = new User();
-                user.setId(rs.getInt("user_id"));
-
-                cours = new Cours(
-                        rs.getInt("id"),
-                        user,
-                        rs.getString("titre"),
-                        rs.getString("contenu_texte"),
-                        rs.getString("type_media"),
-                        rs.getString("url_media")
-                );
+                    cours = new Cours(
+                            rs.getInt("id"),
+                            user,
+                            rs.getString("titre"),
+                            rs.getString("contenu_texte"),
+                            rs.getString("type_media"),
+                            rs.getString("url_media")
+                    );
+                }
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new RuntimeException("Erreur lors du chargement du cours: " + e.getMessage(), e);
         }
 
         return cours;
@@ -137,32 +151,32 @@ public class CoursService implements ICoursService {
     @Override
     public List<Cours> rechercher(String critere) {
         List<Cours> list = new ArrayList<>();
-        String sql = "SELECT * FROM cours WHERE titre LIKE ? OR contenu_texte LIKE ?";
+        String sql = "SELECT * FROM cours WHERE titre LIKE ? OR contenu_texte LIKE ? ORDER BY titre ASC";
 
-        try {
-            PreparedStatement ps = cnx.prepareStatement(sql);
-            String searchPattern = "%" + critere + "%";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            String searchPattern = "%" + (critere == null ? "" : critere) + "%";
             ps.setString(1, searchPattern);
             ps.setString(2, searchPattern);
-            ResultSet rs = ps.executeQuery();
 
-            while (rs.next()) {
-                User user = new User();
-                user.setId(rs.getInt("user_id"));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    User user = new User();
+                    user.setId(rs.getInt("user_id"));
 
-                Cours c = new Cours(
-                        rs.getInt("id"),
-                        user,
-                        rs.getString("titre"),
-                        rs.getString("contenu_texte"),
-                        rs.getString("type_media"),
-                        rs.getString("url_media")
-                );
+                    Cours c = new Cours(
+                            rs.getInt("id"),
+                            user,
+                            rs.getString("titre"),
+                            rs.getString("contenu_texte"),
+                            rs.getString("type_media"),
+                            rs.getString("url_media")
+                    );
 
-                list.add(c);
+                    list.add(c);
+                }
             }
         } catch (SQLException e) {
-            System.out.println("Erreur recherche Cours : " + e.getMessage());
+            throw new RuntimeException("Erreur recherche cours: " + e.getMessage(), e);
         }
 
         return list;

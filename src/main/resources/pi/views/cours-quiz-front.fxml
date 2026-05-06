@@ -9,17 +9,20 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane fitToWidth="true"
+<ScrollPane fx:id="rootScroll" fitToWidth="true"
             hbarPolicy="NEVER"
             vbarPolicy="AS_NEEDED"
-            pannable="true"
+            pannable="false"
             styleClass="page-scroll"
             stylesheets="@../styles/learning-dashboard.css"
             xmlns="http://javafx.com/javafx/21"
@@ -41,17 +44,25 @@
         <Region HBox.hgrow="ALWAYS"/>
 
         <Button fx:id="backOfficeButton" text="Back Office" onAction="#onOpenBackOffice" styleClass="pill-button"/>
+        <Button fx:id="gamesButton" text="Jeux" onAction="#onOpenGames" styleClass="pill-button"
+                style="-fx-background-color: linear-gradient(to right, #22c55e, #16a34a);"/>
+        <Button fx:id="logoutButton" text="Se deconnecter" onAction="#onLogout" styleClass="pill-button-logout"/>
     </HBox>
 
-    <StackPane styleClass="hero-card">
-        <VBox spacing="12.0" maxWidth="900.0">
+    <StackPane fx:id="heroBanner" styleClass="hero-card hero-banner">
+        <ImageView fx:id="heroBannerImage" managed="false" mouseTransparent="true"
+                   preserveRatio="false" smooth="true" cache="true" styleClass="hero-banner-image">
+            <image>
+                <Image url="@../../images/salary-hero.png" backgroundLoading="true"/>
+            </image>
+        </ImageView>
+        <Region styleClass="hero-banner-overlay"/>
+        <VBox alignment="CENTER" spacing="14.0" maxWidth="900.0" styleClass="hero-banner-content">
+            <Label text="Espace d'apprentissage" styleClass="hero-eyebrow"/>
             <Label text="Cours &amp; Quiz" styleClass="hero-title-centered"/>
-            <Label text="1) Choisir un cours • 2) Lire et apprendre • 3) Passer le quiz • 4) Obtenir votre score"
-                   wrapText="true"
-                   styleClass="hero-text"/>
-            <Label fx:id="breadcrumbLabel" text="Catalogue des cours" styleClass="hero-breadcrumb"/>
+            <Label fx:id="breadcrumbLabel" text="Catalogue des cours" styleClass="hero-text-centered"/>
 
-            <HBox spacing="12.0" alignment="CENTER_LEFT">
+            <HBox spacing="12.0" alignment="CENTER">
                 <VBox spacing="4.0" styleClass="mini-kpi-card">
                     <Label text="Cours" styleClass="mini-kpi-label"/>
                     <Label fx:id="kpiCourseCount" text="0" styleClass="mini-kpi-value"/>
@@ -65,6 +76,8 @@
                     <Label fx:id="kpiBestScore" text="0 pts" styleClass="mini-kpi-value"/>
                 </VBox>
             </HBox>
+
+            <Label text="Home / Modules / Course" styleClass="hero-breadcrumb-centered"/>
         </VBox>
     </StackPane>
 
@@ -75,6 +88,11 @@
             <HBox alignment="CENTER_LEFT">
                 <VBox spacing="4.0">
                     <Label text="Cours disponibles" styleClass="section-title"/>
+                    <ImageView fitHeight="62.0" preserveRatio="true" styleClass="section-illustration">
+                        <image>
+                            <Image url="@../images/education4-removebg-preview.png" backgroundLoading="true"/>
+                        </image>
+                    </ImageView>
                     <Label text="Recherchez par mots-cle et cliquez sur un cours pour le lire."
                            styleClass="section-subtitle"/>
                 </VBox>
@@ -95,7 +113,6 @@
 
             <FlowPane fx:id="courseCardsPane"
                       hgap="14.0" vgap="14.0"
-                      prefWrapLength="1040.0"
                       styleClass="course-cards"/>
         </VBox>
 
@@ -106,6 +123,9 @@
                         styleClass="action-button"
                         style="-fx-background-color: rgba(255,255,255,0.20); -fx-text-fill: #12314a;"/>
                 <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Exporter PDF" onAction="#onExportCoursePdf"
+                        styleClass="action-button"
+                        style="-fx-background-color: rgba(15, 106, 166, 0.10); -fx-text-fill: #0f6aa6;"/>
                 <Button text="Passer le quiz" onAction="#onGoToQuiz"
                         styleClass="action-button"
                         style="-fx-background-color: linear-gradient(to right, #15b6c9, #0c7dd6); -fx-text-fill: white;"/>
@@ -147,7 +167,7 @@
         <!-- STATE 3: Quiz -->
         <VBox fx:id="quizPane" spacing="14.0" styleClass="content-card" visible="false" managed="false">
             <HBox spacing="10.0" alignment="CENTER_LEFT">
-                <Button text="← Retour au cours" onAction="#onBackToReader"
+                <Button text="Retour au cours" onAction="#onBackToReader"
                         styleClass="action-button"
                         style="-fx-background-color: rgba(255,255,255,0.20); -fx-text-fill: #12314a;"/>
                 <Region HBox.hgrow="ALWAYS"/>
@@ -164,6 +184,10 @@
             <HBox spacing="10.0" alignment="CENTER_LEFT">
                 <Label fx:id="quizProgressLabel" text="1/1" styleClass="detail-meta"/>
                 <ProgressBar fx:id="quizProgressBar" progress="0.0" styleClass="progress-bar" HBox.hgrow="ALWAYS"/>
+                <Label fx:id="quizTimerLabel" text="Temps: 30s" styleClass="detail-meta"/>
+                <Button text="Ecouter" onAction="#onSpeakQuestion"
+                        styleClass="action-button"
+                        style="-fx-background-color: rgba(15, 106, 166, 0.10); -fx-text-fill: #0f6aa6;"/>
             </HBox>
 
             <Label fx:id="quizQuestionLabel" text="Question" wrapText="true" styleClass="runner-question"/>
@@ -190,6 +214,9 @@
                         styleClass="action-button"
                         style="-fx-background-color: rgba(255,255,255,0.20); -fx-text-fill: #12314a;"/>
                 <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Historique" onAction="#onShowLearningHistory"
+                        styleClass="action-button"
+                        style="-fx-background-color: rgba(15, 106, 166, 0.10); -fx-text-fill: #0f6aa6;"/>
                 <Button text="Reessayer" onAction="#onRetryQuiz"
                         styleClass="action-button"
                         style="-fx-background-color: linear-gradient(to right, #15b6c9, #0c7dd6); -fx-text-fill: white;"/>
@@ -201,7 +228,80 @@
             </VBox>
 
             <Label fx:id="scoreValueLabel" text="" styleClass="detail-title"/>
+
+            <VBox spacing="8.0">
+                <Label text="Badges obtenus" styleClass="field-label"/>
+                <FlowPane fx:id="scoreBadgesPane" hgap="8.0" vgap="8.0"/>
+            </VBox>
+
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <Button fx:id="downloadCertificateButton" text="Telecharger certificat PDF"
+                        onAction="#onDownloadCertificate"
+                        styleClass="action-button"
+                        style="-fx-background-color: linear-gradient(to right, #22c55e, #16a34a); -fx-text-fill: white;"
+                        disable="true"/>
+                <Button fx:id="copyCertificateCodeButton" text="Copier code"
+                        onAction="#onCopyCertificateCode"
+                        styleClass="action-button"
+                        style="-fx-background-color: rgba(255,255,255,0.20); -fx-text-fill: #12314a;"
+                        disable="true"/>
+                <Label fx:id="certificateCodeLabel" text="" styleClass="detail-meta" wrapText="true"/>
+            </HBox>
             <VBox fx:id="scoreDetailsBox" spacing="10.0"/>
+        </VBox>
+
+        <!-- STATE 5: Games -->
+        <VBox fx:id="gamesPane" spacing="16.0" styleClass="content-card" visible="false" managed="false">
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <Button text="â† Retour aux cours" onAction="#onBackToCatalog"
+                        styleClass="action-button"
+                        style="-fx-background-color: linear-gradient(to right, #38bdf8, #0ea5e9); -fx-text-fill: white; -fx-font-weight: 800; -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.30), 16, 0.20, 0, 6);"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="gamesProgressLabel" text="" styleClass="detail-meta" wrapText="true"/>
+            </HBox>
+
+            <VBox spacing="4.0">
+                <Label text="Jeux d'apprentissage" styleClass="section-title"/>
+                <Label text="Investissement &amp; gestion d'argent (apprendre en s'amusant)"
+                       styleClass="section-subtitle" wrapText="true"/>
+            </VBox>
+
+            <HBox spacing="18.0">
+                <!-- Crossword -->
+                <VBox spacing="10.0" styleClass="games-subcard" HBox.hgrow="ALWAYS">
+                    <Label text="Mots croises" styleClass="field-label"/>
+                    <Label text="Indices (remplissez la grille en MAJUSCULES)." styleClass="section-subtitle" wrapText="true"/>
+
+                    <HBox spacing="14.0">
+                        <VBox spacing="8.0" prefWidth="320.0">
+                            <Label text="Horizontaux" styleClass="field-label"/>
+                            <Label text="1) Plan pour equilibrer revenus et depenses (6)" styleClass="detail-meta" wrapText="true"/>
+                            <Label text="2) Remuneration d'un pret (7)" styleClass="detail-meta" wrapText="true"/>
+                            <Label text="3) Mettre de cote pour plus tard (7)" styleClass="detail-meta" wrapText="true"/>
+
+                            <Label text="Verticaux" styleClass="field-label" style="-fx-padding: 10 0 0 0;"/>
+                            <Label text="4) Somme d'argent a rembourser (5)" styleClass="detail-meta" wrapText="true"/>
+                            <Label text="5) Possibilite de perte sur un investissement (6)" styleClass="detail-meta" wrapText="true"/>
+                            <Label text="6) Part d'une entreprise en Bourse (6)" styleClass="detail-meta" wrapText="true"/>
+                            <Label text="7) Somme disponible pour investir (7)" styleClass="detail-meta" wrapText="true"/>
+                        </VBox>
+
+                        <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                            <GridPane fx:id="crosswordGrid" hgap="10.0" vgap="10.0"/>
+                            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                                <Button text="Verifier" onAction="#onCrosswordCheck"
+                                        styleClass="action-button"
+                                        style="-fx-background-color: linear-gradient(to right, #0a4f7a, #178bb5); -fx-text-fill: white;"/>
+                                <Button text="Reinitialiser" onAction="#onCrosswordReset"
+                                        styleClass="action-button"
+                                        style="-fx-background-color: rgba(255,255,255,0.20); -fx-text-fill: #12314a;"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="crosswordStatusLabel" text="" styleClass="detail-meta" wrapText="true"/>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </HBox>
         </VBox>
 
     </StackPane>

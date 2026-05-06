@@ -42,4 +42,12 @@ build/
 .env
 .env.local
 mail.properties
+ai.properties
 config.properties
+src/main/resources/ai.properties
+src/main/resources/mail.properties
+config/ai.properties
+
+### Generated artifacts ###
+certificates/
+.m2/

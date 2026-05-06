@@ -35,6 +35,8 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.converter.DefaultStringConverter;
 import pi.controllers.CoursQuizController.AdminCoursesQuizBackOfficeFactory;
+import pi.controllers.AiQuizController.AdminAiQuizGeneratorFactory;
+import pi.controllers.AiQuizController.AiQuizGeneratorController;
 import pi.controllers.ExpenseRevenueController.BACK.AdminRevenueExpenseBackOfficeFactory;
 import pi.controllers.ImprevusCasreelController.AdminUnexpectedCasesBackOfficeFactory;
 import pi.entities.User;
@@ -162,7 +164,8 @@ public class AdminBackendController {
     private Parent expenseWorkspace;
     private Parent unexpectedWorkspace;
     private Parent realCasesWorkspace;
-    private Parent transactionsWorkspace;
+    private Parent aiQuizWorkspace;
+    private AiQuizGeneratorController aiQuizController;
 
     @FXML
     public void initialize() {
@@ -662,7 +665,8 @@ public class AdminBackendController {
             case "expenses" -> showExpenseWorkspace();
             case "savings" -> showSavingsWorkspace();
             case "goals" -> showGoalsWorkspace();
-            case "reports", "investments", "objectives", "reclamations", "statistics", "ai quiz generator" -> showPlaceholderWorkspace(menuKey);
+            case "ai quiz generator" -> showAiQuizWorkspace();
+            case "reports", "investments", "objectives", "reclamations", "statistics" -> showPlaceholderWorkspace(menuKey);
             default -> showPlaceholderWorkspace(menuKey);
         }
     }
@@ -743,6 +747,31 @@ public class AdminBackendController {
                 }
         );
         ensureTransactionsStylesheet();
+    }
+
+    private void showAiQuizWorkspace() {
+        headerLabel.setText("AI Quiz Generator");
+        headerSubtitle.setText("Generate quizzes automatically from courses using OpenAI and save them to the database.");
+        if (addUserButton != null) {
+            addUserButton.setManaged(false);
+            addUserButton.setVisible(false);
+        }
+
+        if (aiQuizWorkspace == null) {
+            try {
+                FXMLLoader loader = AdminAiQuizGeneratorFactory.createLoader();
+                aiQuizWorkspace = loader.load();
+                aiQuizController = loader.getController();
+            } catch (Exception e) {
+                showError("AI Quiz Generator", "Impossible de charger l'interface:\n" + chainMessages(e));
+                return;
+            }
+        }
+
+        if (aiQuizController != null) {
+            aiQuizController.setContext(currentUser);
+        }
+        replaceWorkspace(aiQuizWorkspace);
     }
 
     private void showPlaceholderWorkspace(String key) {
