@@ -870,16 +870,19 @@ public class LoginController {
     }
 
     private void validateOAuthConfigurationOnStartup() {
-        try {
-            socialAuthService().validateStartupConfiguration();
-            socialAuthReady = true;
-            googleButton.setDisable(false);
-            facebookButton.setDisable(false);
-        } catch (Exception e) {
-            socialAuthReady = false;
-            googleButton.setDisable(true);
-            facebookButton.setDisable(true);
-            showError("Configuration OAuth manquante au demarrage: " + e.getMessage());
+        boolean googleReady = socialAuthService().isGoogleConfigured();
+        boolean facebookReady = socialAuthService().isFacebookConfigured();
+
+        googleButton.setDisable(!googleReady);
+        facebookButton.setDisable(!facebookReady);
+        socialAuthReady = googleReady || facebookReady;
+
+        if (!socialAuthReady) {
+            feedbackLabel.getStyleClass().remove("feedback-error");
+            if (!feedbackLabel.getStyleClass().contains("feedback-success")) {
+                feedbackLabel.getStyleClass().add("feedback-success");
+            }
+            feedbackLabel.setText("Connexion classique active. OAuth desactive (configuration manquante).");
         }
     }
 
