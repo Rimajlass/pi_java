@@ -700,9 +700,8 @@ public class AdminBackendController {
             case "savings" -> showSavingsWorkspace();
             case "goals" -> showGoalsWorkspace();
             case "investments" -> showInvestmentsWorkspace();
-            case "reports", "objectives", "reclamations", "statistics", "ai quiz generator" -> showPlaceholderWorkspace(menuKey);
             case "ai quiz generator" -> showAiQuizWorkspace();
-            case "reports", "investments", "objectives", "reclamations", "statistics" -> showPlaceholderWorkspace(menuKey);
+            case "reports", "objectives", "reclamations", "statistics" -> showPlaceholderWorkspace(menuKey);
             default -> showPlaceholderWorkspace(menuKey);
         }
     }
