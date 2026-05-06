@@ -79,9 +79,15 @@ public class SmartVoiceAgentPane extends StackPane {
         header.getChildren().addAll(avatar, titleBox, spacer, minimizeBtn);
 
         commandField = new TextField();
-        commandField.getStyleClass().add("field");
+        commandField.getStyleClass().addAll("field", "smart-agent-command-field");
         commandField.setPromptText("Try: contribute 100 TND to goal PCC");
-        commandField.setOnMouseClicked(e -> togglePanel(true));
+        commandField.setEditable(true);
+        commandField.setDisable(false);
+        commandField.setFocusTraversable(true);
+        commandField.setOnMouseClicked(e -> {
+            togglePanel(true);
+            commandField.requestFocus();
+        });
         commandField.setOnAction(e -> runTyped());
         HBox.setHgrow(commandField, Priority.ALWAYS);
         commandField.setPrefHeight(46);
@@ -217,6 +223,8 @@ public class SmartVoiceAgentPane extends StackPane {
         chip.setOnAction(e -> {
             togglePanel(true);
             commandField.setText(command);
+            commandField.requestFocus();
+            commandField.positionCaret(commandField.getText().length());
             if (executeImmediately) {
                 runTyped();
             }
@@ -271,6 +279,8 @@ public class SmartVoiceAgentPane extends StackPane {
             VoiceRecognitionResult result = task.getValue();
             if (result != null && result.success() && result.recognizedText() != null && !result.recognizedText().isBlank()) {
                 commandField.setText(result.recognizedText());
+                commandField.requestFocus();
+                commandField.positionCaret(commandField.getText().length());
                 heardLabel.setText("Heard live: " + result.recognizedText());
                 finalTranscriptLabel.setText("Final recognized text: " + result.recognizedText());
                 updateState(AgentUiState.DONE, "recognized");
@@ -355,6 +365,8 @@ public class SmartVoiceAgentPane extends StackPane {
                 heardLabel.setText("Heard live: " + result.recognizedText());
                 finalTranscriptLabel.setText("Final recognized text: " + result.recognizedText());
                 commandField.setText(result.recognizedText());
+                commandField.requestFocus();
+                commandField.positionCaret(commandField.getText().length());
                 updateState(AgentUiState.IDLE, "ready");
             } else {
                 diagnosticsLabel.setText(result == null ? "Voice recognition test failed." : result.userMessage());
@@ -492,7 +504,11 @@ public class SmartVoiceAgentPane extends StackPane {
             for (String quickAction : card.quickActions()) {
                 Button chip = new Button(quickAction);
                 chip.getStyleClass().add("agent-chip-btn");
-                chip.setOnAction(e -> commandField.setText(quickAction));
+                chip.setOnAction(e -> {
+                    commandField.setText(quickAction);
+                    commandField.requestFocus();
+                    commandField.positionCaret(commandField.getText().length());
+                });
                 actions.getChildren().add(chip);
             }
             wrapper.getChildren().add(actions);

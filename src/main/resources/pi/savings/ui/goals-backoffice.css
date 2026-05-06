@@ -310,3 +310,160 @@
     -fx-bar-fill: linear-gradient(to top, #2375f6, #26c1e8);
     -fx-background-radius: 10 10 0 0;
 }
+
+.backoffice-root.admin-embedded-workspace {
+    -fx-background-color: transparent;
+    -fx-font-family: "Segoe UI";
+    -fx-base: #101d30;
+    -fx-background: #0b1728;
+    -fx-control-inner-background: #142742;
+    -fx-text-background-color: #eaf2ff;
+    -fx-text-inner-color: #eaf2ff;
+    -fx-highlight-fill: #4f7bff;
+    -fx-highlight-text-fill: #ffffff;
+    -fx-prompt-text-fill: #8ea0b8;
+}
+
+.admin-embedded-workspace .backoffice-page {
+    -fx-padding: 10 14 14 14;
+}
+
+.admin-embedded-workspace .side-card,
+.admin-embedded-workspace .table-card,
+.admin-embedded-workspace .summary-block,
+.admin-embedded-workspace .stats-pie-chart,
+.admin-embedded-workspace .stats-bar-chart {
+    -fx-background-color: rgba(14, 26, 44, 0.62);
+    -fx-background-radius: 16px;
+    -fx-border-color: rgba(154, 193, 246, 0.16);
+    -fx-border-radius: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.36), 20, 0.2, 0, 7);
+}
+
+.admin-embedded-workspace .side-card,
+.admin-embedded-workspace .table-card {
+    -fx-padding: 16;
+}
+
+.admin-embedded-workspace .card-title,
+.admin-embedded-workspace .summary-value,
+.admin-embedded-workspace .progress-text,
+.admin-embedded-workspace .stats-pie-chart .chart-title,
+.admin-embedded-workspace .stats-bar-chart .chart-title {
+    -fx-text-fill: #f5f7ff;
+    -fx-font-family: "Segoe UI";
+}
+
+.admin-embedded-workspace .card-subtitle,
+.admin-embedded-workspace .summary-label,
+.admin-embedded-workspace .hero-subtitle,
+.admin-embedded-workspace .stats-pie-chart .chart-legend-item,
+.admin-embedded-workspace .stats-bar-chart .chart-legend-item {
+    -fx-text-fill: #a9b4c7;
+}
+
+.admin-embedded-workspace .toolbar-field,
+.admin-embedded-workspace .toolbar-combo {
+    -fx-background-color: rgba(24, 43, 71, 0.94);
+    -fx-background-radius: 10px;
+    -fx-border-color: rgba(117, 164, 225, 0.28);
+    -fx-border-radius: 10px;
+    -fx-text-fill: #f5f7ff;
+    -fx-prompt-text-fill: #8ea0b8;
+}
+
+.admin-embedded-workspace .toolbar-combo .list-cell,
+.admin-embedded-workspace .combo-box-base > .list-cell {
+    -fx-text-fill: #f5f7ff;
+}
+
+.admin-embedded-workspace .toolbar-combo .arrow {
+    -fx-background-color: #a9b4c7;
+}
+
+.admin-embedded-workspace .primary-action-btn {
+    -fx-background-color: linear-gradient(to right, #3a8dff, #00c6ff);
+    -fx-background-radius: 10px;
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-effect: dropshadow(gaussian, rgba(76, 188, 255, 0.36), 16, 0.24, 0, 4);
+}
+
+.admin-embedded-workspace .secondary-action-btn {
+    -fx-background-color: rgba(31, 48, 72, 0.90);
+    -fx-border-color: rgba(126, 167, 221, 0.28);
+    -fx-border-radius: 9px;
+    -fx-background-radius: 9px;
+    -fx-text-fill: #bdd7f6;
+    -fx-font-weight: 600;
+}
+
+.admin-embedded-workspace .backoffice-tabs .tab {
+    -fx-background-color: rgba(23, 41, 66, 0.90);
+    -fx-border-color: rgba(117, 164, 225, 0.24);
+}
+
+.admin-embedded-workspace .backoffice-tabs .tab:selected {
+    -fx-background-color: linear-gradient(to right, rgba(59, 145, 255, 0.92), rgba(59, 145, 255, 0.56));
+}
+
+.admin-embedded-workspace .backoffice-tabs .tab .tab-label {
+    -fx-text-fill: #d6e9ff;
+    -fx-font-family: "Segoe UI";
+}
+
+.admin-embedded-workspace .backoffice-tabs .tab:selected .tab-label {
+    -fx-text-fill: #ffffff;
+}
+
+.admin-embedded-workspace .backoffice-table {
+    -fx-background-color: rgba(10, 20, 35, 0.72);
+    -fx-background-radius: 12px;
+    -fx-border-color: rgba(123, 160, 212, 0.22);
+    -fx-border-radius: 12px;
+}
+
+.admin-embedded-workspace .backoffice-table .column-header-background {
+    -fx-background-color: rgba(18, 35, 58, 0.95);
+    -fx-background-radius: 10px 10px 0 0;
+}
+
+.admin-embedded-workspace .backoffice-table .column-header .label {
+    -fx-text-fill: #dce6f2;
+}
+
+.admin-embedded-workspace .backoffice-table .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(139, 170, 214, 0.10) transparent transparent transparent;
+}
+
+.admin-embedded-workspace .backoffice-table .table-row-cell:hover {
+    -fx-background-color: rgba(68, 143, 232, 0.16);
+}
+
+.admin-embedded-workspace .backoffice-table .table-row-cell:filled:selected,
+.admin-embedded-workspace .backoffice-table .table-row-cell:filled:selected .table-cell {
+    -fx-background-color: rgba(67, 137, 219, 0.28);
+    -fx-text-fill: #f5f7ff;
+}
+
+.admin-embedded-workspace .backoffice-table .table-cell {
+    -fx-text-fill: #f5f7ff;
+    -fx-border-color: transparent;
+}
+
+.admin-embedded-workspace .progress-track > .track {
+    -fx-background-color: rgba(255,255,255,0.10);
+}
+
+.admin-embedded-workspace .stats-bar-chart .axis {
+    -fx-tick-label-fill: #a9b4c7;
+}
+
+.admin-embedded-workspace .stats-bar-chart .chart-plot-background {
+    -fx-background-color: rgba(10, 20, 35, 0.56);
+}
+
+.admin-embedded-workspace .stats-pie-chart .chart-pie-label {
+    -fx-fill: #eaf2ff;
+}

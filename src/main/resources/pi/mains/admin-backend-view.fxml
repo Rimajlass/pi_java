@@ -107,13 +107,13 @@
                                         <Label styleClass="menu-text" text="Reclamations" />
                                     </children>
                                 </HBox>
-                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSavingsSidebarClick" spacing="10.0" styleClass="menu-row menu-row-nav">
                                     <children>
                                         <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4B5;" /></children></StackPane>
                                         <Label styleClass="menu-text" text="Savings" />
                                     </children>
                                 </HBox>
-                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSidebarSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleGoalsSidebarClick" spacing="10.0" styleClass="menu-row menu-row-nav">
                                     <children>
                                         <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F3C1;" /></children></StackPane>
                                         <Label styleClass="menu-text" text="Goals" />

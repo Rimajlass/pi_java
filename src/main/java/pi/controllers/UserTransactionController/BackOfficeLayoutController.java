@@ -20,6 +20,7 @@ import javafx.util.Duration;
 import pi.controllers.ExpenseRevenueController.BACK.AdminRevenueExpenseBackOfficeFactory;
 import pi.entities.User;
 import pi.mains.Main;
+import pi.savings.ui.AdminSavingsBackOfficeFactory;
 import pi.tools.FxmlResources;
 import pi.tools.AdminNavigation;
 import pi.tools.ThemeManager;
@@ -112,6 +113,28 @@ public class BackOfficeLayoutController {
         activateMenuByKey("Expenses");
         if (!loadExpenseWorkspaceDirect()) {
             menuSelectionHandler.accept("Expenses");
+        }
+    }
+
+    @FXML
+    private void handleSavingsMenuClick(MouseEvent event) {
+        if (event != null) {
+            event.consume();
+        }
+        activateMenuByKey("Savings");
+        if (!loadSavingsWorkspaceDirect()) {
+            menuSelectionHandler.accept("Savings");
+        }
+    }
+
+    @FXML
+    private void handleGoalsMenuClick(MouseEvent event) {
+        if (event != null) {
+            event.consume();
+        }
+        activateMenuByKey("Goals");
+        if (!loadGoalsWorkspaceDirect()) {
+            menuSelectionHandler.accept("Goals");
         }
     }
 
@@ -300,6 +323,8 @@ public class BackOfficeLayoutController {
             }
             case "revenues" -> loadRevenueWorkspaceDirect();
             case "expenses" -> loadExpenseWorkspaceDirect();
+            case "savings" -> loadSavingsWorkspaceDirect();
+            case "goals" -> loadGoalsWorkspaceDirect();
             default -> false;
         };
     }
@@ -354,6 +379,34 @@ public class BackOfficeLayoutController {
             return true;
         } catch (Exception e) {
             System.err.println("[BackOfficeLayout] Failed to load expense workspace");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean loadSavingsWorkspaceDirect() {
+        try {
+            setContent(AdminSavingsBackOfficeFactory.buildSavingsWorkspace());
+            if (contentHost.getScene().getWindow() instanceof Stage stage) {
+                stage.setTitle("Savings | Decide$");
+            }
+            return true;
+        } catch (Exception e) {
+            System.err.println("[BackOfficeLayout] Failed to load savings workspace");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean loadGoalsWorkspaceDirect() {
+        try {
+            setContent(AdminSavingsBackOfficeFactory.buildGoalsWorkspace());
+            if (contentHost.getScene().getWindow() instanceof Stage stage) {
+                stage.setTitle("Goals | Decide$");
+            }
+            return true;
+        } catch (Exception e) {
+            System.err.println("[BackOfficeLayout] Failed to load goals workspace");
             e.printStackTrace();
             return false;
         }
