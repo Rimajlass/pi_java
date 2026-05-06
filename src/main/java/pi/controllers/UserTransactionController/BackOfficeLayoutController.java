@@ -363,7 +363,6 @@ public class BackOfficeLayoutController {
             case "revenues" -> loadRevenueWorkspaceDirect();
             case "expenses" -> loadExpenseWorkspaceDirect();
             case "unexpected events", "real cases" -> loadUnexpectedWorkspaceDirect();
-            case "unexpected events", "real cases" -> loadUnexpectedWorkspaceDirect();
             case "savings" -> loadSavingsWorkspaceDirect();
             case "goals" -> loadGoalsWorkspaceDirect();
             case "investments" -> loadInvestmentsWorkspaceDirect();
