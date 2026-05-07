@@ -184,6 +184,10 @@
     -fx-border-color: #d9e3ef;
     -fx-border-radius: 10;
     -fx-background-radius: 10;
+    -fx-text-fill: #17324d;
+    -fx-prompt-text-fill: #7b8794;
+    -fx-highlight-fill: #3b82f6;
+    -fx-highlight-text-fill: #ffffff;
 }
 
 .small-filter {
@@ -220,6 +224,38 @@
 .text-area .content {
     -fx-background-color: white;
     -fx-background-radius: 10;
+}
+
+.text-area .text {
+    -fx-fill: #17324d;
+}
+
+.combo-box .list-cell,
+.combo-box-base > .list-cell,
+.date-picker .text-field,
+.date-picker > .text-field {
+    -fx-text-fill: #17324d;
+}
+
+.combo-box-base .arrow,
+.date-picker .arrow {
+    -fx-background-color: #5b6f8a;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d9e3ef;
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #17324d;
+}
+
+.combo-box-popup .list-cell:hover,
+.combo-box-popup .list-cell:filled:selected {
+    -fx-background-color: #e8f4ff;
+    -fx-text-fill: #17324d;
 }
 
 .action-button-primary {

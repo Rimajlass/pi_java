@@ -97,11 +97,13 @@ public class UserService {
                 FROM `user`
                 WHERE email IS NOT NULL
                   AND TRIM(email) <> ''
-                  AND is_blocked = 0
+                  AND COALESCE(is_blocked, 0) = 0
+                  AND roles LIKE ?
                 """;
 
         List<String> emails = new ArrayList<>();
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setString(1, "%ROLE_ETUDIANT%");
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String email = rs.getString("email");

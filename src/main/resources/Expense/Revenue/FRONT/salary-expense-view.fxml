@@ -52,8 +52,8 @@
                                                 <Label fx:id="profileNameLabel" styleClass="profile-name" text="amine" />
                                             </children>
                                         </HBox>
-                                        <Button mnemonicParsing="false" onAction="#handleOpenHomeAction" styleClass="nav-button" text="To Start" />
-                                        <Button mnemonicParsing="false" onAction="#handleLogoutAction" styleClass="nav-button" text="Logout" />
+                                        <Button mnemonicParsing="false" onAction="#handleOpenHomeAction" styleClass="header-button start-button" text="To Start" />
+                                        <Button mnemonicParsing="false" onAction="#handleLogoutAction" styleClass="header-button logout-button" text="Logout" />
                                     </children>
                                 </HBox>
                             </children>

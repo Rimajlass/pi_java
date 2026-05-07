@@ -423,7 +423,7 @@
 .prevention-plan-box {
     -fx-background-color:
             linear-gradient(to bottom right, #173247, #214d68);
-    -fx-border-color: rgba(120, 222, 199, 0.32);
+    -fx-border-color: rgba(120, 222, 199, 0.24);
     -fx-border-width: 1.6;
     -fx-border-radius: 24;
     -fx-background-radius: 24;
@@ -450,12 +450,12 @@
 
 .prevention-plan-line {
     -fx-background-color:
-            linear-gradient(to bottom, #ffffff, #f4f9ff);
+            linear-gradient(to bottom, rgba(255,255,255,0.16), rgba(255,255,255,0.10));
     -fx-background-radius: 18;
     -fx-border-radius: 18;
     -fx-border-width: 1.2;
     -fx-padding: 16 18 16 18;
-    -fx-text-fill: #102b44;
+    -fx-text-fill: #f8fcff;
     -fx-font-size: 16px;
     -fx-font-weight: 900;
     -fx-line-spacing: 4px;
@@ -465,19 +465,43 @@
     -fx-wrap-text: true;
 }
 
+.prevention-plan-line .text {
+    -fx-fill: #f8fcff;
+}
+
+.prevention-plan-box .label {
+    -fx-text-fill: #f8fcff;
+}
+
+.prevention-plan-box .label .text {
+    -fx-fill: #f8fcff;
+}
+
+#preventionImmediateActionLabel,
+#preventionBudgetLabel,
+#preventionAdviceLabel {
+    -fx-text-fill: #ffffff;
+}
+
+#preventionImmediateActionLabel .text,
+#preventionBudgetLabel .text,
+#preventionAdviceLabel .text {
+    -fx-fill: #ffffff;
+}
+
 .prevention-plan-action {
-    -fx-border-color: rgba(18, 148, 103, 0.38);
-    -fx-background-color: linear-gradient(to bottom, #f4fff9, #e7f8ef);
+    -fx-border-color: rgba(120, 222, 199, 0.30);
+    -fx-background-color: linear-gradient(to bottom, rgba(47, 152, 121, 0.24), rgba(23, 108, 87, 0.20));
 }
 
 .prevention-plan-budget {
-    -fx-border-color: rgba(42, 113, 207, 0.34);
-    -fx-background-color: linear-gradient(to bottom, #f5f9ff, #e8f1ff);
+    -fx-border-color: rgba(117, 169, 255, 0.34);
+    -fx-background-color: linear-gradient(to bottom, rgba(51, 104, 201, 0.24), rgba(28, 72, 158, 0.20));
 }
 
 .prevention-plan-advice {
-    -fx-border-color: rgba(198, 141, 31, 0.34);
-    -fx-background-color: linear-gradient(to bottom, #fffaf0, #fff1d8);
+    -fx-border-color: rgba(255, 214, 120, 0.28);
+    -fx-background-color: linear-gradient(to bottom, rgba(194, 144, 49, 0.24), rgba(145, 98, 15, 0.20));
 }
 
 .location-action-row {
@@ -1212,22 +1236,42 @@
 
 .nav-links {
     -fx-padding: 0;
-    -fx-spacing: 18;
+    -fx-alignment: center;
+    -fx-spacing: 30;
 }
 
 .header-nav-btn {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-text-fill: rgba(255, 255, 255, 0.92);
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-border-color: rgba(255, 255, 255, 0.18);
+    -fx-text-fill: #ffffff;
     -fx-font-size: 16px;
-    -fx-font-weight: 700;
-    -fx-padding: 8 4 8 4;
+    -fx-font-weight: 800;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-padding: 10 18 10 18;
+}
+
+.header-nav-btn .text {
+    -fx-fill: #ffffff;
 }
 
 .header-nav-btn:hover {
-    -fx-background-color: transparent;
+    -fx-background-color: rgba(255, 255, 255, 0.14);
     -fx-text-fill: white;
     -fx-underline: false;
+}
+
+.header-nav-btn:hover .text {
+    -fx-fill: white;
+}
+
+.header-nav-active .text {
+    -fx-fill: #ffffff;
+}
+
+.header-nav-active {
+    -fx-background-color: linear-gradient(to right, rgba(60, 118, 255, 0.32), rgba(23, 199, 232, 0.22));
+    -fx-border-color: rgba(149, 235, 255, 0.32);
 }
 
 .profile-pill {

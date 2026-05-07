@@ -45,6 +45,11 @@ public class LearningNotificationMailer {
     public CompletableFuture<MailSendResult> notifyCourseAddedAsync(Cours cours) {
         return CompletableFuture.supplyAsync(() -> notifyCourseAdded(cours), EXECUTOR)
                 .whenComplete((result, ex) -> {
+                    if (ex != null) {
+                        System.out.println("[MAIL] Echec notification cours: " + ex.getMessage());
+                    } else if (result != null) {
+                        System.out.println("[MAIL] Notification cours status=" + result.getStatus() + " message=" + result.getMessage());
+                    }
                     if (!popupEnabled) {
                         return;
                     }
@@ -59,6 +64,11 @@ public class LearningNotificationMailer {
     public CompletableFuture<MailSendResult> notifyQuizAddedAsync(Quiz quiz, String coursTitreFallback) {
         return CompletableFuture.supplyAsync(() -> notifyQuizAdded(quiz, coursTitreFallback), EXECUTOR)
                 .whenComplete((result, ex) -> {
+                    if (ex != null) {
+                        System.out.println("[MAIL] Echec notification quiz: " + ex.getMessage());
+                    } else if (result != null) {
+                        System.out.println("[MAIL] Notification quiz status=" + result.getStatus() + " message=" + result.getMessage());
+                    }
                     if (!popupEnabled) {
                         return;
                     }

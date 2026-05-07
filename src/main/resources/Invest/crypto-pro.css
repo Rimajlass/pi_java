@@ -59,97 +59,115 @@
 
 /* ── Top nav ── */
 .top-nav {
-    -fx-background-color: rgba(255, 255, 255, 0.9);
-    -fx-effect: dropshadow(gaussian, rgba(8, 187, 231, 0.14), 18, 0.08, 0, 3);
-    -fx-border-color: rgba(8, 187, 231, 0.13) transparent rgba(8, 187, 231, 0.08) transparent;
-    -fx-border-width: 1 0 1 0;
-    -fx-padding: 16 32 16 32;
+    -fx-padding: 18 28 18 28;
+    -fx-spacing: 24;
+    -fx-background-color: rgba(55, 38, 18, 0.74);
+    -fx-background-radius: 24;
+    -fx-border-color: rgba(255, 255, 255, 0.18);
+    -fx-border-radius: 24;
+    -fx-border-width: 1;
+    -fx-effect: none;
 }
 
 .brand-badge {
-    -fx-background-color: linear-gradient(to bottom right, #08bbe7, #0596c2);
-    -fx-background-radius: 12;
-    -fx-text-fill: white;
+    -fx-background-color: linear-gradient(to bottom, rgba(32, 206, 233, 0.28), rgba(25, 132, 190, 0.35));
+    -fx-border-color: rgba(149, 235, 255, 0.4);
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-text-fill: #9ff4ff;
     -fx-font-weight: 900;
-    -fx-font-size: 15px;
-    -fx-padding: 8 14 8 14;
-    -fx-effect: dropshadow(gaussian, rgba(8, 187, 231, 0.4), 10, 0.2, 0, 3);
+    -fx-font-size: 16px;
+    -fx-padding: 10 14 10 14;
+    -fx-min-width: 46;
+    -fx-min-height: 46;
+    -fx-alignment: center;
+    -fx-effect: none;
 }
 
 .brand-mark {
-    -fx-font-size: 26px;
+    -fx-font-size: 30px;
     -fx-font-weight: 800;
-    -fx-text-fill: #0f2744;
+    -fx-text-fill: white;
 }
 
 .nav-button {
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-    -fx-padding: 9 18 9 18;
-    -fx-font-size: 13px;
-    -fx-font-weight: 700;
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-border-color: rgba(255, 255, 255, 0.18);
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-padding: 10 18 10 18;
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
     -fx-cursor: hand;
-    -fx-text-fill: #3d6080;
-    -fx-background-color: transparent;
+    -fx-text-fill: #ffffff;
 }
 
 .nav-button:hover {
-    -fx-background-color: rgba(8, 187, 231, 0.07);
-    -fx-text-fill: #0891b2;
+    -fx-background-color: rgba(255, 255, 255, 0.14);
+    -fx-text-fill: #ffffff;
 }
 
 .nav-button-active {
-    -fx-text-fill: #08bbe7;
-    -fx-background-color: rgba(8, 187, 231, 0.1);
-    -fx-border-color: rgba(8, 187, 231, 0.22);
+    -fx-text-fill: #ffffff;
+    -fx-background-color: linear-gradient(to right, rgba(60, 118, 255, 0.32), rgba(23, 199, 232, 0.22));
+    -fx-border-color: rgba(149, 235, 255, 0.32);
     -fx-border-width: 1;
 }
 
 .nav-links .nav-button-active {
-    -fx-text-fill: #08bbe7;
+    -fx-text-fill: #ffffff;
 }
 
 .nav-links .nav-button-active .text {
-    -fx-fill: #08bbe7;
+    -fx-fill: #ffffff;
 }
 
 .profile-pill {
-    -fx-background-color: rgba(8, 187, 231, 0.07);
-    -fx-border-color: rgba(8, 187, 231, 0.18);
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-border-color: rgba(255, 255, 255, 0.16);
     -fx-background-radius: 999;
     -fx-border-radius: 999;
-    -fx-padding: 7 16 7 10;
+    -fx-padding: 8 18 8 10;
 }
 
 .profile-icon {
-    -fx-background-color: linear-gradient(to bottom right, #08bbe7, #0596c2);
+    -fx-background-color: #17c7e8;
     -fx-text-fill: white;
     -fx-background-radius: 999;
-    -fx-min-width: 28;
-    -fx-pref-width: 28;
-    -fx-min-height: 28;
-    -fx-pref-height: 28;
+    -fx-min-width: 30;
+    -fx-pref-width: 30;
+    -fx-min-height: 30;
+    -fx-pref-height: 30;
     -fx-alignment: center;
     -fx-font-weight: 900;
 }
 
 .profile-name {
-    -fx-text-fill: #1e3a52;
+    -fx-text-fill: #ffffff;
     -fx-font-size: 13px;
     -fx-font-weight: 700;
 }
 
-.header-button {
-    -fx-background-color: white;
-    -fx-border-color: rgba(8, 187, 231, 0.22);
+.header-start-btn,
+.header-logout-btn {
+    -fx-font-weight: 700;
     -fx-border-radius: 999;
     -fx-background-radius: 999;
-    -fx-text-fill: #1e3a52;
-    -fx-padding: 9 20 9 20;
-    -fx-font-weight: 700;
+    -fx-padding: 10 16 10 16;
     -fx-cursor: hand;
-    -fx-font-size: 13px;
-    -fx-effect: dropshadow(gaussian, rgba(8, 187, 231, 0.12), 10, 0.1, 0, 2);
+    -fx-font-size: 14px;
+}
+
+.header-start-btn {
+    -fx-background-color: linear-gradient(to right, #12bee0, #2f7df2);
+    -fx-border-color: rgba(47, 125, 242, 0.24);
+    -fx-text-fill: #ffffff;
+}
+
+.header-logout-btn {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(226, 232, 240, 0.9);
+    -fx-text-fill: #334155;
 }
 
 .logout-button:hover {
