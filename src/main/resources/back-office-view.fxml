@@ -50,9 +50,9 @@
                 <Label styleClass="page-subtitle" text="New unexpected events are created with a default budget of 0. The displayed event budget is the total of all linked real cases." wrapText="true" />
               </children>
             </VBox>
-            <HBox alignment="TOP_CENTER" spacing="20.0">
+            <HBox alignment="TOP_CENTER" spacing="24.0">
               <children>
-                <VBox prefWidth="470.0" spacing="18.0">
+                <VBox prefWidth="560.0" spacing="18.0">
                   <children>
                     <VBox spacing="14.0" styleClass="panel-card">
                       <padding>
@@ -70,7 +70,7 @@
                             <Button onAction="#handleDeleteImprevu" styleClass="action-danger" text="Supprimer" HBox.hgrow="ALWAYS" />
                           </children>
                         </HBox>
-                        <ListView fx:id="imprevusListView" prefHeight="560.0" />
+                        <ListView fx:id="imprevusListView" prefHeight="650.0" />
                       </children>
                     </VBox>
                   </children>
@@ -86,7 +86,7 @@
                         <Label styleClass="panel-title" text="Review Real Cases" />
                         <Label styleClass="page-subtitle" text="This area is only for case management and decision making. No add, modify, delete, and no table." wrapText="true" />
                         <Label fx:id="systemStatusLabel" styleClass="system-banner" text="System status: notif in-app active | mail/maps selon .env" wrapText="true" />
-                        <ListView fx:id="casListView" prefHeight="280.0" />
+                        <ListView fx:id="casListView" prefHeight="360.0" />
                         <Separator />
                          <Label fx:id="casTitreLabel" styleClass="detail-title" text="Select a case" />
                          <Label fx:id="casMetaLabel" styleClass="page-subtitle" text="No case selected" wrapText="true" />

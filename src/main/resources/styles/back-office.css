@@ -126,12 +126,35 @@
     -fx-border-color: #d8e2ef;
     -fx-border-radius: 12;
     -fx-background-radius: 12;
+    -fx-text-fill: #17314a;
+    -fx-prompt-text-fill: #7a8ea4;
+    -fx-highlight-fill: #4f7bff;
+    -fx-highlight-text-fill: #ffffff;
 }
 
 .text-field,
 .text-area,
 .combo-box {
     -fx-padding: 8 10 8 10;
+}
+
+.text-area .content {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12;
+}
+
+.text-area .text {
+    -fx-fill: #17314a;
+}
+
+.combo-box .list-cell,
+.combo-box-base > .list-cell,
+.date-picker .text-field {
+    -fx-text-fill: #17314a;
+}
+
+.combo-box-base .arrow {
+    -fx-background-color: #526b87;
 }
 
 .text-field:focused,
@@ -219,38 +242,41 @@
 
 .list-view .list-cell {
     -fx-background-color: transparent;
-    -fx-font-size: 13px;
-    -fx-padding: 8 6 8 6;
+    -fx-font-size: 14px;
+    -fx-padding: 10 8 10 8;
+    -fx-text-fill: #17314a;
 }
 
 .list-view .list-cell:filled:selected,
 .list-view .list-cell:filled:selected:hover {
-    -fx-background-color: transparent;
+    -fx-background-color: #edf8ff;
+    -fx-background-radius: 12;
 }
 
 .list-card-box {
-    -fx-background-color: linear-gradient(to bottom, #ffffff, #fbfdff);
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f4f9ff);
     -fx-background-radius: 14;
-    -fx-border-color: #dce7f2;
+    -fx-border-color: #cfddeb;
     -fx-border-radius: 14;
-    -fx-padding: 14 16 14 16;
-    -fx-effect: dropshadow(gaussian, rgba(18, 34, 57, 0.06), 14, 0.14, 0, 3);
+    -fx-padding: 16 18 16 18;
+    -fx-effect: dropshadow(gaussian, rgba(18, 34, 57, 0.08), 14, 0.16, 0, 3);
 }
 
 .list-view .list-cell:filled:selected .list-card-box {
     -fx-background-color: #edf8ff;
     -fx-border-color: #7fc9e8;
+    -fx-effect: dropshadow(gaussian, rgba(17, 138, 165, 0.14), 14, 0.18, 0, 3);
 }
 
 .list-card-title {
     -fx-text-fill: #16314d;
-    -fx-font-size: 15px;
+    -fx-font-size: 16px;
     -fx-font-weight: 800;
 }
 
 .list-card-meta {
     -fx-text-fill: #667c93;
-    -fx-font-size: 12px;
+    -fx-font-size: 13px;
 }
 
 .status-pending,

@@ -209,12 +209,13 @@
 }
 
 .service-card-button {
-    -fx-background-color: #ffffff;
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f7faff);
     -fx-background-radius: 22px;
-    -fx-border-color: #d6deea;
+    -fx-border-color: #d0dced;
+    -fx-border-width: 1.2px;
     -fx-border-radius: 22px;
     -fx-padding: 18 22 18 22;
-    -fx-effect: dropshadow(gaussian, rgba(24, 43, 73, 0.12), 16, 0.14, 0, 5);
+    -fx-effect: dropshadow(gaussian, rgba(24, 43, 73, 0.14), 16, 0.16, 0, 5);
     -fx-cursor: hand;
     -fx-alignment: top-left;
     -fx-content-display: graphic-only;
@@ -222,12 +223,13 @@
 }
 
 .service-card-button:hover {
-    -fx-border-color: #8db7ff;
-    -fx-background-color: #f9fbff;
+    -fx-border-color: #78a8ff;
+    -fx-background-color: linear-gradient(to bottom, #fdfefe, #eef5ff);
+    -fx-effect: dropshadow(gaussian, rgba(66, 131, 221, 0.22), 18, 0.2, 0, 6);
 }
 
 .service-card-button:pressed {
-    -fx-background-color: #eef4ff;
+    -fx-background-color: linear-gradient(to bottom, #eef4ff, #e5efff);
 }
 
 .service-title {

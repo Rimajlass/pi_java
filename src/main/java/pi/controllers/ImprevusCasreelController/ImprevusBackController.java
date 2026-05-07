@@ -205,12 +205,16 @@ public class ImprevusBackController {
                 null,
                 safe(adminNoteArea),
                 currentAdmin == null ? null : currentAdmin.getId()
-        );if (selectedCas.getUser() != null) {
-            adminNotificationService.createNotification(
-                    selectedCas.getUser().getId(),
-                    "Case approved",
-                    "Your gain case \"" + selectedCas.getTitre() + "\" has been approved."
-            );
+        );
+        if (selectedCas.getUser() != null) {
+            try {
+                adminNotificationService.createNotification(
+                        selectedCas.getUser().getId(),
+                        "Case approved",
+                        "Your gain case \"" + selectedCas.getTitre() + "\" has been approved and allocated to the emergency fund."
+                );
+            } catch (RuntimeException ignored) {
+            }
         }
         refreshCas();
         reselectCase(caseId);

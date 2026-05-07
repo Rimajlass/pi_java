@@ -74,15 +74,6 @@ public class BackOfficeLayoutController {
             return;
         }
         System.out.println("[BackOfficeLayout] menu click: " + key);
-        String normalized = key.trim().toLowerCase(Locale.ROOT);
-        if (normalized.equals("course & quiz") || normalized.equals("cours & quiz") || normalized.equals("ai quiz generator")) {
-            try {
-                if (contentHost != null && contentHost.getScene() != null && contentHost.getScene().getWindow() instanceof Stage stage) {
-                    UiDialog.info(stage, "Debug", "Click menu: " + key);
-                }
-            } catch (Exception ignored) {
-            }
-        }
         if (!handleCoreNavigation(key)) {
             menuSelectionHandler.accept(key);
         }
@@ -133,6 +124,17 @@ public class BackOfficeLayoutController {
     }
 
     @FXML
+    private void handleUnexpectedEventsMenuClick(MouseEvent event) {
+        if (event != null) {
+            event.consume();
+        }
+        activateMenuByKey("Unexpected Events");
+        if (!loadUnexpectedWorkspaceDirect()) {
+            menuSelectionHandler.accept("Unexpected Events");
+        }
+    }
+
+    @FXML
     private void handleSavingsMenuClick(MouseEvent event) {
         if (event != null) {
             event.consume();
@@ -140,6 +142,17 @@ public class BackOfficeLayoutController {
         activateMenuByKey("Savings");
         if (!loadSavingsWorkspaceDirect()) {
             menuSelectionHandler.accept("Savings");
+        }
+    }
+
+    @FXML
+    private void handleRealCasesMenuClick(MouseEvent event) {
+        if (event != null) {
+            event.consume();
+        }
+        activateMenuByKey("Real Cases");
+        if (!loadUnexpectedWorkspaceDirect()) {
+            menuSelectionHandler.accept("Real Cases");
         }
     }
 
@@ -162,17 +175,6 @@ public class BackOfficeLayoutController {
         activateMenuByKey("Investments");
         if (!loadInvestmentsWorkspaceDirect()) {
             menuSelectionHandler.accept("Investments");
-        }
-    }
-
-    @FXML
-    private void handleUnexpectedEventsMenuClick(MouseEvent event) {
-        if (event != null) {
-            event.consume();
-        }
-        activateMenuByKey("Unexpected Events");
-        if (!loadUnexpectedEventsWorkspaceDirect()) {
-            menuSelectionHandler.accept("Unexpected Events");
         }
     }
 
@@ -383,7 +385,7 @@ public class BackOfficeLayoutController {
             }
             case "revenues" -> loadRevenueWorkspaceDirect();
             case "expenses" -> loadExpenseWorkspaceDirect();
-            case "unexpected events" -> loadUnexpectedEventsWorkspaceDirect();
+            case "unexpected events", "real cases" -> loadUnexpectedWorkspaceDirect();
             case "savings" -> loadSavingsWorkspaceDirect();
             case "goals" -> loadGoalsWorkspaceDirect();
             case "investments" -> loadInvestmentsWorkspaceDirect();
@@ -469,7 +471,7 @@ public class BackOfficeLayoutController {
         }
     }
 
-    private boolean loadUnexpectedEventsWorkspaceDirect() {
+    private boolean loadUnexpectedWorkspaceDirect() {
         try {
             setContent(AdminUnexpectedCasesBackOfficeFactory.buildWorkspace());
             if (contentHost.getScene().getWindow() instanceof Stage stage) {
@@ -541,7 +543,6 @@ public class BackOfficeLayoutController {
         }
         return loaded;
     }
-
     private <T> boolean loadContentFromFxml(String fxmlPath, Class<T> controllerClass, Consumer<T> initializer) {
         try {
             FXMLLoader loader = FxmlResources.load(Main.class, fxmlPath);

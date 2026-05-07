@@ -141,6 +141,30 @@ public class CasReelTest {
         assertTrue(deletedCasReel == null);
     }
 
+    @Test
+    void testAccepterGainAffecteAuFondsUrgence() {
+        String uniqueTitre = "TestCasAccept_" + UUID.randomUUID();
+        CasRelles casReel = new CasRelles(null, uniqueTitre, "Description accept", "Gain",
+                "Manuel", 75.0, "Solution Accept", LocalDate.now(), "accept.pdf");
+        User u = new User();
+        u.setId(testUserId);
+        casReel.setUser(u);
+
+        CasReelService.CaseInsertOutcome outcome = casReelService.ajouter(casReel);
+        assertTrue(outcome.caseId() > 0);
+
+        CasRelles savedCasReel = findCasReelByTitre(uniqueTitre);
+        assertNotNull(savedCasReel);
+        idsToDelete.add(savedCasReel.getId());
+
+        casReelService.changerStatut(savedCasReel.getId(), CasReelService.STATUT_ACCEPTE, null, null, null);
+
+        CasRelles acceptedCasReel = findCasReelById(savedCasReel.getId());
+        assertNotNull(acceptedCasReel);
+        assertEquals(CasReelService.STATUT_ACCEPTE, acceptedCasReel.getResultat());
+        assertEquals(CasReelService.PAYMENT_EMERGENCY_FUND, acceptedCasReel.getPaymentMethod());
+    }
+
     private CasRelles findCasReelByTitre(String titre) {
         return casReelService.afficher().stream()
                 .filter(item -> titre.equals(item.getTitre()))

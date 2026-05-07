@@ -170,21 +170,17 @@
                                                         <Label fx:id="preventionAdviceLabel" maxWidth="1.7976931348623157E308" styleClass="prevention-plan-line prevention-plan-advice" text="Conseil: -" wrapText="true" />
                                                     </children>
                                                 </VBox>
+                                                <HBox fx:id="appointmentActionRow" alignment="CENTER_LEFT" managed="false" spacing="10.0" visible="false">
+                                                    <children>
+                                                        <Button fx:id="appointmentCalendarButton" managed="false" onAction="#handleOpenAppointmentCalendar" styleClass="calendar-action-button" text="Programmer un controle mensuel" visible="false" />
+                                                    </children>
+                                                </HBox>
                                             </children>
                                         </VBox>
-                                        <Label fx:id="appointmentSuggestionLabel" styleClass="selected-event-pill appointment-pill" text="Rendez-vous suggere: aucun rendez-vous prioritaire pour le moment." wrapText="true" />
-                                        <Hyperlink fx:id="appointmentCalendarLink" managed="false" onAction="#handleOpenAppointmentCalendar" text="Ajouter ce rendez-vous au calendrier" visible="false" />
-                                        <Label fx:id="nearbyPlacesLabel" styleClass="selected-event-pill places-pill" text="Lieux proches: aucun lieu recommande pour le moment." wrapText="true" />
                                         <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="location-action-row">
                                             <children>
                                                 <Label fx:id="currentLocationLabel" maxWidth="1.7976931348623157E308" styleClass="location-status-pill" text="Current location: detecting..." HBox.hgrow="ALWAYS" />
                                                 <Button onAction="#handleUseCurrentLocation" styleClass="location-refresh-button" text="Refresh location" />
-                                            </children>
-                                        </HBox>
-                                        <HBox fx:id="placesSelectionRow" alignment="CENTER_LEFT" managed="false" spacing="10.0" visible="false">
-                                            <children>
-                                                <ComboBox fx:id="recommendedPlacesComboBox" prefWidth="420.0" promptText="Choisir un lieu recommande" />
-                                                <Hyperlink fx:id="directionsLink" managed="false" onAction="#handleOpenDirections" text="Voir le chemin" visible="false" />
                                             </children>
                                         </HBox>
                                     </children>
@@ -203,12 +199,6 @@
                                                          <Label styleClass="card-title" text="Choose an Unexpected Event" />
                                                          <Label styleClass="section-note" text="This selection gives context only. It does not auto-fill the real-case form." wrapText="true" />
                                                          <Label fx:id="eventListSummaryLabel" styleClass="tiny-hint" text="0 events available" />
-                                                         <HBox spacing="12.0" styleClass="list-header-row">
-                                                             <children>
-                                                                 <Label styleClass="list-header-label" text="Event" HBox.hgrow="ALWAYS" />
-                                                                 <Label styleClass="list-header-label right" text="Budget" />
-                                                             </children>
-                                                         </HBox>
  
                                                          <HBox spacing="10.0">
                                                              <children>

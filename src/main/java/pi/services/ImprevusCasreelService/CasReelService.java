@@ -5,11 +5,13 @@ import pi.entities.FinancialGoal;
 import pi.entities.Imprevus;
 import pi.entities.SavingAccount;
 import pi.entities.User;
+import pi.services.UserTransactionService.UserService;
 import pi.savings.repository.FinancialGoalRepository;
 import pi.savings.repository.SavingAccountRepository;
 import pi.tools.AppEnv;
 import pi.tools.MyDatabase;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Date;
@@ -46,6 +48,7 @@ public class CasReelService {
     private final CaseNotificationService caseNotificationService;
     private final UserNotificationService userNotificationService;
     private final LocationSuggestionService locationSuggestionService;
+    private final UserService userService;
 
     public record CaseWorkflowOutcome(
             boolean notificationCreated,
@@ -91,6 +94,7 @@ public class CasReelService {
         caseNotificationService = new CaseNotificationService();
         userNotificationService = new UserNotificationService();
         locationSuggestionService = new LocationSuggestionService();
+        userService = new UserService();
         creerTableSiAbsente();
         ajouterColonnesWorkflowSiNecessaire();
     }
@@ -235,6 +239,14 @@ public class CasReelService {
                 WHERE id = ?
                 """;
 
+        boolean initialAutoCommit = true;
+        try {
+            initialAutoCommit = cnx.getAutoCommit();
+            cnx.setAutoCommit(false);
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur preparation transaction cas reel : " + e.getMessage(), e);
+        }
+
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
             LocalDateTime now = LocalDateTime.now();
             StatusChangeDecision decision = resolveStatusChangeDecision(prior.orElse(null), statut, adminNote);
@@ -255,8 +267,19 @@ public class CasReelService {
             ps.setBoolean(11, decision.suppressDecisionEmail());
             ps.setInt(12, id);
             ps.executeUpdate();
+            applyAcceptedGainAllocationIfNeeded(prior.orElse(null), statut, decision.paymentMethod());
+            cnx.commit();
         } catch (SQLException e) {
+            rollbackQuietly();
             throw new RuntimeException("Erreur confirmation cas reel : " + e.getMessage(), e);
+        } catch (RuntimeException e) {
+            rollbackQuietly();
+            throw e;
+        } finally {
+            try {
+                cnx.setAutoCommit(initialAutoCommit);
+            } catch (SQLException ignored) {
+            }
         }
 
         return afterStatusChangeSideEffects(id, prior.orElse(null));
@@ -354,12 +377,29 @@ public class CasReelService {
             return 0;
         }
         try {
-            return savingAccountRepository.findLatestByUserId(userId)
-                    .map(SavingAccount::getSold)
-                    .orElse(0.0);
-        } catch (SQLException e) {
-            return 0;
+            Optional<SavingAccount> account = savingAccountRepository.findLatestByUserId(userId);
+            if (account.isPresent()) {
+                double balance = account.get().getSold();
+                if (Double.isNaN(balance) || Double.isInfinite(balance)) {
+                    return 0;
+                }
+                return Math.max(balance, 0);
+            }
+        } catch (SQLException ignored) {
         }
+
+        try {
+            User user = userService.findById(userId);
+            if (user != null) {
+                double balance = user.getSoldeTotal();
+                if (Double.isNaN(balance) || Double.isInfinite(balance)) {
+                    return 0;
+                }
+                return Math.max(balance, 0);
+            }
+        } catch (RuntimeException ignored) {
+        }
+        return 0;
     }
 
     public CaseFundingAdvice analyzeFundingChoice(int userId, String paymentMethod, double amount) {
@@ -368,27 +408,40 @@ public class CasReelService {
         String normalizedPaymentMethod = paymentMethod == null ? "" : paymentMethod.trim().toUpperCase(Locale.ROOT);
         String suggestion = null;
         boolean suggestedRefusal = false;
+        Optional<FinancialGoal> closestGoal = findClosestGoalToCompletion(userId);
+        FinancialGoal closest = closestGoal.orElse(null);
+        double remaining = closest == null ? 0 : Math.max(closest.getMontantCible() - closest.getMontantActuel(), 0);
+        double progress = closest == null || closest.getMontantCible() <= 0 ? 0 : (closest.getMontantActuel() / closest.getMontantCible()) * 100.0;
+        boolean savingNearGoal = closest != null && progress >= 80.0;
 
         if (PAYMENT_EMERGENCY_FUND.equals(normalizedPaymentMethod) && emergencyFundBalance < amount) {
             suggestion = String.format(Locale.US,
                     "Emergency Fund insuffisant: disponible %.2f DT pour %.2f DT. L'epargne est plus adaptee ici.",
                     emergencyFundBalance, amount);
             suggestedRefusal = true;
+        } else if (PAYMENT_EMERGENCY_FUND.equals(normalizedPaymentMethod) && emergencyFundBalance >= amount && savingNearGoal) {
+            suggestion = String.format(Locale.US,
+                    "Bon choix: le fonds d'urgence couvre %.2f DT et l'epargne est proche de l'objectif \"%s\" (%.0f%% atteint, %.2f DT restants). A prendre en consideration pour preserver l'objectif.",
+                    emergencyFundBalance, closest.getNom(), progress, remaining);
         } else if (PAYMENT_SAVING_ACCOUNT.equals(normalizedPaymentMethod) && emergencyFundBalance >= amount) {
             suggestion = String.format(Locale.US,
-                    "Choix peu optimal: l'Emergency Fund couvre deja %.2f DT, donc l'epargne n'est pas prioritaire pour ce cas.",
-                    emergencyFundBalance);
+                    savingNearGoal
+                            ? "Choix peu optimal: l'Emergency Fund couvre deja %.2f DT et l'epargne est proche de l'objectif \"%s\" (%.0f%% atteint). A prendre en consideration avant de la debiter."
+                            : "Choix peu optimal: l'Emergency Fund couvre deja %.2f DT, donc l'epargne n'est pas prioritaire pour ce cas.",
+                    savingNearGoal ? emergencyFundBalance : emergencyFundBalance,
+                    savingNearGoal ? closest.getNom() : "",
+                    savingNearGoal ? progress : 0.0);
             suggestedRefusal = true;
         } else if (PAYMENT_SAVING_ACCOUNT.equals(normalizedPaymentMethod)) {
-            Optional<FinancialGoal> closestGoal = findClosestGoalToCompletion(userId);
-            if (closestGoal.isPresent()) {
-                FinancialGoal goal = closestGoal.get();
-                double remaining = Math.max(goal.getMontantCible() - goal.getMontantActuel(), 0);
-                double progress = goal.getMontantCible() <= 0 ? 0 : (goal.getMontantActuel() / goal.getMontantCible()) * 100.0;
-                if (progress >= 80.0 && savingBalance - amount < remaining) {
+            Optional<FinancialGoal> fallbackGoal = findClosestGoalToCompletion(userId);
+            if (fallbackGoal.isPresent()) {
+                FinancialGoal goal = fallbackGoal.get();
+                double fallbackRemaining = Math.max(goal.getMontantCible() - goal.getMontantActuel(), 0);
+                double fallbackProgress = goal.getMontantCible() <= 0 ? 0 : (goal.getMontantActuel() / goal.getMontantCible()) * 100.0;
+                if (fallbackProgress >= 80.0 && savingBalance - amount < fallbackRemaining) {
                     suggestion = String.format(Locale.US,
                             "Choix risqué: l'epargne est proche de l'objectif \"%s\" (%.0f%% atteint, %.2f DT restants).",
-                            goal.getNom(), progress, remaining);
+                            goal.getNom(), fallbackProgress, fallbackRemaining);
                     suggestedRefusal = true;
                 }
             }
@@ -408,34 +461,40 @@ public class CasReelService {
         return new CaseFundingAdvice(emergencyFundBalance, savingBalance, suggestion, suggestedRefusal);
     }
 
-    public GainAllocationDecision analyzeGainAllocation(int userId, double amount) {
+    public GainAllocationDecision analyzeGainAllocation(int userId, double amount, String chosenPaymentMethod) {
         double emergencyFundBalance = calculateEmergencyFundBalance(userId);
         double savingBalance = getSavingBalance(userId);
+        String paymentMethod = normalizePaymentMethod(chosenPaymentMethod);
         Optional<FinancialGoal> closestGoal = findClosestGoalToCompletion(userId);
-        if (closestGoal.isPresent()) {
+        if (PAYMENT_SAVING_ACCOUNT.equals(paymentMethod) && closestGoal.isPresent()) {
             FinancialGoal goal = closestGoal.get();
             double remaining = Math.max(goal.getMontantCible() - goal.getMontantActuel(), 0);
             double progress = goal.getMontantCible() <= 0 ? 0 : (goal.getMontantActuel() / goal.getMontantCible()) * 100.0;
-            if (progress >= 80.0 || amount >= remaining) {
-                String suggestion = String.format(Locale.US,
-                        "Gain en attente de validation admin. Suggestion: affecter a l'epargne pour accelerer l'objectif \"%s\" (%.0f%% atteint, %.2f DT restants).",
-                        goal.getNom(), progress, remaining);
-                return new GainAllocationDecision(
-                        PAYMENT_SAVING_ACCOUNT,
-                        goal,
-                        suggestion,
-                        emergencyFundBalance,
-                        savingBalance
-                );
-            }
+            String suggestion = String.format(Locale.US,
+                    "Gain dirige vers l'epargne. Solde epargne actuel: %.2f DT, fonds d'urgence: %.2f DT. Objectif proche: \"%s\" (%.0f%% atteint, %.2f DT restants).",
+                    savingBalance,
+                    emergencyFundBalance,
+                    goal.getNom(),
+                    progress,
+                    remaining);
+            return new GainAllocationDecision(
+                    PAYMENT_SAVING_ACCOUNT,
+                    goal,
+                    suggestion,
+                    emergencyFundBalance,
+                    savingBalance
+            );
         }
 
         String suggestion = String.format(Locale.US,
-                "Gain en attente de validation admin. Suggestion: affecter au fonds d'urgence. Solde projete: %.2f DT.",
-                emergencyFundBalance + amount);
+                PAYMENT_SAVING_ACCOUNT.equals(paymentMethod)
+                        ? "Gain dirige vers l'epargne. Solde epargne projete: %.2f DT, fonds d'urgence actuel: %.2f DT."
+                        : "Gain dirige vers le fonds d'urgence. Solde fonds projete: %.2f DT, epargne actuelle: %.2f DT.",
+                PAYMENT_SAVING_ACCOUNT.equals(paymentMethod) ? savingBalance + amount : emergencyFundBalance + amount,
+                PAYMENT_SAVING_ACCOUNT.equals(paymentMethod) ? emergencyFundBalance : savingBalance);
         return new GainAllocationDecision(
-                PAYMENT_EMERGENCY_FUND,
-                null,
+                paymentMethod,
+                PAYMENT_SAVING_ACCOUNT.equals(paymentMethod) ? closestGoal.orElse(null) : null,
                 suggestion,
                 emergencyFundBalance,
                 savingBalance
@@ -617,8 +676,7 @@ public class CasReelService {
 
         CaseFundingAdvice advice = analyzeFundingChoice(casReel.getUser().getId(), normalizedPaymentMethod, casReel.getMontant());
         if ("Gain".equalsIgnoreCase(casReel.getType())) {
-            GainAllocationDecision gainDecision = analyzeGainAllocation(casReel.getUser().getId(), casReel.getMontant());
-            casReel.setPaymentMethod(gainDecision.recommendedPaymentMethod());
+            GainAllocationDecision gainDecision = analyzeGainAllocation(casReel.getUser().getId(), casReel.getMontant(), normalizedPaymentMethod);
             casReel.setFinancialGoal(gainDecision.targetGoal());
             casReel.setAiRefusalSuggestion(gainDecision.suggestion());
         } else {
@@ -849,13 +907,14 @@ public class CasReelService {
         String finalAdminNote = emptyToNull(requestedAdminNote);
 
         if (STATUT_ACCEPTE.equalsIgnoreCase(statut) && "Gain".equalsIgnoreCase(prior.getType()) && prior.getUser() != null) {
-            GainAllocationDecision gainDecision = analyzeGainAllocation(prior.getUser().getId(), prior.getMontant());
+            String chosenPaymentMethod = normalizePaymentMethod(paymentMethod);
+            GainAllocationDecision gainDecision = analyzeGainAllocation(prior.getUser().getId(), prior.getMontant(), chosenPaymentMethod);
             paymentMethod = gainDecision.recommendedPaymentMethod();
-            financialGoal = gainDecision.targetGoal();
+            financialGoal = PAYMENT_SAVING_ACCOUNT.equals(paymentMethod) ? gainDecision.targetGoal() : null;
             aiSuggestion = gainDecision.suggestion();
-            solution = PAYMENT_SAVING_ACCOUNT.equals(paymentMethod) ? "Allocation admin -> Epargne" : "Allocation admin -> Fonds d'urgence";
+            solution = PAYMENT_SAVING_ACCOUNT.equals(paymentMethod) ? "GAIN_SAVING" : "GAIN_FUND";
             String autoNote = PAYMENT_SAVING_ACCOUNT.equals(paymentMethod)
-                    ? "Affectation admin: epargne" + (financialGoal == null ? "" : " pour l'objectif " + financialGoal.getNom())
+                    ? "Affectation admin: epargne"
                     : "Affectation admin: fonds d'urgence";
             finalAdminNote = finalAdminNote == null || finalAdminNote.isBlank()
                     ? autoNote
@@ -899,6 +958,41 @@ public class CasReelService {
         }
         String t = s.trim();
         return t.length() <= max ? t : t.substring(0, max - 3) + "...";
+    }
+
+    private void applyAcceptedGainAllocationIfNeeded(CasRelles prior, String statut, String paymentMethod) throws SQLException {
+        if (prior == null || prior.getUser() == null || prior.getUser().getId() <= 0) {
+            return;
+        }
+        if (!"Gain".equalsIgnoreCase(prior.getType())) {
+            return;
+        }
+        if (!STATUT_ACCEPTE.equalsIgnoreCase(statut)) {
+            return;
+        }
+        if (STATUT_ACCEPTE.equalsIgnoreCase(prior.getResultat())) {
+            return;
+        }
+        if (!PAYMENT_SAVING_ACCOUNT.equals(normalizePaymentMethod(paymentMethod))) {
+            return;
+        }
+
+        SavingAccount account = savingAccountRepository.findLatestByUserId(prior.getUser().getId())
+                .orElseGet(() -> {
+                    try {
+                        return savingAccountRepository.createDefaultAccount(prior.getUser().getId());
+                    } catch (SQLException e) {
+                        throw new RuntimeException("Impossible de creer le compte epargne du user.", e);
+                    }
+                });
+        savingAccountRepository.addToBalance(account.getId(), BigDecimal.valueOf(prior.getMontant()));
+    }
+
+    private void rollbackQuietly() {
+        try {
+            cnx.rollback();
+        } catch (SQLException ignored) {
+        }
     }
 
     private boolean maybeSendRecurrenceInsight(CasRelles inserted, int caseId) {

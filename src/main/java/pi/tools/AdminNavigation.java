@@ -88,6 +88,13 @@ public final class AdminNavigation {
         }
     }
 
+    public static void showUnexpectedEventsBackOffice(Stage stage, User currentUser) {
+        if (stage == null) {
+            return;
+        }
+        showWorkspace(stage, currentUser, "Unexpected Events", AdminUnexpectedCasesBackOfficeFactory::buildWorkspace);
+    }
+
     public static void showUserProfile(Stage stage, User currentUser, User viewedUser) {
         if (currentUser == null || viewedUser == null) {
             return;

@@ -75,7 +75,7 @@ public class ServiceController {
     }
 
     @FXML
-    private void handleOpenSavingsGoals(MouseEvent event) {
+    private void handleOpenSavingsGoals(ActionEvent event) {
         try {
             openSavingsGoals((Node) event.getSource());
         } catch (Exception e) {
@@ -84,7 +84,7 @@ public class ServiceController {
     }
 
     @FXML
-    private void handleOpenUnexpectedRealCases(MouseEvent event) {
+    private void handleOpenUnexpectedRealCases(ActionEvent event) {
         try {
             openUnexpectedRealCases((Node) event.getSource());
         } catch (IOException e) {
@@ -219,7 +219,7 @@ public class ServiceController {
     }
 
     @FXML
-    private void handleOpenInvestissement(MouseEvent event) {
+    private void handleOpenInvestissement(ActionEvent event) {
         try {
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             Object userData = currentStage.getUserData();

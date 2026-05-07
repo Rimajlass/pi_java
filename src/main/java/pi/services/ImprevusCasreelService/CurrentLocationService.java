@@ -31,6 +31,14 @@ public class CurrentLocationService {
     }
 
     private static final Pattern CITY_PATTERN = Pattern.compile("\"city\"\\s*:\\s*\"([^\"]*)\"");
+    private static final Pattern TOWN_PATTERN = Pattern.compile("\"town\"\\s*:\\s*\"([^\"]*)\"");
+    private static final Pattern COUNTY_PATTERN = Pattern.compile("\"county\"\\s*:\\s*\"([^\"]*)\"");
+    private static final Pattern STATE_DISTRICT_PATTERN = Pattern.compile("\"state_district\"\\s*:\\s*\"([^\"]*)\"");
+    private static final Pattern SUBURB_PATTERN = Pattern.compile("\"suburb\"\\s*:\\s*\"([^\"]*)\"");
+    private static final Pattern BOROUGH_PATTERN = Pattern.compile("\"borough\"\\s*:\\s*\"([^\"]*)\"");
+    private static final Pattern NEIGHBOURHOOD_PATTERN = Pattern.compile("\"neighbourhood\"\\s*:\\s*\"([^\"]*)\"");
+    private static final Pattern VILLAGE_PATTERN = Pattern.compile("\"village\"\\s*:\\s*\"([^\"]*)\"");
+    private static final Pattern DISPLAY_NAME_PATTERN = Pattern.compile("\"display_name\"\\s*:\\s*\"([^\"]*)\"");
     private static final Pattern LAT_PATTERN = Pattern.compile("\"latitude\"\\s*:\\s*([\\-\\d\\.]+)|\"lat\"\\s*:\\s*\"?([\\-\\d\\.]+)\"?");
     private static final Pattern LON_PATTERN = Pattern.compile("\"longitude\"\\s*:\\s*([\\-\\d\\.]+)|\"lon\"\\s*:\\s*\"?([\\-\\d\\.]+)\"?");
     private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(8)).build();
@@ -107,7 +115,8 @@ public class CurrentLocationService {
                         os.write(payload);
                     }
                     if (!result.isDone()) {
-                        result.complete(new CurrentLocation(resolveDefaultCity(), lat, lon, "Browser GPS"));
+                        CurrentLocation resolved = reverseGeocode(lat, lon);
+                        result.complete(new CurrentLocation(resolved.city(), lat, lon, "Browser GPS"));
                     }
                     finalServer.stop(0);
                 });
@@ -158,7 +167,7 @@ public class CurrentLocationService {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
                 String body = response.body();
-                String city = extract(body, CITY_PATTERN, "Tunis");
+                String city = extractBestCity(body, resolveDefaultCity());
                 Double lat = extractDouble(body, LAT_PATTERN);
                 Double lon = extractDouble(body, LON_PATTERN);
                 return new CurrentLocation(city, lat, lon, "IP location");
@@ -224,7 +233,7 @@ public class CurrentLocationService {
                     .build();
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
-                String city = extract(response.body(), CITY_PATTERN, resolveDefaultCity());
+                String city = extractBestCity(response.body(), resolveDefaultCity());
                 return new CurrentLocation(city, latitude, longitude, "Browser GPS");
             }
         } catch (Exception ignored) {
@@ -249,6 +258,113 @@ public class CurrentLocationService {
     private String extract(String body, Pattern pattern, String fallback) {
         Matcher matcher = pattern.matcher(body == null ? "" : body);
         return matcher.find() ? matcher.group(1) : fallback;
+    }
+
+    private String extractBestCity(String body, String fallback) {
+        String normalizedFallback = normalizeDetectedCity(fallback);
+        String suburb = extract(body, SUBURB_PATTERN, null);
+        String neighbourhood = extract(body, NEIGHBOURHOOD_PATTERN, null);
+        String borough = extract(body, BOROUGH_PATTERN, null);
+        String city = extract(body, CITY_PATTERN, null);
+        String town = extract(body, TOWN_PATTERN, null);
+        String village = extract(body, VILLAGE_PATTERN, null);
+        String county = extract(body, COUNTY_PATTERN, null);
+        String stateDistrict = extract(body, STATE_DISTRICT_PATTERN, null);
+        String displayName = extract(body, DISPLAY_NAME_PATTERN, null);
+
+        String specialCase = normalizeGhazelaLocation(suburb, neighbourhood, borough, city, town, village, county, stateDistrict, displayName);
+        if (specialCase != null) {
+            return specialCase;
+        }
+
+        for (String candidate : new String[]{city, town, village, suburb, neighbourhood, borough, county, stateDistrict}) {
+            String normalized = normalizeDetectedCity(candidate);
+            if (normalized != null) {
+                return normalized;
+            }
+        }
+
+        String inferredFromDisplay = normalizeDetectedCity(extractFromDisplayName(displayName));
+        return inferredFromDisplay != null ? inferredFromDisplay : normalizedFallback;
+    }
+
+    private String normalizeGhazelaLocation(String... values) {
+        boolean hasGhazela = false;
+        boolean hasAriana = false;
+        if (values == null) {
+            return null;
+        }
+        for (String value : values) {
+            String normalized = normalizeForComparison(value);
+            if (normalized == null) {
+                continue;
+            }
+            if (normalized.contains("ghazela") || normalized.contains("el ghazala")) {
+                hasGhazela = true;
+            }
+            if (normalized.contains("ariana")) {
+                hasAriana = true;
+            }
+            if (normalized.contains("technopole")) {
+                hasGhazela = true;
+                hasAriana = true;
+            }
+        }
+        return hasGhazela && hasAriana ? "Ariana Technopole Ghazela" : null;
+    }
+
+    private String extractFromDisplayName(String displayName) {
+        if (displayName == null || displayName.isBlank()) {
+            return null;
+        }
+        String[] parts = displayName.split(",");
+        for (String part : parts) {
+            String normalized = normalizeDetectedCity(part);
+            if (normalized != null) {
+                return normalized;
+            }
+        }
+        return displayName.trim();
+    }
+
+    private String normalizeDetectedCity(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        if (trimmed.isBlank()) {
+            return null;
+        }
+        String normalized = normalizeForComparison(trimmed);
+        if (normalized == null) {
+            return trimmed;
+        }
+        if (normalized.contains("ghazela") || normalized.contains("el ghazala")) {
+            return "Ariana Technopole Ghazela";
+        }
+        if (normalized.contains("technopole") && normalized.contains("ariana")) {
+            return "Ariana Technopole Ghazela";
+        }
+        return trimmed;
+    }
+
+    private String normalizeForComparison(String value) {
+        if (value == null) {
+            return null;
+        }
+        return value
+                .toLowerCase()
+                .replace('é', 'e')
+                .replace('è', 'e')
+                .replace('ê', 'e')
+                .replace('à', 'a')
+                .replace('â', 'a')
+                .replace('î', 'i')
+                .replace('ï', 'i')
+                .replace('ô', 'o')
+                .replace('û', 'u')
+                .replace('ù', 'u')
+                .trim();
     }
 
     private Double extractDouble(String body, Pattern pattern) {

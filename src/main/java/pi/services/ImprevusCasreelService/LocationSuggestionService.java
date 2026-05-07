@@ -137,10 +137,10 @@ public class LocationSuggestionService {
         );
         for (String query : queries) {
             if (merged.size() < 5 && latitude != null && longitude != null) {
-                merged.addAll(searchWithNominatimNearby(normalizeNeedForSearch(need), latitude, longitude));
+                mergeRelevantResults(merged, searchWithNominatimNearby(normalizeNeedForSearch(need), latitude, longitude), need, city);
             }
             if (merged.size() < 5) {
-                merged.addAll(searchWithNominatim(query));
+                mergeRelevantResults(merged, searchWithNominatim(query), need, city);
             }
             if (merged.size() >= 5) {
                 break;
@@ -212,7 +212,65 @@ public class LocationSuggestionService {
         if (value.contains("plombier")) return "plombier";
         if (value.contains("electricien")) return "electricien";
         if (value.contains("maintenance maison")) return "maintenance maison";
+        if (value.contains("service specialise")) return "service specialise";
+        if (value.contains("maintenance preventive")) return "maintenance preventive";
+        if (value.contains("cabinet de conseil")) return "cabinet de conseil";
         return need;
+    }
+
+    private void mergeRelevantResults(LinkedHashSet<String> merged, List<String> candidates, String need, String city) {
+        if (candidates == null || candidates.isEmpty()) {
+            return;
+        }
+        for (String candidate : candidates) {
+            if (merged.size() >= 5) {
+                return;
+            }
+            if (isRelevantPlaceResult(candidate, need, city)) {
+                merged.add(candidate);
+            }
+        }
+    }
+
+    private boolean isRelevantPlaceResult(String candidate, String need, String city) {
+        if (candidate == null || candidate.isBlank()) {
+            return false;
+        }
+        String normalizedCandidate = candidate.toLowerCase();
+        String normalizedNeed = normalizeNeedForSearch(need).toLowerCase();
+        String normalizedCity = city == null ? "" : city.toLowerCase();
+
+        if (!normalizedCity.isBlank() && normalizedCandidate.contains(normalizedCity)) {
+            return true;
+        }
+        if (normalizedNeed.contains("garage") && (normalizedCandidate.contains("garage") || normalizedCandidate.contains("auto") || normalizedCandidate.contains("car"))) {
+            return true;
+        }
+        if (normalizedNeed.contains("vidange") && (normalizedCandidate.contains("garage") || normalizedCandidate.contains("vidange") || normalizedCandidate.contains("auto"))) {
+            return true;
+        }
+        if (normalizedNeed.contains("diagnostic auto") && (normalizedCandidate.contains("garage") || normalizedCandidate.contains("diagnostic") || normalizedCandidate.contains("auto"))) {
+            return true;
+        }
+        if (normalizedNeed.contains("medecin") && (normalizedCandidate.contains("med") || normalizedCandidate.contains("clinic") || normalizedCandidate.contains("cabinet"))) {
+            return true;
+        }
+        if (normalizedNeed.contains("laboratoire") && (normalizedCandidate.contains("laboratoire") || normalizedCandidate.contains("analyse") || normalizedCandidate.contains("lab"))) {
+            return true;
+        }
+        if (normalizedNeed.contains("clinique") && (normalizedCandidate.contains("clinique") || normalizedCandidate.contains("clinic") || normalizedCandidate.contains("hop"))) {
+            return true;
+        }
+        if (normalizedNeed.contains("plombier") && (normalizedCandidate.contains("plomb") || normalizedCandidate.contains("sanitaire") || normalizedCandidate.contains("repair"))) {
+            return true;
+        }
+        if (normalizedNeed.contains("electricien") && (normalizedCandidate.contains("elect") || normalizedCandidate.contains("electric") || normalizedCandidate.contains("repair"))) {
+            return true;
+        }
+        if (normalizedNeed.contains("maintenance maison") && (normalizedCandidate.contains("maison") || normalizedCandidate.contains("maintenance") || normalizedCandidate.contains("home"))) {
+            return true;
+        }
+        return normalizedCandidate.contains(normalizedNeed);
     }
 
     private List<String> buildFallbackPlaceQueries(List<String> needs, String city) {

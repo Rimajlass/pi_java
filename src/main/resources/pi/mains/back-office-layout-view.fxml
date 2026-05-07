@@ -60,7 +60,7 @@
                                         <Label styleClass="menu-text" text="Unexpected Events" />
                                     </children>
                                 </HBox>
-                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
+                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleRealCasesMenuClick" spacing="10.0" styleClass="menu-row menu-row-nav">
                                     <children>
                                         <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4CB;" /></children></StackPane>
                                         <Label styleClass="menu-text" text="Real Cases" />
