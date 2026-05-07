@@ -20,6 +20,7 @@ import javafx.util.Duration;
 import pi.controllers.AiQuizController.AiQuizGeneratorController;
 import pi.controllers.CoursQuizController.CoursQuizBackOfficeController;
 import pi.controllers.ExpenseRevenueController.BACK.AdminRevenueExpenseBackOfficeFactory;
+import pi.controllers.ImprevusCasreelController.AdminUnexpectedCasesBackOfficeFactory;
 import pi.controllers.InvestissementController.AdminController;
 import pi.entities.User;
 import pi.mains.Main;
@@ -161,6 +162,17 @@ public class BackOfficeLayoutController {
         activateMenuByKey("Investments");
         if (!loadInvestmentsWorkspaceDirect()) {
             menuSelectionHandler.accept("Investments");
+        }
+    }
+
+    @FXML
+    private void handleUnexpectedEventsMenuClick(MouseEvent event) {
+        if (event != null) {
+            event.consume();
+        }
+        activateMenuByKey("Unexpected Events");
+        if (!loadUnexpectedEventsWorkspaceDirect()) {
+            menuSelectionHandler.accept("Unexpected Events");
         }
     }
 
@@ -371,6 +383,7 @@ public class BackOfficeLayoutController {
             }
             case "revenues" -> loadRevenueWorkspaceDirect();
             case "expenses" -> loadExpenseWorkspaceDirect();
+            case "unexpected events" -> loadUnexpectedEventsWorkspaceDirect();
             case "savings" -> loadSavingsWorkspaceDirect();
             case "goals" -> loadGoalsWorkspaceDirect();
             case "investments" -> loadInvestmentsWorkspaceDirect();
@@ -451,6 +464,20 @@ public class BackOfficeLayoutController {
             return true;
         } catch (Exception e) {
             System.err.println("[BackOfficeLayout] Failed to load expense workspace");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean loadUnexpectedEventsWorkspaceDirect() {
+        try {
+            setContent(AdminUnexpectedCasesBackOfficeFactory.buildWorkspace());
+            if (contentHost.getScene().getWindow() instanceof Stage stage) {
+                stage.setTitle("Unexpected Events | Decide$");
+            }
+            return true;
+        } catch (Exception e) {
+            System.err.println("[BackOfficeLayout] Failed to load unexpected events workspace");
             e.printStackTrace();
             return false;
         }
