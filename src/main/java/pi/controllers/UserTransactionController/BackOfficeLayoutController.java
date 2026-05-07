@@ -18,7 +18,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import pi.controllers.AiQuizController.AiQuizGeneratorController;
-import pi.controllers.CoursQuizController.CoursQuizDashboardController;
+import pi.controllers.CoursQuizController.CoursQuizBackOfficeController;
 import pi.controllers.ExpenseRevenueController.BACK.AdminRevenueExpenseBackOfficeFactory;
 import pi.controllers.InvestissementController.AdminController;
 import pi.entities.User;
@@ -161,6 +161,28 @@ public class BackOfficeLayoutController {
         activateMenuByKey("Investments");
         if (!loadInvestmentsWorkspaceDirect()) {
             menuSelectionHandler.accept("Investments");
+        }
+    }
+
+    @FXML
+    private void handleCourseQuizMenuClick(MouseEvent event) {
+        if (event != null) {
+            event.consume();
+        }
+        activateMenuByKey("Course & Quiz");
+        if (!handleCoreNavigation("Course & Quiz")) {
+            menuSelectionHandler.accept("Course & Quiz");
+        }
+    }
+
+    @FXML
+    private void handleAiQuizGeneratorMenuClick(MouseEvent event) {
+        if (event != null) {
+            event.consume();
+        }
+        activateMenuByKey("AI Quiz Generator");
+        if (!handleCoreNavigation("AI Quiz Generator")) {
+            menuSelectionHandler.accept("AI Quiz Generator");
         }
     }
 
@@ -353,7 +375,7 @@ public class BackOfficeLayoutController {
             case "goals" -> loadGoalsWorkspaceDirect();
             case "investments" -> loadInvestmentsWorkspaceDirect();
             case "course & quiz", "cours & quiz" -> {
-                if (loadContentFromFxml("/pi/views/dashboard.fxml", CoursQuizDashboardController.class, null)) {
+                if (loadContentFromFxml("/pi/views/cours-quiz-backoffice.fxml", CoursQuizBackOfficeController.class, null)) {
                     if (contentHost.getScene().getWindow() instanceof Stage currentStage) {
                         currentStage.setTitle("Course & Quiz | Decide$");
                     }

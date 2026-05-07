@@ -453,3 +453,250 @@
     -fx-min-width: 30px;
     -fx-alignment: center;
 }
+
+/* Scoped overrides to prevent global styles from flattening this template */
+.salary-home-root .top-bar {
+    -fx-background-color: rgba(8, 14, 25, 0.78);
+}
+
+.salary-home-root .brand-label {
+    -fx-text-fill: #ffffff;
+}
+
+.salary-home-root .brand-subtitle {
+    -fx-text-fill: rgba(219, 230, 247, 0.82);
+}
+
+.salary-home-root .nav-link,
+.salary-home-root .nav-link-button {
+    -fx-text-fill: rgba(231, 239, 250, 0.92);
+}
+
+.salary-home-root .active-link {
+    -fx-text-fill: #8bd7ff;
+}
+
+.salary-home-root .hero-section {
+    -fx-min-height: 680px;
+}
+
+.salary-home-root .hero-panel {
+    -fx-background-color: rgba(7, 14, 25, 0.26);
+    -fx-background-radius: 18px;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-radius: 18px;
+    -fx-padding: 34 32 34 32;
+}
+
+.salary-home-root .eyebrow-label {
+    -fx-text-fill: #a6ddff;
+}
+
+.salary-home-root .hero-title {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 64px;
+    -fx-font-weight: 900;
+}
+
+.salary-home-root .hero-copy {
+    -fx-text-fill: rgba(238, 245, 255, 0.95);
+    -fx-font-size: 17px;
+}
+
+.salary-home-root .inline-stat {
+    -fx-background-color: rgba(255,255,255,0.12);
+    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-text-fill: #ffffff;
+}
+
+.salary-home-root .hero-button {
+    -fx-background-color: linear-gradient(to bottom right, #4d91ff, #2f67f8);
+    -fx-background-radius: 12px;
+}
+
+.salary-home-root .hero-outline-button {
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-border-color: rgba(255,255,255,0.24);
+}
+
+.salary-home-root .hero-side-panel .glass-card {
+    -fx-background-color: rgba(10, 21, 36, 0.46);
+    -fx-border-color: rgba(255, 255, 255, 0.16);
+}
+
+.salary-home-root .mini-card-title,
+.salary-home-root .metric-value {
+    -fx-text-fill: #ffffff;
+}
+
+.salary-home-root .mini-card-text,
+.salary-home-root .metric-label {
+    -fx-text-fill: rgba(225, 236, 250, 0.90);
+}
+
+.salary-home-root .info-section {
+    -fx-background-color: linear-gradient(to bottom, #f8fbff, #eef4fc);
+}
+
+.salary-home-root .info-title {
+    -fx-font-size: 48px;
+}
+
+.salary-home-root .feature-card,
+.salary-home-root .testimonial-card {
+    -fx-background-radius: 14px;
+    -fx-border-radius: 14px;
+}
+
+.salary-home-root .page-footer {
+    -fx-background-radius: 14px;
+    -fx-border-radius: 14px;
+}
+
+/* =========================================================
+   MODERN HEADER / NAVBAR (Dark Navy + Glass)
+   ========================================================= */
+.app-header {
+    -fx-background-color: rgba(9, 17, 31, 0.78);
+    -fx-background-radius: 0 0 18 18;
+    -fx-border-color: rgba(150, 180, 225, 0.20);
+    -fx-border-width: 0 0 1 0;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 22, 0.22, 0, 6);
+}
+
+.brand-wrap {
+    -fx-padding: 0 6 0 0;
+}
+
+.brand-logo-box {
+    -fx-background-color: linear-gradient(to bottom right, rgba(78, 130, 255, 0.30), rgba(61, 200, 255, 0.22));
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(190, 220, 255, 0.24);
+    -fx-border-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(80, 150, 255, 0.22), 10, 0.18, 0, 2);
+}
+
+.brand-logo-text {
+    -fx-text-fill: #eaf2ff;
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+}
+
+.brand-title {
+    -fx-text-fill: #f4f8ff;
+    -fx-font-size: 29px;
+    -fx-font-weight: 800;
+}
+
+.brand-subtitle {
+    -fx-text-fill: rgba(205, 220, 245, 0.85);
+    -fx-font-size: 12px;
+    -fx-font-weight: 500;
+}
+
+.nav-pill {
+    -fx-background-color: rgba(255, 255, 255, 0.07);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(182, 205, 240, 0.22);
+    -fx-border-radius: 999;
+    -fx-padding: 10 18 10 18;
+}
+
+.nav-link {
+    -fx-text-fill: rgba(228, 238, 255, 0.82);
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+    -fx-padding: 5 12 5 12;
+    -fx-background-radius: 999;
+}
+
+.nav-link:hover {
+    -fx-text-fill: #ffffff;
+    -fx-background-color: rgba(120, 170, 255, 0.18);
+}
+
+.app-header .nav-link-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(228, 238, 255, 0.82);
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+    -fx-padding: 5 12 5 12;
+    -fx-background-radius: 999;
+    -fx-border-color: transparent;
+}
+
+.app-header .nav-link-button:hover {
+    -fx-text-fill: #ffffff;
+    -fx-background-color: rgba(120, 170, 255, 0.18);
+}
+
+.app-header .active-link {
+    -fx-text-fill: #9fd4ff;
+    -fx-background-color: rgba(94, 145, 255, 0.24);
+}
+
+.header-actions {
+    -fx-padding: 0 0 0 6;
+}
+
+.profile-pill {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(188, 210, 241, 0.20);
+    -fx-border-radius: 999;
+    -fx-padding: 7 12 7 10;
+    -fx-cursor: hand;
+}
+
+.profile-pill:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.13);
+}
+
+.avatar-dot {
+    -fx-background-color: linear-gradient(to bottom right, #5ac8ff, #4a78ff);
+    -fx-background-radius: 999;
+    -fx-effect: dropshadow(gaussian, rgba(84, 151, 255, 0.30), 10, 0.2, 0, 2);
+}
+
+.avatar-letter {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.profile-name {
+    -fx-text-fill: #f5f9ff;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.header-btn {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-padding: 10 18 10 18;
+    -fx-cursor: hand;
+}
+
+.header-btn-secondary {
+    -fx-background-color: rgba(255, 255, 255, 0.10);
+    -fx-border-color: rgba(192, 214, 245, 0.24);
+    -fx-text-fill: #eaf3ff;
+}
+
+.header-btn-secondary:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.16);
+}
+
+.header-btn-primary {
+    -fx-background-color: linear-gradient(to bottom right, #4f94ff, #396ff7);
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(62, 119, 255, 0.35), 12, 0.2, 0, 3);
+}
+
+.header-btn-primary:hover {
+    -fx-background-color: linear-gradient(to bottom right, #64a2ff, #4b80ff);
+}

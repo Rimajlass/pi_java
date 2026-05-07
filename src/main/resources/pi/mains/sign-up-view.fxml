@@ -87,28 +87,25 @@
 
                                                 <GridPane hgap="14.0" vgap="12.0">
                                                     <children>
-                                                        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                                        <VBox spacing="6.0" minHeight="72.0" prefHeight="72.0" maxHeight="72.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                                             <children>
                                                                 <Label styleClass="field-label" text="FULL NAME" />
                                                                 <TextField fx:id="fullNameField" promptText="Full name" styleClass="sign-up-field" />
                                                             </children>
                                                         </VBox>
-                                                        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                                        <VBox spacing="6.0" minHeight="72.0" prefHeight="72.0" maxHeight="72.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                                             <children>
                                                                 <Label styleClass="field-label" text="EMAIL" />
                                                                 <TextField fx:id="emailField" promptText="Email" styleClass="sign-up-field" />
                                                             </children>
                                                         </VBox>
-                                                        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                                        <VBox spacing="6.0" minHeight="72.0" prefHeight="72.0" maxHeight="72.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
                                                             <children>
                                                                 <Label styleClass="field-label" text="PASSWORD" />
                                                                 <PasswordField fx:id="passwordField" promptText="Password" styleClass="sign-up-field" />
-                                                                <Label styleClass="helper-text"
-                                                                       text="At least 8 characters, with uppercase, lowercase and a number."
-                                                                       wrapText="true" />
                                                             </children>
                                                         </VBox>
-                                                        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                        <VBox spacing="6.0" minHeight="72.0" prefHeight="72.0" maxHeight="72.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                                             <children>
                                                                 <Label styleClass="field-label" text="CONFIRM PASSWORD" />
                                                                 <PasswordField fx:id="confirmPasswordField" promptText="Confirm password" styleClass="sign-up-field" />
@@ -128,6 +125,9 @@
                                                         </VBox>
                                                     </children>
                                                 </GridPane>
+                                                <Label styleClass="helper-text"
+                                                       text="At least 8 characters, with uppercase, lowercase and a number."
+                                                       wrapText="true" />
 
                                                 <VBox spacing="8.0" styleClass="section-box">
                                                     <padding>
