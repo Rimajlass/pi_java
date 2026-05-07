@@ -28,7 +28,7 @@
               </children>
             </HBox>
             <Region HBox.hgrow="ALWAYS" />
-            <Label styleClass="workspace-title" text="Unexpected Events &amp; Real Cases Back Office" />
+            <Label styleClass="workspace-title" text="Unexpected Events &amp; Reals Cases Back Office" />
             <Region HBox.hgrow="ALWAYS" />
             <Button onAction="#handleGoFront" styleClass="header-start-btn" text="Go to Front" />
           </children>
