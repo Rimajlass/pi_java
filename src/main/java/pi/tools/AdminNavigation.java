@@ -270,6 +270,7 @@ public final class AdminNavigation {
             Parent root = (Parent) loader.getRoot();
             Scene scene = new Scene(root, 1460, 780);
             FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/login.css");
+            FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/global.css");
             ThemeManager.registerScene(scene);
             stage.setUserData(null);
             stage.setTitle("User Secure Login");
@@ -277,6 +278,20 @@ public final class AdminNavigation {
             stage.show();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static Node buildInvestmentWorkspace(User currentUser) {
+        try {
+            FXMLLoader loader = FxmlResources.load(Main.class, "/Invest/Crypto.fxml");
+            Parent root = (Parent) loader.getRoot();
+            Object controller = loader.getController();
+            if (currentUser != null && controller instanceof pi.controllers.InvestissementController.CryptoController cryptoController) {
+                cryptoController.setUser(currentUser);
+            }
+            return root;
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to load Investments workspace.", e);
         }
     }
 
@@ -346,6 +361,7 @@ public final class AdminNavigation {
         if (existingController instanceof BackOfficeLayoutController layoutController && existingScene instanceof Scene scene) {
             ThemeManager.registerScene(scene);
             ensureStyles(scene,
+                    "/pi/styles/global.css",
                     "/pi/styles/admin-backend.css",
                     "/pi/styles/user-show.css",
                     "/pi/styles/edit-user.css",
@@ -358,6 +374,7 @@ public final class AdminNavigation {
         BackOfficeLayoutController layoutController = layoutLoader.getController();
         Scene scene = new Scene(layoutRoot, 1460, 780);
         ensureStyles(scene,
+                "/pi/styles/global.css",
                 "/pi/styles/admin-backend.css",
                 "/pi/styles/user-show.css",
                 "/pi/styles/edit-user.css",

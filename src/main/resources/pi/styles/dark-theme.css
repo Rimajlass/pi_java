@@ -98,3 +98,169 @@
     -fx-background-color: linear-gradient(to right, #3a8dff 0%, #4f6fff 100%);
     -fx-text-fill: #ffffff;
 }
+
+/* Shared front-office dark mode */
+.salary-home-root,
+.about-root,
+.service-root,
+.contact-root,
+.salary-scroll,
+.about-scroll,
+.service-scroll,
+.contact-scroll,
+.salary-scroll > .viewport,
+.about-scroll > .viewport,
+.service-scroll > .viewport,
+.contact-scroll > .viewport,
+.scroll-content,
+.about-page,
+.service-page,
+.contact-page,
+.page-root,
+.page-shell,
+.content-shell,
+.info-section,
+.features-grid,
+.services-section,
+.contact-section {
+    -fx-background-color: #081426;
+}
+
+.salary-home-overlay,
+.hero-overlay,
+.service-hero-overlay,
+.contact-hero-overlay {
+    -fx-background-color: rgba(8, 20, 38, 0.88);
+}
+
+.top-nav,
+.top-bar {
+    -fx-background-color: rgba(13, 28, 50, 0.96);
+    -fx-border-color: rgba(94, 230, 255, 0.20);
+}
+
+.brand-label,
+.brand-mark,
+.hero-title,
+.service-hero-title,
+.contact-hero-title,
+.section-title,
+.section-heading,
+.info-title,
+.service-title,
+.feature-title,
+.profile-name {
+    -fx-text-fill: #edf7ff;
+}
+
+.brand-mark,
+.header-nav-btn,
+.profile-name {
+    -fx-text-fill: white;
+}
+
+.header-nav-active {
+    -fx-text-fill: #19d4ff;
+}
+
+.brand-subtitle,
+.hero-copy,
+.hero-subtitle,
+.service-hero-subtitle,
+.contact-hero-subtitle,
+.section-copy,
+.feature-copy,
+.service-copy,
+.footer-description {
+    -fx-text-fill: #b8c9df;
+}
+
+.nav-button,
+.nav-link-button,
+.nav-link {
+    -fx-text-fill: #dcecff;
+}
+
+.nav-button:hover,
+.nav-link-button:hover,
+.nav-button-active,
+.active-link {
+    -fx-background-color: rgba(94, 230, 255, 0.14);
+    -fx-text-fill: #5ee6ff;
+}
+
+.profile-pill {
+    -fx-background-color: rgba(20, 39, 66, 0.92);
+    -fx-border-color: rgba(94, 230, 255, 0.18);
+}
+
+.feature-card,
+.testimonial-card,
+.vision-card,
+.feature-item,
+.service-card,
+.contact-card,
+.form-card,
+.info-card,
+.dashboard-card,
+.card {
+    -fx-background-color: rgba(13, 28, 50, 0.94);
+    -fx-border-color: rgba(94, 230, 255, 0.15);
+}
+
+.secondary-header-button,
+.secondary-button,
+.hero-outline-button,
+.theme-toggle-btn {
+    -fx-background-color: rgba(19, 38, 64, 0.96);
+    -fx-border-color: rgba(94, 230, 255, 0.22);
+    -fx-text-fill: #dcecff;
+}
+
+.logout-button,
+.header-logout-btn {
+    -fx-background-color: rgba(72, 20, 35, 0.58);
+    -fx-border-color: rgba(255, 126, 151, 0.26);
+    -fx-text-fill: #ff9aae;
+}
+
+.header-start-btn {
+    -fx-background-color: linear-gradient(to right, #0bbfe4, #2f7df2);
+    -fx-border-color: rgba(94, 230, 255, 0.26);
+    -fx-text-fill: white;
+}
+
+.market-toolbar,
+.metric-card,
+.input-card,
+.table-card,
+.detail-card,
+.inline-edit-panel,
+.glass-card,
+.summary-card,
+.panel-card {
+    -fx-background-color: rgba(13, 28, 50, 0.94);
+    -fx-border-color: rgba(94, 230, 255, 0.15);
+}
+
+.market-toolbar .status-tag,
+.status-tag {
+    -fx-background-color: rgba(19, 38, 64, 0.96);
+    -fx-border-color: rgba(94, 230, 255, 0.18);
+    -fx-text-fill: #dcecff;
+}
+
+.market-toolbar .live-badge,
+.live-badge {
+    -fx-background-color: rgba(16, 185, 129, 0.16);
+    -fx-border-color: rgba(16, 185, 129, 0.30);
+    -fx-text-fill: #7ee7b2;
+}
+
+.page-footer {
+    -fx-background-color: #06111f;
+}
+
+.page-footer .label {
+    -fx-text-fill: #d8e9ff;
+}

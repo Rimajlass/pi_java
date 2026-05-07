@@ -30,6 +30,7 @@ public class Main {
 
         @Override
         public void start(Stage stage) throws IOException {
+            ThemeManager.resetToLightMode();
             FXMLLoader splashLoader = FxmlResources.load(Main.class, "/pi/mains/splash-view.fxml");
             Parent splashRoot = splashLoader.getRoot();
             SplashScreenController splashController = splashLoader.getController();
@@ -79,6 +80,8 @@ public class Main {
                 scene.setRoot(loginRoot);
                 scene.getStylesheets().clear();
                 FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/login.css");
+                FxmlResources.addStylesheet(scene, Main.class, "/pi/styles/global.css");
+                ThemeManager.registerScene(scene);
 
                 FadeTransition loginFadeIn = new FadeTransition(Duration.millis(SCENE_TRANSITION_MS / 2.0), loginRoot);
                 loginFadeIn.setFromValue(0.0);

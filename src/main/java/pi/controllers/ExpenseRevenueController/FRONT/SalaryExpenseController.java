@@ -56,6 +56,7 @@ import pi.services.RevenueExpenseService.RevenueService;
 import pi.services.RevenueExpenseService.RevenueExpensePdfExportService;
 import pi.services.UserTransactionService.UserService;
 import pi.services.UserTransactionService.TransactionService;
+import pi.tools.AppSceneStyles;
 
 import java.io.File;
 import java.io.IOException;
@@ -1890,9 +1891,7 @@ public class SalaryExpenseController {
             Parent root = loader.load();
 
             Scene scene = new Scene(root, 1460, 780);
-            if (cssPath != null) {
-                scene.getStylesheets().add(Main.class.getResource(cssPath).toExternalForm());
-            }
+            AppSceneStyles.apply(scene, cssPath);
 
             stage.setUserData("/pi/mains/login-view.fxml".equals(fxmlPath) ? null : userData);
             stage.setTitle(title);

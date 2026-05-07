@@ -12,6 +12,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.chart.CategoryAxis;
@@ -60,6 +61,13 @@ import pi.services.InvestissementService.InvestmentAssistantService;
 import pi.services.InvestissementService.FrankfurterService;
 import pi.services.InvestissementService.InvestissementService;
 import pi.services.InvestissementService.ObjectifService;
+import pi.controllers.UserTransactionController.AboutController;
+import pi.controllers.UserTransactionController.ContactController;
+import pi.controllers.UserTransactionController.SalaryHomeController;
+import pi.controllers.UserTransactionController.ServiceController;
+import pi.mains.Main;
+import pi.tools.AppSceneStyles;
+import pi.tools.ThemeManager;
 
 import java.awt.Desktop;
 import java.io.IOException;
@@ -76,8 +84,6 @@ import java.util.List;
 import java.util.Locale;
 
 public class CryptoController {
-
-    private static final String DARK_THEME_STYLESHEET = "/Invest/crypto-dark.css";
 
     @FXML
     private ScrollPane rootScroll;
@@ -202,8 +208,6 @@ public class CryptoController {
     private final ObservableList<Investissement> investBackingList = FXCollections.observableArrayList();
     private FilteredList<Investissement> filteredInvestissements;
     private double lastEurPerUsd;
-    private boolean darkThemeActive;
-    private String cachedDarkStylesheetUrl;
     private boolean globalRefreshKeysRegistered;
     private User currentUser;
 
@@ -279,10 +283,13 @@ public class CryptoController {
         if (rootScroll != null) {
             rootScroll.sceneProperty().addListener((obs, oldScene, newScene) -> {
                 if (newScene != null) {
+                    ThemeManager.registerScene(newScene);
+                    updateThemeToggleButton();
                     Platform.runLater(this::registerGlobalRefreshKeysOnce);
                 }
             });
         }
+        updateThemeToggleButton();
         Platform.runLater(this::registerGlobalRefreshKeysOnce);
 
         setupInvestmentAssistantChat();
@@ -535,6 +542,7 @@ public class CryptoController {
         root.setCenter(loadingBox);
 
         Scene scene = new Scene(root, 900, 650);
+        ThemeManager.registerScene(scene);
         stage.setScene(scene);
         stage.show();
 
@@ -601,6 +609,7 @@ public class CryptoController {
         root.setCenter(loadingBox);
 
         Scene scene = new Scene(root, 900, 650);
+        ThemeManager.registerScene(scene);
         stage.setScene(scene);
         stage.show();
 
@@ -800,6 +809,7 @@ public class CryptoController {
         root.setCenter(loadingBox);
 
         Scene scene = new Scene(root, 850, 550);
+        ThemeManager.registerScene(scene);
         stage.setScene(scene);
         stage.show();
 
@@ -1122,39 +1132,19 @@ public class CryptoController {
             }
         });
     }
-
-    private String resolveDarkStylesheetUrl() {
-        if (cachedDarkStylesheetUrl != null) {
-            return cachedDarkStylesheetUrl;
-        }
-        URL url = getClass().getResource(DARK_THEME_STYLESHEET);
-        if (url == null) {
-            url = getClass().getResource("/invest/crypto-dark.css");
-        }
-        cachedDarkStylesheetUrl = url != null ? url.toExternalForm() : null;
-        return cachedDarkStylesheetUrl;
-    }
-
     @FXML
     private void toggleTheme() {
         Scene scene = themeToggleButton != null ? themeToggleButton.getScene() : investTable.getScene();
         if (scene == null) {
             return;
         }
-        String darkUrl = resolveDarkStylesheetUrl();
-        if (darkUrl == null) {
-            return;
-        }
-        if (darkThemeActive) {
-            scene.getStylesheets().remove(darkUrl);
-            darkThemeActive = false;
-            themeToggleButton.setText("Thème sombre");
-        } else {
-            if (!scene.getStylesheets().contains(darkUrl)) {
-                scene.getStylesheets().add(darkUrl);
-            }
-            darkThemeActive = true;
-            themeToggleButton.setText("Thème clair");
+        ThemeManager.toggleTheme(scene);
+        updateThemeToggleButton();
+    }
+
+    private void updateThemeToggleButton() {
+        if (themeToggleButton != null) {
+            themeToggleButton.setText(ThemeManager.isDarkSelected() ? "Light Mode" : "Dark Mode");
         }
     }
 
@@ -1275,10 +1265,16 @@ public class CryptoController {
     @FXML
     public void goToInvest() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/invest/investissement.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Invest/investissement.fxml"));
             Scene scene = new Scene(loader.load());
+            AppSceneStyles.apply(scene, "/Invest/admin-style.css");
 
             Stage stage = new Stage();
+            Stage owner = currentStage();
+            if (owner != null) {
+                stage.initOwner(owner);
+                stage.initModality(Modality.WINDOW_MODAL);
+            }
             stage.setTitle("Investir");
             stage.setScene(scene);
             stage.setUserData(currentUser);
@@ -1290,16 +1286,96 @@ public class CryptoController {
     }
 
     @FXML
+    private void openHomePage() {
+        loadApplicationPage("/pi/mains/salary-home-view.fxml", "/pi/styles/salary-home.css", "Salary Home");
+    }
+
+    @FXML
+    private void openAboutPage() {
+        loadApplicationPage("/pi/mains/about-view.fxml", "/pi/styles/about.css", "About Us");
+    }
+
+    @FXML
+    private void openServicePage() {
+        loadApplicationPage("/pi/mains/service-view.fxml", "/pi/styles/service.css", "Services");
+    }
+
+    @FXML
+    private void openContactPage() {
+        loadApplicationPage("/pi/mains/contact-view.fxml", "/pi/styles/contact.css", "Contact");
+    }
+
+    @FXML
+    private void openDashboardPage() {
+        openHomePage();
+    }
+
+    @FXML
+    private void openLoginPage() {
+        loadApplicationPage("/pi/mains/login-view.fxml", "/pi/styles/login.css", "User Secure Login", false);
+    }
+
+    private void loadApplicationPage(String fxmlPath, String cssPath, String title) {
+        loadApplicationPage(fxmlPath, cssPath, title, true);
+    }
+
+    private void loadApplicationPage(String fxmlPath, String cssPath, String title, boolean preserveUser) {
+        try {
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource(fxmlPath));
+            Parent root = loader.load();
+            if (preserveUser) {
+                applyUser(loader.getController());
+            }
+            Stage stage = currentStage();
+            if (stage == null) {
+                return;
+            }
+            Scene scene = new Scene(root, 1460, 780);
+            AppSceneStyles.apply(scene, cssPath);
+            stage.setTitle(title);
+            stage.setUserData(preserveUser ? currentUser : null);
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void applyUser(Object controller) {
+        if (currentUser == null || controller == null) {
+            return;
+        }
+        if (controller instanceof SalaryHomeController salaryHomeController) {
+            salaryHomeController.setUser(currentUser);
+        } else if (controller instanceof AboutController aboutController) {
+            aboutController.setUser(currentUser);
+        } else if (controller instanceof ServiceController serviceController) {
+            serviceController.setUser(currentUser);
+        } else if (controller instanceof ContactController contactController) {
+            contactController.setUser(currentUser);
+        }
+    }
+
+    private Stage currentStage() {
+        Scene scene = rootScroll != null ? rootScroll.getScene() : investTable.getScene();
+        return scene == null ? null : (Stage) scene.getWindow();
+    }
+
+    @FXML
     public void goToAdmin() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/invest/admin.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Invest/admin.fxml"));
             Scene scene = new Scene(loader.load());
             AdminController controller = loader.getController();
             if (currentUser != null) {
                 controller.setUser(currentUser);
             }
 
-            Stage stage = new Stage();
+            AppSceneStyles.apply(scene, "/Invest/admin-style.css");
+            Stage stage = currentStage();
+            if (stage == null) {
+                return;
+            }
             stage.setTitle("Admin");
             stage.setScene(scene);
             stage.setUserData(currentUser);
@@ -1313,14 +1389,18 @@ public class CryptoController {
     @FXML
     public void goToObjectifs() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/invest/objectif.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Invest/objectif.fxml"));
             Scene scene = new Scene(loader.load());
             ObjectifController controller = loader.getController();
             if (currentUser != null) {
                 controller.setUser(currentUser);
             }
 
-            Stage stage = new Stage();
+            AppSceneStyles.apply(scene, "/Invest/admin-style.css");
+            Stage stage = currentStage();
+            if (stage == null) {
+                return;
+            }
             stage.setTitle("Objectifs");
             stage.setScene(scene);
             stage.setUserData(currentUser);
@@ -1331,3 +1411,4 @@ public class CryptoController {
         }
     }
 }
+

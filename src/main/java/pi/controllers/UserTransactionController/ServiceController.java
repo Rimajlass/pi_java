@@ -14,6 +14,8 @@ import pi.controllers.ImprevusCasreelController.ImprevusFrontController;
 import pi.entities.User;
 import pi.mains.Main;
 import pi.savings.ui.SavingsGoalsApp;
+import pi.tools.AppSceneStyles;
+import pi.tools.ThemeManager;
 
 import java.io.IOException;
 
@@ -111,7 +113,7 @@ public class ServiceController {
             Parent root = loader.load();
 
             Scene scene = new Scene(root, 1460, 780);
-            scene.getStylesheets().add(Main.class.getResource("/pi/styles/login.css").toExternalForm());
+            AppSceneStyles.apply(scene, "/pi/styles/login.css");
             stage.setUserData(null);
             stage.setTitle("User Secure Login");
             stage.setScene(scene);
@@ -133,7 +135,7 @@ public class ServiceController {
         }
 
         Scene scene = new Scene(root, 1460, 780);
-        scene.getStylesheets().add(Main.class.getResource("/pi/styles/salary-home.css").toExternalForm());
+        AppSceneStyles.apply(scene, "/pi/styles/salary-home.css");
         stage.setTitle("Salary Home");
         stage.setScene(scene);
         stage.show();
@@ -151,7 +153,7 @@ public class ServiceController {
         }
 
         Scene scene = new Scene(root, 1460, 780);
-        scene.getStylesheets().add(Main.class.getResource("/pi/styles/about.css").toExternalForm());
+        AppSceneStyles.apply(scene, "/pi/styles/about.css");
         stage.setTitle("About Us");
         stage.setScene(scene);
         stage.show();
@@ -169,7 +171,7 @@ public class ServiceController {
         }
 
         Scene scene = new Scene(root, 1460, 780);
-        scene.getStylesheets().add(Main.class.getResource("/pi/styles/contact.css").toExternalForm());
+        AppSceneStyles.apply(scene, "/pi/styles/contact.css");
         stage.setTitle("Contact");
         stage.setScene(scene);
         stage.show();
@@ -187,7 +189,7 @@ public class ServiceController {
         }
 
         Scene scene = new Scene(root, 1460, 780);
-        scene.getStylesheets().add(Main.class.getResource("/pi/styles/service.css").toExternalForm());
+        AppSceneStyles.apply(scene, "/pi/styles/service.css");
         stage.setTitle("Services");
         stage.setScene(scene);
         stage.show();
@@ -212,6 +214,7 @@ public class ServiceController {
         }
 
         Scene scene = new Scene(root, 1460, 780);
+        AppSceneStyles.apply(scene);
         stage.setUserData(userData);
         stage.setTitle("Income & Expense Management");
         stage.setScene(scene);
@@ -225,16 +228,17 @@ public class ServiceController {
             Object userData = currentStage.getUserData();
             FXMLLoader loader = new FXMLLoader(
                     ServiceController.class.getResource("/Invest/Crypto.fxml"));
-            Scene scene = new Scene(loader.load(), 900, 700);
+            Parent root = loader.load();
             Object controller = loader.getController();
             if (userData instanceof User user && controller instanceof pi.controllers.InvestissementController.CryptoController cryptoController) {
                 cryptoController.setUser(user);
             }
-            Stage stage = new Stage();
-            stage.setTitle("Investissement");
-            stage.setScene(scene);
-            stage.setUserData(userData);
-            stage.show();
+            Scene scene = new Scene(root, 1460, 900);
+            AppSceneStyles.apply(scene);
+            currentStage.setTitle("Investissement");
+            currentStage.setScene(scene);
+            currentStage.setUserData(userData);
+            currentStage.show();
         } catch (Exception e) {
             throw new RuntimeException("Impossible d'ouvrir l'interface Investissement.", e);
         }
@@ -254,9 +258,15 @@ public class ServiceController {
         }
 
         Scene scene = new Scene(root, 1460, 900);
+        AppSceneStyles.apply(scene);
         stage.setUserData(userData);
         stage.setTitle("Unexpected Events & Real Cases");
         stage.setScene(scene);
         stage.show();
+    }
+
+    @FXML
+    private void handleToggleTheme(ActionEvent event) {
+        ThemeManager.toggleTheme(((Node) event.getSource()).getScene());
     }
 }

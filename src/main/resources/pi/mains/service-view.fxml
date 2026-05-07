@@ -50,15 +50,15 @@
                                               minHeight="76.0"
                                               prefHeight="76.0"
                                               maxHeight="76.0"
-                                              styleClass="top-bar">
+                                              styleClass="top-nav">
                                             <padding>
                                                 <Insets top="10.0" right="24.0" bottom="10.0" left="24.0" />
                                             </padding>
                                             <children>
                                                 <HBox alignment="CENTER_LEFT" spacing="8.0">
                                                     <children>
-                                                        <Label text="DS" styleClass="logo-mark" />
-                                                        <Label text="Decide$" styleClass="brand-label" />
+                                                        <Label text="DS" styleClass="brand-badge" />
+                                                        <Label text="Decide$" styleClass="brand-mark" />
                                                     </children>
                                                 </HBox>
 
@@ -68,19 +68,19 @@
                                                     <children>
                                                         <Button text="Home"
                                                                 mnemonicParsing="false"
-                                                                styleClass="nav-button"
+                                                                styleClass="header-nav-btn"
                                                                 onAction="#handleBackToHomeAction" />
                                                         <Button text="About"
                                                                 mnemonicParsing="false"
-                                                                styleClass="nav-button"
+                                                                styleClass="header-nav-btn"
                                                                 onAction="#handleOpenAboutAction" />
                                                         <Button text="Service"
                                                                 mnemonicParsing="false"
-                                                                styleClass="nav-button-active"
+                                                                styleClass="header-nav-btn header-nav-active"
                                                                 onAction="#handleOpenServiceAction" />
                                                         <Button text="Contact"
                                                                 mnemonicParsing="false"
-                                                                styleClass="nav-button"
+                                                                styleClass="header-nav-btn"
                                                                 onAction="#handleOpenContactAction" />
                                                     </children>
                                                 </HBox>
@@ -99,16 +99,22 @@
                                                                 mnemonicParsing="false"
                                                                 onAction="#handleBackToHomeAction">
                                                             <styleClass>
-                                                                <String fx:value="header-button" />
-                                                                <String fx:value="start-button" />
+                                                                <String fx:value="header-start-btn" />
+                                                            </styleClass>
+                                                        </Button>
+                                                        <Button text="Dark Mode"
+                                                                mnemonicParsing="false"
+                                                                onAction="#handleToggleTheme">
+                                                            <styleClass>
+                                                                <String fx:value="ghost-btn" />
+                                                                <String fx:value="theme-toggle-btn" />
                                                             </styleClass>
                                                         </Button>
                                                         <Button text="Logout"
                                                                 mnemonicParsing="false"
                                                                 onAction="#handleLogout">
                                                             <styleClass>
-                                                                <String fx:value="header-button" />
-                                                                <String fx:value="logout-button" />
+                                                                <String fx:value="header-logout-btn" />
                                                             </styleClass>
                                                         </Button>
                                                     </children>

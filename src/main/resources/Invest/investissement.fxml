@@ -11,6 +11,7 @@
       style="-fx-padding: 30;">
     <stylesheets>
         <URL value="@admin-style.css"/>
+        <URL value="@../pi/styles/global.css"/>
     </stylesheets>
 
     <Label text="Nouvel Investissement" styleClass="dialog-title"/>

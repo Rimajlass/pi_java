@@ -829,3 +829,88 @@
 .salary-profile-root.salary-profile-root .salary-tx-table .tx-type-info {
     -fx-text-fill: #3d75c8;
 }
+
+/* Shared front-office light mode */
+.salary-home-root,
+.about-root,
+.service-root,
+.contact-root,
+.salary-scroll > .viewport,
+.about-scroll > .viewport,
+.service-scroll > .viewport,
+.contact-scroll > .viewport,
+.about-page,
+.service-page,
+.contact-page,
+.info-section,
+.features-grid,
+.services-section,
+.contact-section {
+    -fx-background-color: #f4f8fd;
+}
+
+.salary-home-overlay,
+.hero-overlay,
+.service-hero-overlay,
+.contact-hero-overlay {
+    -fx-background-color: rgba(244, 248, 253, 0.88);
+}
+
+.top-nav,
+.top-bar {
+    -fx-background-color: rgba(55, 38, 18, 0.74);
+    -fx-border-color: rgba(255, 255, 255, 0.18);
+}
+
+.brand-label,
+.brand-mark,
+.header-nav-btn,
+.profile-name {
+    -fx-text-fill: white;
+}
+
+.header-nav-active {
+    -fx-text-fill: #19d4ff;
+}
+
+.hero-title,
+.service-hero-title,
+.contact-hero-title,
+.section-title,
+.section-heading,
+.info-title,
+.service-title,
+.feature-title {
+    -fx-text-fill: #0b1f44;
+}
+
+.hero-copy,
+.hero-subtitle,
+.service-hero-subtitle,
+.contact-hero-subtitle,
+.section-copy,
+.feature-copy,
+.service-copy,
+.footer-description {
+    -fx-text-fill: #425d85;
+}
+
+.feature-card,
+.testimonial-card,
+.vision-card,
+.feature-item,
+.service-card,
+.contact-card,
+.form-card,
+.info-card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(72, 140, 214, 0.16);
+}
+
+.page-footer {
+    -fx-background-color: #0b1f44;
+}
+
+.page-footer .label {
+    -fx-text-fill: #d8e9ff;
+}

@@ -38,6 +38,7 @@ import pi.services.UserTransactionService.SocialAuthService;
 import pi.services.UserTransactionService.WebAuthnDesktopService;
 import pi.services.UserTransactionService.WebcamCaptureService;
 import pi.tools.AdminNavigation;
+import pi.tools.AppSceneStyles;
 import pi.tools.FxmlResources;
 import pi.tools.QrCodeUtil;
 
@@ -476,7 +477,7 @@ public class LoginController {
         Stage stage = (Stage) feedbackLabel.getScene().getWindow();
         stage.setUserData(user);
         Scene scene = new Scene(root, 1460, 780);
-        scene.getStylesheets().add(Main.class.getResource("/pi/styles/salary-home.css").toExternalForm());
+        AppSceneStyles.apply(scene, "/pi/styles/salary-home.css");
 
         stage.setTitle("Salary Home");
         stage.setScene(scene);

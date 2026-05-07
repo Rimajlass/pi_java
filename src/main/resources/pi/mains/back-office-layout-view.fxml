@@ -78,28 +78,10 @@
                                         <Label styleClass="menu-text" text="Expenses" />
                                     </children>
                                 </HBox>
-                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
-                                    <children>
-                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4CA;" /></children></StackPane>
-                                        <Label styleClass="menu-text" text="Reports" />
-                                    </children>
-                                </HBox>
                                 <HBox alignment="CENTER_LEFT" onMouseClicked="#handleInvestmentsMenuClick" spacing="10.0" styleClass="menu-row menu-row-nav">
                                     <children>
                                         <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4C8;" /></children></StackPane>
                                         <Label styleClass="menu-text" text="Investments" />
-                                    </children>
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
-                                    <children>
-                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F3AF;" /></children></StackPane>
-                                        <Label styleClass="menu-text" text="Objectives" />
-                                    </children>
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
-                                    <children>
-                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F4AC;" /></children></StackPane>
-                                        <Label styleClass="menu-text" text="Reclamations" />
                                     </children>
                                 </HBox>
                                 <HBox alignment="CENTER_LEFT" onMouseClicked="#handleSavingsMenuClick" spacing="10.0" styleClass="menu-row menu-row-nav">
@@ -112,12 +94,6 @@
                                     <children>
                                         <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x1F3C1;" /></children></StackPane>
                                         <Label styleClass="menu-text" text="Goals" />
-                                    </children>
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT" onMouseClicked="#handleMenuSelection" spacing="10.0" styleClass="menu-row menu-row-nav">
-                                    <children>
-                                        <StackPane styleClass="menu-icon"><children><Label styleClass="menu-icon-text" text="&#x25D4;" /></children></StackPane>
-                                        <Label styleClass="menu-text" text="Statistics" />
                                     </children>
                                 </HBox>
                                 <HBox alignment="CENTER_LEFT" onMouseClicked="#handleAiQuizGeneratorMenuClick" spacing="10.0" styleClass="menu-row menu-row-nav">

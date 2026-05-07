@@ -10,6 +10,7 @@
             fx:controller="pi.controllers.InvestissementController.ObjectifController">
     <stylesheets>
         <URL value="@admin-style.css"/>
+        <URL value="@../pi/styles/global.css"/>
     </stylesheets>
 
     <VBox styleClass="page-root" spacing="0">

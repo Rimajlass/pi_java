@@ -67,6 +67,8 @@ import pi.savings.service.GoalsAnalyticsService;
 import pi.savings.service.SavingsCalendarService;
 import pi.savings.service.SavingsStatsService;
 import pi.savings.service.SavingsModuleService;
+import pi.tools.AppSceneStyles;
+import pi.tools.ThemeManager;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -84,13 +86,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.prefs.Preferences;
 import java.util.function.UnaryOperator;
 
 final class SavingsGoalsView {
     private static final DecimalFormat MONEY_FORMAT;
-    private static final String THEME_PREFERENCE_KEY = "savingsGoals.darkMode";
-    private final Preferences preferences = Preferences.userNodeForPackage(SavingsGoalsView.class);
 
     static {
         DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(Locale.US);
@@ -162,7 +161,7 @@ final class SavingsGoalsView {
 
     Parent build(SavingsUiController controller) {
         this.controller = controller;
-        this.darkModeEnabled = preferences.getBoolean(THEME_PREFERENCE_KEY, false);
+        this.darkModeEnabled = ThemeManager.isDarkSelected();
         this.smartVoiceAgentController = new SmartVoiceAgentController(createAssistantGateway());
 
         VBox page = new VBox();
@@ -3420,7 +3419,7 @@ final class SavingsGoalsView {
 
     private void toggleDarkMode(boolean enabled) {
         darkModeEnabled = enabled;
-        preferences.putBoolean(THEME_PREFERENCE_KEY, enabled);
+        ThemeManager.setDarkMode(enabled);
         applyTheme();
         showInfo(enabled ? "Dark mode activated." : "Light mode activated.");
     }
@@ -3515,10 +3514,7 @@ final class SavingsGoalsView {
             applyUserContext(loader.getController(), userData);
 
             Scene scene = new Scene(root, 1460, 780);
-            if (cssPath != null) {
-                scene.getStylesheets().add(Main.class.getResource(cssPath).toExternalForm());
-            }
-            applySceneTheme(scene);
+            AppSceneStyles.apply(scene, cssPath);
 
             stage.setUserData(userData);
             stage.setTitle(title);

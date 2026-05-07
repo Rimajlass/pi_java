@@ -47,6 +47,7 @@ import pi.services.InvestissementService.ObjectifMonteCarloService;
 import pi.services.InvestissementService.ObjectifPdfExportService;
 import pi.services.InvestissementService.ObjectifService;
 import pi.services.InvestissementService.ObjectifStatistics;
+import pi.tools.ThemeManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -337,7 +338,7 @@ public class ObjectifController {
                     Objectif obj = getTableView().getItems().get(getIndex());
 
                     try {
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/invest/modifyObjectif.fxml"));
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Invest/modifyObjectif.fxml"));
                         Scene scene = new Scene(loader.load());
 
                         ModifyObjectifController controller = loader.getController();
@@ -348,6 +349,7 @@ public class ObjectifController {
 
                         Stage stage = new Stage();
                         stage.setTitle("Modifier l'objectif");
+                        ThemeManager.registerScene(scene);
                         stage.setScene(scene);
                         stage.initModality(Modality.APPLICATION_MODAL);
                         stage.showAndWait();
@@ -569,6 +571,7 @@ public class ObjectifController {
         rootBox.setStyle("-fx-background-color: white;");
 
         Scene scene = new Scene(rootBox, 720, 720);
+        ThemeManager.registerScene(scene);
         stage.setScene(scene);
         stage.show();
     }
@@ -601,6 +604,7 @@ public class ObjectifController {
         root.setCenter(content);
 
         Scene scene = new Scene(root, 700, 520);
+        ThemeManager.registerScene(scene);
         stage.setScene(scene);
         stage.show();
 
@@ -764,7 +768,7 @@ public class ObjectifController {
     @FXML
     public void goToCreate() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/invest/createObjectif.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Invest/createObjectif.fxml"));
             Scene scene = new Scene(loader.load());
             CreateObjectifController controller = loader.getController();
             if (currentUser != null) {
@@ -773,6 +777,7 @@ public class ObjectifController {
 
             Stage stage = new Stage();
             stage.setTitle("Créer un objectif");
+            ThemeManager.registerScene(scene);
             stage.setScene(scene);
             stage.setUserData(currentUser);
             stage.initModality(Modality.APPLICATION_MODAL);
