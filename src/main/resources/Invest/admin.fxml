@@ -23,6 +23,7 @@
     <stylesheets>
         <URL value="@../pi/styles/admin-backend.css"/>
         <URL value="@../pi/styles/invest-admin-dashboard.css"/>
+        <URL value="@../pi/styles/global.css"/>
     </stylesheets>
     <children>
 

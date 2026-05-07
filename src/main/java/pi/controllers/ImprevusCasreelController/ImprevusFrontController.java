@@ -45,6 +45,8 @@ import pi.services.ImprevusCasreelService.UserNotificationService;
 import pi.savings.ui.SavingsGoalsApp;
 import pi.tools.AdminNavigation;
 import pi.tools.AppEnv;
+import pi.tools.AppSceneStyles;
+import pi.tools.ThemeManager;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -260,6 +262,13 @@ public class ImprevusFrontController {
         updateFundingControlsForType();
         updateAppointmentLink(null);
         detectCurrentLocation(false);
+        if (pageScrollPane != null) {
+            pageScrollPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+                if (newScene != null) {
+                    ThemeManager.registerScene(newScene);
+                }
+            });
+        }
     }
 
     private void startNotificationPolling() {
@@ -1944,6 +1953,7 @@ public class ImprevusFrontController {
     @FXML private void handleOpenUnexpectedCases(ActionEvent event) { openPage(event, "/imprevus-view.fxml", "/styles/imprevus.css", "Unexpected Events & Real Cases"); }
     @FXML private void handleOpenContact(ActionEvent event) { openPage(event, "/pi/mains/contact-view.fxml", "/pi/styles/contact.css", "Contact"); }
     @FXML private void handleLogout(ActionEvent event) { openPage(event, "/pi/mains/login-view.fxml", "/pi/styles/login.css", "User Secure Login"); }
+    @FXML private void handleToggleTheme(ActionEvent event) { ThemeManager.toggleTheme(((Node) event.getSource()).getScene()); }
 
     @FXML
     private void handleOpenSavings(ActionEvent event) {
@@ -1976,7 +1986,7 @@ public class ImprevusFrontController {
             Parent root = loader.load();
             injectUser(loader.getController(), user);
             Scene scene = new Scene(root, 1460, 900);
-            if (cssPath != null) scene.getStylesheets().add(Main.class.getResource(cssPath).toExternalForm());
+            AppSceneStyles.apply(scene, cssPath);
             stage.setUserData("/pi/mains/login-view.fxml".equals(fxmlPath) ? null : user);
             stage.setTitle(title);
             stage.setScene(scene);

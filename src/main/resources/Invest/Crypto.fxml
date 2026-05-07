@@ -27,6 +27,7 @@
     <stylesheets>
         <URL value="@../styles/RevenueExpenseFRONT/salary-expense.css"/>
         <URL value="@crypto-pro.css"/>
+        <URL value="@../pi/styles/global.css"/>
     </stylesheets>
     <content>
         <VBox styleClass="page-root">
@@ -40,7 +41,7 @@
                     <children>
 
                         <!-- Nav -->
-                        <HBox alignment="CENTER_LEFT" styleClass="top-nav">
+                        <HBox alignment="CENTER_LEFT" minHeight="86.0" prefHeight="86.0" maxHeight="86.0" styleClass="top-nav">
                             <children>
                                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                                     <children>
@@ -51,16 +52,14 @@
                                 <Region HBox.hgrow="ALWAYS" />
                                 <HBox alignment="CENTER" spacing="4.0" styleClass="nav-links">
                                     <children>
-                                        <Button mnemonicParsing="false" onAction="#refresh"
-                                                styleClass="nav-button" text="Rafraîchir" />
-                                        <Button mnemonicParsing="false" onAction="#goToInvest"
-                                                styleClass="nav-button" text="Investir" />
-                                        <Button mnemonicParsing="false" onAction="#goToObjectifs"
-                                                styleClass="nav-button" text="Objectifs" />
-                                        <Button mnemonicParsing="false" onAction="#goToAdmin"
-                                                styleClass="nav-button nav-button-active" text="Admin" />
-                                        <Button fx:id="themeToggleButton" mnemonicParsing="false" onAction="#toggleTheme"
-                                                styleClass="nav-button" text="Thème sombre" />
+                                        <Button mnemonicParsing="false" onAction="#openHomePage"
+                                                styleClass="nav-button" text="Home" />
+                                        <Button mnemonicParsing="false" onAction="#openAboutPage"
+                                                styleClass="nav-button" text="About" />
+                                        <Button mnemonicParsing="false" onAction="#openServicePage"
+                                                styleClass="nav-button" text="Service" />
+                                        <Button mnemonicParsing="false" onAction="#openContactPage"
+                                                styleClass="nav-button" text="Contact" />
                                     </children>
                                 </HBox>
                                 <Region HBox.hgrow="ALWAYS" />
@@ -72,15 +71,19 @@
                                                 <Label styleClass="profile-name" text="Investor" />
                                             </children>
                                         </HBox>
-                                        <Button mnemonicParsing="false"
-                                                styleClass="header-button logout-button" text="Logout" />
+                                        <Button mnemonicParsing="false" onAction="#openDashboardPage"
+                                                styleClass="header-start-btn" text="Dashboard" />
+                                        <Button fx:id="themeToggleButton" mnemonicParsing="false" onAction="#toggleTheme"
+                                                styleClass="ghost-btn theme-toggle-btn" text="Dark Mode" />
+                                        <Button mnemonicParsing="false" onAction="#openLoginPage"
+                                                styleClass="header-logout-btn" text="Logout" />
                                     </children>
                                 </HBox>
                             </children>
                         </HBox>
 
                         <!-- Status bar -->
-                        <HBox styleClass="status-bar" alignment="CENTER_LEFT" spacing="14.0">
+                        <HBox styleClass="market-toolbar" alignment="CENTER_LEFT" spacing="10.0">
                             <children>
                                 <Label styleClass="live-badge" text="● LIVE" />
                                 <Pane styleClass="status-sep" />
@@ -98,6 +101,14 @@
                                 <Pane styleClass="status-sep" />
                                 <Label styleClass="status-tag" text="F5 / Ctrl+R · rafraîchir" />
                                 <Region HBox.hgrow="ALWAYS" />
+                                <Button mnemonicParsing="false" onAction="#refresh"
+                                        styleClass="action-button-secondary" text="Refresh" />
+                                <Button mnemonicParsing="false" onAction="#goToInvest"
+                                        styleClass="action-button-secondary" text="Invest" />
+                                <Button mnemonicParsing="false" onAction="#goToObjectifs"
+                                        styleClass="action-button-secondary" text="Goals" />
+                                <Button mnemonicParsing="false" onAction="#goToAdmin"
+                                        styleClass="action-button-secondary" text="Admin" />
                                 <Label styleClass="status-tag" text="Decide$ Invest Module" />
                             </children>
                         </HBox>
@@ -454,3 +465,4 @@
         </VBox>
     </content>
 </ScrollPane>
+

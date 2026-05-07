@@ -55,16 +55,22 @@ public final class ThemeManager {
 
     public static boolean toggleTheme(Scene scene) {
         boolean darkMode = scene == null ? isDarkSelected() : isDarkMode(scene);
-        String nextTheme = darkMode ? LIGHT_THEME : DARK_THEME;
-        Preferences.userRoot()
-                .node(PREF_NODE)
-                .put(PREF_KEY, darkMode ? LIGHT : DARK);
-        applyThemeToRegisteredScenes(nextTheme);
-        if (scene != null && !REGISTERED_SCENES.contains(scene)) {
-            applyTheme(scene, nextTheme);
-        }
+        setDarkMode(!darkMode);
         debug("toggleTheme -> " + (darkMode ? LIGHT : DARK));
         return !darkMode;
+    }
+
+    public static void setDarkMode(boolean enabled) {
+        String nextTheme = enabled ? DARK_THEME : LIGHT_THEME;
+        Preferences.userRoot()
+                .node(PREF_NODE)
+                .put(PREF_KEY, enabled ? DARK : LIGHT);
+        applyThemeToRegisteredScenes(nextTheme);
+        debug("setDarkMode -> " + (enabled ? DARK : LIGHT));
+    }
+
+    public static void resetToLightMode() {
+        setDarkMode(false);
     }
 
     public static boolean isDarkMode(Scene scene) {
@@ -81,7 +87,7 @@ public final class ThemeManager {
     }
 
     private static String getSelectedTheme() {
-        return Preferences.userRoot().node(PREF_NODE).get(PREF_KEY, DARK);
+        return Preferences.userRoot().node(PREF_NODE).get(PREF_KEY, LIGHT);
     }
 
     private static void applyTheme(Scene scene, String themePath) {

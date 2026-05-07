@@ -11,6 +11,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import pi.entities.User;
 import pi.mains.Main;
+import pi.tools.AppSceneStyles;
+import pi.tools.ThemeManager;
 
 import java.io.IOException;
 
@@ -72,7 +74,7 @@ public class AboutController {
             Parent root = loader.load();
 
             Scene scene = new Scene(root, 1460, 780);
-            scene.getStylesheets().add(Main.class.getResource("/pi/styles/login.css").toExternalForm());
+            AppSceneStyles.apply(scene, "/pi/styles/login.css");
             stage.setUserData(null);
             stage.setTitle("User Secure Login");
             stage.setScene(scene);
@@ -94,7 +96,7 @@ public class AboutController {
         }
 
         Scene scene = new Scene(root, 1460, 780);
-        scene.getStylesheets().add(Main.class.getResource("/pi/styles/salary-home.css").toExternalForm());
+        AppSceneStyles.apply(scene, "/pi/styles/salary-home.css");
         stage.setTitle("Salary Home");
         stage.setScene(scene);
         stage.show();
@@ -112,7 +114,7 @@ public class AboutController {
         }
 
         Scene scene = new Scene(root, 1460, 780);
-        scene.getStylesheets().add(Main.class.getResource("/pi/styles/service.css").toExternalForm());
+        AppSceneStyles.apply(scene, "/pi/styles/service.css");
         stage.setTitle("Services");
         stage.setScene(scene);
         stage.show();
@@ -130,9 +132,14 @@ public class AboutController {
         }
 
         Scene scene = new Scene(root, 1460, 780);
-        scene.getStylesheets().add(Main.class.getResource("/pi/styles/contact.css").toExternalForm());
+        AppSceneStyles.apply(scene, "/pi/styles/contact.css");
         stage.setTitle("Contact");
         stage.setScene(scene);
         stage.show();
+    }
+
+    @FXML
+    private void handleToggleTheme(ActionEvent event) {
+        ThemeManager.toggleTheme(((Node) event.getSource()).getScene());
     }
 }

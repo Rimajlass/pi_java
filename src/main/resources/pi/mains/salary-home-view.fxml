@@ -80,19 +80,18 @@
 
                                     <HBox alignment="CENTER" spacing="14" styleClass="nav-pill">
                                         <children>
-                                            <Label text="Home" styleClass="nav-link active-link" />
+                                            <Label text="Home" styleClass="header-nav-btn header-nav-active" />
                                             <Button text="About"
                                                     mnemonicParsing="false"
-                                                    styleClass="nav-link-button"
+                                                    styleClass="header-nav-btn"
                                                     onAction="#handleOpenAboutAction" />
                                             <Button text="Services"
                                                     mnemonicParsing="false"
-                                                    styleClass="nav-link-button"
+                                                    styleClass="header-nav-btn"
                                                     onAction="#handleOpenServiceAction" />
-                                            <Label text="Pricing" styleClass="nav-link" />
                                             <Button text="Contact"
                                                     mnemonicParsing="false"
-                                                    styleClass="nav-link-button"
+                                                    styleClass="header-nav-btn"
                                                     onAction="#handleOpenContactAction" />
                                         </children>
                                     </HBox>
@@ -116,6 +115,11 @@
                                                     mnemonicParsing="false"
                                                     styleClass="header-btn header-btn-secondary"
                                                     onAction="#handleOpenServiceAction" />
+
+                                            <Button text="Dark Mode"
+                                                    mnemonicParsing="false"
+                                                    styleClass="ghost-btn theme-toggle-btn"
+                                                    onAction="#handleToggleTheme" />
 
                                             <Button text="Logout"
                                                     mnemonicParsing="false"

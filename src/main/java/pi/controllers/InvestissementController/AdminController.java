@@ -123,7 +123,7 @@ public class AdminController {
                 btn.setOnAction(e -> {
                     Objectif obj = getTableView().getItems().get(getIndex());
                     try {
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/invest/modifyObjectif.fxml"));
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Invest/modifyObjectif.fxml"));
                         Scene scene = new Scene(loader.load());
                         ModifyObjectifController controller = loader.getController();
                         if (currentUser != null) {
@@ -133,6 +133,7 @@ public class AdminController {
 
                         Stage stage = new Stage();
                         stage.setTitle("Modifier l'objectif");
+                        ThemeManager.registerScene(scene);
                         stage.setScene(scene);
                         stage.initModality(Modality.APPLICATION_MODAL);
                         stage.showAndWait();

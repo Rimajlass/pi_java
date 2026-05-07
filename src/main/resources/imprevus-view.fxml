@@ -12,6 +12,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import java.net.URL?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -20,7 +21,11 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="1080.0" prefWidth="1512.0" stylesheets="@styles/imprevus.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.ImprevusCasreelController.ImprevusFrontController">
+<BorderPane prefHeight="1080.0" prefWidth="1512.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pi.controllers.ImprevusCasreelController.ImprevusFrontController">
+    <stylesheets>
+        <URL value="@pi/styles/global.css" />
+        <URL value="@styles/imprevus.css" />
+    </stylesheets>
 
     <center>
         <ScrollPane fx:id="pageScrollPane" fitToWidth="true" hbarPolicy="NEVER" pannable="true" styleClass="page-scroll" vbarPolicy="AS_NEEDED">
@@ -30,7 +35,7 @@
 
                         <VBox styleClass="top-shell">
                             <children>
-                                <HBox alignment="CENTER_LEFT" styleClass="top-nav">
+                                <HBox alignment="CENTER_LEFT" minHeight="86.0" prefHeight="86.0" maxHeight="86.0" styleClass="top-nav">
                                     <children>
                                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                                             <children>
@@ -59,6 +64,7 @@
                                                     </children>
                                                 </HBox>
                                                 <Button onAction="#handleGoBack" styleClass="header-start-btn" text="Back Office" />
+                                                <Button onAction="#handleToggleTheme" styleClass="ghost-btn theme-toggle-btn" text="Dark Mode" />
                                                 <Button onAction="#handleLogout" styleClass="header-logout-btn" text="Logout" />
                                             </children>
                                         </HBox>

@@ -1,0 +1,506 @@
+/* Decide$ shared UI polish: headers, footers, cards, buttons and readable front pages. */
+
+.root {
+    -fx-font-family: "Segoe UI";
+    -fx-background-color: #f4f8fd;
+    -fx-text-fill: #10233f;
+}
+
+.salary-home-root,
+.about-root,
+.service-root,
+.contact-root,
+.salary-scroll,
+.about-scroll,
+.service-scroll,
+.contact-scroll,
+.salary-scroll > .viewport,
+.about-scroll > .viewport,
+.service-scroll > .viewport,
+.contact-scroll > .viewport,
+.scroll-content,
+.about-page,
+.service-page,
+.contact-page {
+    -fx-background-color: #f4f8fd;
+}
+
+.salary-home-overlay,
+.hero-overlay,
+.service-hero-overlay,
+.contact-hero-overlay {
+    -fx-background-color:
+            linear-gradient(to right, rgba(244, 248, 253, 0.96), rgba(244, 248, 253, 0.82)),
+            linear-gradient(to bottom, rgba(244, 248, 253, 0.62), rgba(244, 248, 253, 0.94));
+}
+
+.top-nav,
+.top-bar,
+.app-header {
+    -fx-padding: 18 28 18 28;
+    -fx-spacing: 24;
+    -fx-background-color: rgba(55, 38, 18, 0.74);
+    -fx-background-radius: 24;
+    -fx-border-color: rgba(255, 255, 255, 0.18);
+    -fx-border-radius: 24;
+    -fx-effect: none;
+}
+
+.top-nav .label,
+.top-bar .label,
+.app-header .label {
+    -fx-text-fill: #ffffff;
+}
+
+.brand-logo,
+.brand-logo-box,
+.logo-mark,
+.brand-badge,
+.footer-brand-icon {
+    -fx-background-color: linear-gradient(to bottom, rgba(32, 206, 233, 0.28), rgba(25, 132, 190, 0.35));
+    -fx-border-color: rgba(149, 235, 255, 0.4);
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-text-fill: #9ff4ff;
+    -fx-font-weight: 900;
+    -fx-alignment: center;
+    -fx-padding: 10 14 10 14;
+    -fx-min-width: 46;
+    -fx-min-height: 46;
+}
+
+.brand-label,
+.brand-mark,
+.footer-brand-text {
+    -fx-text-fill: white;
+    -fx-font-size: 30px;
+    -fx-font-weight: 800;
+}
+
+.brand-subtitle {
+    -fx-text-fill: #5f769b;
+    -fx-font-size: 12px;
+}
+
+.nav-button,
+.nav-link-button,
+.nav-link,
+.header-nav-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: rgba(255, 255, 255, 0.92);
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-padding: 8 4 8 4;
+    -fx-cursor: hand;
+}
+
+.nav-button:hover,
+.nav-link-button:hover,
+.header-nav-btn:hover {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+.nav-button-active,
+.nav-button-active .text,
+.active-link,
+.header-nav-active {
+    -fx-background-color: transparent;
+    -fx-text-fill: #19d4ff;
+    -fx-fill: #19d4ff;
+    -fx-font-weight: 900;
+}
+
+.profile-pill,
+.user-badge {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-border-color: rgba(255, 255, 255, 0.16);
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 8 18 8 10;
+}
+
+.profile-icon {
+    -fx-background-color: #17c7e8;
+    -fx-background-radius: 999;
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-min-width: 24;
+    -fx-min-height: 24;
+    -fx-pref-width: 26;
+    -fx-pref-height: 26;
+    -fx-alignment: center;
+}
+
+.profile-name {
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.top-nav .profile-name,
+.app-header .profile-name,
+.top-bar .profile-name {
+    -fx-text-fill: #ffffff;
+}
+
+.header-button,
+.primary-button,
+.secondary-button,
+.hero-primary-button,
+.hero-outline-button,
+.service-card-button,
+.start-button,
+.logout-button,
+.theme-toggle-btn {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-font-weight: 800;
+    -fx-padding: 9 16;
+}
+
+.ghost-btn,
+.header-start-btn,
+.header-logout-btn {
+    -fx-font-weight: 700;
+    -fx-background-color: white;
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+    -fx-text-fill: #334155;
+    -fx-padding: 10 16 10 16;
+    -fx-cursor: hand;
+}
+
+.ghost-btn {
+    -fx-background-color: rgba(255, 255, 255, 0.10);
+    -fx-border-color: rgba(255, 255, 255, 0.16);
+    -fx-text-fill: white;
+}
+
+.header-start-btn {
+    -fx-background-color: linear-gradient(to right, #12bee0, #2f7df2);
+    -fx-border-color: rgba(47, 125, 242, 0.24);
+    -fx-text-fill: white;
+}
+
+.header-logout-btn {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(226, 232, 240, 0.9);
+    -fx-text-fill: #334155;
+}
+
+.primary-header-button,
+.primary-button,
+.hero-primary-button,
+.service-card-button,
+.start-button {
+    -fx-background-color: linear-gradient(to right, #12bee0, #2f7df2);
+    -fx-border-color: rgba(47, 125, 242, 0.24);
+    -fx-text-fill: white;
+}
+
+.secondary-header-button,
+.secondary-button,
+.hero-outline-button,
+.theme-toggle-btn {
+    -fx-background-color: #f3f9ff;
+    -fx-border-color: rgba(47, 125, 242, 0.28);
+    -fx-text-fill: #1b4f91;
+}
+
+.logout-button {
+    -fx-background-color: #fff5f7;
+    -fx-border-color: rgba(220, 75, 95, 0.22);
+    -fx-text-fill: #b82f4a;
+}
+
+.header-button:hover,
+.primary-button:hover,
+.secondary-button:hover,
+.hero-primary-button:hover,
+.hero-outline-button:hover,
+.service-card-button:hover,
+.theme-toggle-btn:hover {
+    -fx-effect: dropshadow(gaussian, rgba(47, 125, 242, 0.26), 16, 0.22, 0, 4);
+}
+
+.hero-section,
+.hero-wrapper,
+.page-hero {
+    -fx-background-color: transparent;
+}
+
+.hero-title,
+.service-hero-title,
+.contact-hero-title {
+    -fx-text-fill: #081a33;
+    -fx-font-weight: 900;
+}
+
+.hero-copy,
+.hero-subtitle,
+.service-hero-subtitle,
+.contact-hero-subtitle,
+.section-copy,
+.feature-copy,
+.service-copy,
+.footer-description {
+    -fx-text-fill: #425d85;
+    -fx-text-fill: #263f66;
+}
+
+.section-title,
+.section-heading,
+.info-title,
+.service-title,
+.feature-title,
+.footer-heading {
+    -fx-text-fill: #0b1f44;
+    -fx-font-weight: 900;
+}
+
+.info-section,
+.features-grid,
+.services-section,
+.contact-section {
+    -fx-background-color: #f4f8fd;
+}
+
+.card,
+.dashboard-card,
+.feature-card,
+.testimonial-card,
+.vision-card,
+.feature-item,
+.service-card,
+.contact-card,
+.form-card,
+.info-card {
+    -fx-background-color: white;
+    -fx-border-color: rgba(72, 140, 214, 0.16);
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(15, 40, 80, 0.10), 18, 0.16, 0, 6);
+}
+
+.service-card {
+    -fx-padding: 28;
+}
+
+.service-card:hover,
+.feature-card:hover,
+.dashboard-card:hover {
+    -fx-border-color: rgba(18, 190, 224, 0.46);
+    -fx-effect: dropshadow(gaussian, rgba(23, 199, 232, 0.22), 22, 0.22, 0, 8);
+}
+
+.text-field,
+.text-area,
+.text-input,
+.combo-box-base,
+.date-picker {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(72, 140, 214, 0.24);
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-text-fill: #16315b;
+    -fx-prompt-text-fill: #7b90ad;
+}
+
+.text-field:focused,
+.text-area:focused,
+.text-input:focused,
+.combo-box-base:focused,
+.date-picker:focused {
+    -fx-border-color: #17c7e8;
+    -fx-effect: dropshadow(gaussian, rgba(23, 199, 232, 0.24), 12, 0.18, 0, 0);
+}
+
+.market-toolbar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: rgba(72, 140, 214, 0.16);
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-padding: 14 16 14 16;
+    -fx-effect: dropshadow(gaussian, rgba(15, 40, 80, 0.09), 16, 0.14, 0, 5);
+}
+
+.market-toolbar .status-tag,
+.status-tag {
+    -fx-background-color: #f3f9ff;
+    -fx-border-color: rgba(47, 125, 242, 0.16);
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-text-fill: #1b4f91;
+    -fx-padding: 6 12 6 12;
+    -fx-font-weight: 800;
+}
+
+.market-toolbar .live-badge,
+.live-badge {
+    -fx-background-color: rgba(16, 185, 129, 0.12);
+    -fx-border-color: rgba(16, 185, 129, 0.26);
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-text-fill: #047857;
+    -fx-padding: 6 12 6 12;
+    -fx-font-weight: 900;
+}
+
+.page-footer,
+.app-footer {
+    -fx-background-color: #0b1f44;
+    -fx-border-color: rgba(23, 199, 232, 0.18) transparent transparent transparent;
+}
+
+.page-footer .label,
+.footer-copy {
+    -fx-text-fill: #d8e9ff;
+}
+
+.footer-heading {
+    -fx-text-fill: white;
+}
+
+.footer-link {
+    -fx-text-fill: #9fb9da;
+}
+
+.footer-link:hover {
+    -fx-text-fill: #5ee6ff;
+}
+
+.footer-social,
+.social-badge {
+    -fx-background-color: rgba(255, 255, 255, 0.10);
+    -fx-border-color: rgba(255, 255, 255, 0.16);
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-text-fill: white;
+    -fx-padding: 8 10;
+    -fx-font-weight: 800;
+}
+
+.login-field,
+.login-field.text-field,
+.login-field.password-field,
+.root-pane .text-field.login-field,
+.root-pane .password-field.login-field {
+    -fx-text-fill: #ffffff;
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.78);
+    -fx-highlight-fill: #00c8ff;
+    -fx-highlight-text-fill: #ffffff;
+    -fx-caret-color: #ffffff;
+}
+
+/* Salary home readability fixes */
+.salary-home-root .salary-home-overlay {
+    -fx-background-color:
+            linear-gradient(to bottom,
+            rgba(5, 12, 24, 0.78) 0%,
+            rgba(8, 17, 32, 0.70) 34%,
+            rgba(10, 22, 40, 0.56) 58%,
+            rgba(244, 248, 253, 0.94) 66%,
+            rgba(244, 248, 253, 0.98) 100%),
+            linear-gradient(to right,
+            rgba(5, 12, 24, 0.88) 0%,
+            rgba(8, 18, 34, 0.78) 36%,
+            rgba(10, 22, 40, 0.54) 64%,
+            rgba(10, 22, 40, 0.26) 100%);
+}
+
+.salary-home-root .app-header {
+    -fx-background-color: rgba(55, 38, 18, 0.86);
+    -fx-border-color: rgba(255, 255, 255, 0.22);
+}
+
+.salary-home-root .nav-pill {
+    -fx-background-color: rgba(8, 18, 34, 0.26);
+    -fx-border-color: rgba(255, 255, 255, 0.22);
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 8 12 8 12;
+}
+
+.salary-home-root .header-nav-btn,
+.service-root .header-nav-btn,
+.about-root .header-nav-btn,
+.contact-root .header-nav-btn {
+    -fx-background-color: #f8fbff;
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(47, 125, 242, 0.28);
+    -fx-border-radius: 12;
+    -fx-text-fill: #143f78;
+    -fx-font-weight: 800;
+    -fx-padding: 9 12 9 12;
+}
+
+.salary-home-root .header-nav-btn .text,
+.service-root .header-nav-btn .text,
+.about-root .header-nav-btn .text,
+.contact-root .header-nav-btn .text {
+    -fx-fill: #143f78;
+}
+
+.salary-home-root .header-nav-btn:hover,
+.service-root .header-nav-btn:hover,
+.about-root .header-nav-btn:hover,
+.contact-root .header-nav-btn:hover {
+    -fx-background-color: #eaf5ff;
+    -fx-border-color: rgba(18, 190, 224, 0.44);
+    -fx-text-fill: #0b315f;
+}
+
+.salary-home-root .header-nav-btn:hover .text,
+.service-root .header-nav-btn:hover .text,
+.about-root .header-nav-btn:hover .text,
+.contact-root .header-nav-btn:hover .text {
+    -fx-fill: #0b315f;
+}
+
+.salary-home-root .header-nav-active,
+.service-root .header-nav-active,
+.about-root .header-nav-active,
+.contact-root .header-nav-active {
+    -fx-background-color: linear-gradient(to right, #12bee0, #2f7df2);
+    -fx-border-color: rgba(255, 255, 255, 0.28);
+    -fx-text-fill: #ffffff;
+}
+
+.salary-home-root .header-nav-active .text,
+.service-root .header-nav-active .text,
+.about-root .header-nav-active .text,
+.contact-root .header-nav-active .text {
+    -fx-fill: #ffffff;
+}
+
+.salary-home-root .hero-panel {
+    -fx-background-color: rgba(8, 18, 34, 0.58);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(255, 255, 255, 0.18);
+    -fx-border-radius: 18;
+    -fx-padding: 34;
+}
+
+.salary-home-root .hero-title,
+.salary-home-root .hero-copy,
+.salary-home-root .mini-card-title,
+.salary-home-root .mini-card-text,
+.salary-home-root .metric-value,
+.salary-home-root .metric-label {
+    -fx-text-fill: #ffffff;
+}
+
+.salary-home-root .hero-outline-button,
+.salary-home-root .theme-toggle-btn,
+.salary-home-root .header-btn-secondary {
+    -fx-background-color: #f8fbff;
+    -fx-border-color: rgba(47, 125, 242, 0.34);
+    -fx-text-fill: #173f7a;
+}
+
+.salary-home-root .header-btn-primary {
+    -fx-background-color: linear-gradient(to right, #12bee0, #2f7df2);
+    -fx-text-fill: #ffffff;
+}
